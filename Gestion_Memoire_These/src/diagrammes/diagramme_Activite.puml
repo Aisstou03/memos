@@ -1,0 +1,23 @@
+@startuml AddMemoryActivity
+start
+:Afficher le formulaire d'ajout de mémoire;
+:Remplir les informations sur le mémoire;
+if (Informations valides ?) then (oui)
+    :Enregistrer le mémoire dans la base de données;
+    :Afficher message "Mémoire ajoutée avec succès";
+else (non)
+    :Afficher message d'erreur;
+endif
+stop
+@enduml
+
+
+@startuml NotificationActivity
+start
+:Écouter les événements de modification;
+if (Modification d'un mémoire ?) then (oui)
+    :Créer une notification;
+    :Envoyer notification à l'utilisateur;
+endif
+stop
+@enduml

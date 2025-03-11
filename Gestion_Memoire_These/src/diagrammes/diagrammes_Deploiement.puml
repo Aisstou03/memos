@@ -1,0 +1,29 @@
+@startuml
+node "Serveur d'Application" {
+    component "Application Spring Boot" {
+        [Thymeleaf Templates]
+        [Services Métier]
+        [JPA]
+    }
+}
+
+node "Base de Données" {
+    database "MySQL" {
+        [Tables des Mémoires]
+        [Tables des Utilisateurs]
+        [Tables des Notifications]
+    }
+}
+
+node "Frontend" {
+    component "Interface Utilisateur" {
+        [Thymeleaf]
+        [Fichiers CSS]
+        [Fichiers JavaScript]
+        [Bootstrap]
+    }
+}
+
+[Frontend] --> [Application Spring Boot] : "Appels HTTP"
+[Application Spring Boot] --> [MySQL] : "Requêtes JPA"
+@enduml

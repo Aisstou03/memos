@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="../img/logo1.png">
+  <link rel="icon" type="image/png" href="../img/logo1.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <title>
+    Page d'ajout de tous les memoires
+  </title>
+  <!--     Fonts and icons     -->
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
+  <!-- Nucleo Icons -->
+  <link href="../assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="../assets/css/nucleo-svg.css" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <!-- Material Icons -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <!-- CSS Files -->
+  <link id="pagestyle" href="../assets/css/material-dashboard.css?v=3.2.0" rel="stylesheet" />
+  <style>
+    .input-group {
+      display: flex;
+      align-items: center;
+  }
+
+  .input-group .form-label {
+      margin-right: 10px; /* Espace entre l'étiquette et le champ de saisie */
+  }
+  </style>
+  <style>/* Conteneur principal */
+    .container-custom {
+        display: flex;
+        align-items: flex-start; /* Place les éléments en haut */
+        justify-content: center;
+        padding-top: 100px; /* Crée un espace sous la barre de menu */
+    }
+
+    /* Section gauche contenant l'image */
+    .left-section img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Maintient une bonne proportion */
+        border-radius: 10px;
+    }
+
+    /* Section droite contenant le formulaire */
+    .right-section {
+        width: 60%; /* Augmente la largeur du formulaire */
+        max-width: 600px; /* Empêche qu'il devienne trop large */
+        padding: 30px;
+        background: rgb(230, 226, 226);
+        border-radius: 20px;
+
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Ombre douce */
+    }
+
+    /* Label flottant */
+    .input-group-outline {
+        position: relative;
+    }
+
+    .input-group-outline label {
+        position: absolute;
+        top: 50%;
+        left: 12px;
+        transform: translateY(-50%);
+        transition: all 0.2s ease-out;
+        color: #666;
+
+        padding: 0 5px;
+        pointer-events: none;
+    }
+
+    /* Effet lorsqu'on écrit */
+    .input-group-outline input:focus + label,
+    .input-group-outline input:not(:placeholder-shown) + label {
+        top: 0;
+        left: 10px;
+        font-size: 12px;
+        color: #007bff;
+    }
+
+    .card-plain {
+      position: absolute;
+      top: 0;
+      right: 5%;
+      width: 45%;
+      max-width: 600px;
+      background-color: white;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      z-index: 1000;
+      border-radius: 10px;
+      margin-top: 100px;
+  }
+
+  body {
+      overflow-x: hidden; /* Empêche le défilement horizontal */
+  }
+
+  h3 {
+      font-size: 24px;
+      color: #333;
+
+      letter-spacing: 1px;
+  }
+
+
+
+    </style>
+</head>
+
+<body class="">
+<div class="container position-sticky z-index-sticky top-0">
+  <div class="row">
+    <div class="col-12">
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg blur border-radius-lg top-0 z-index-3 shadow position-absolute mt-4 py-2 start-0 end-0 mx-4">
+        <div class="container-fluid ps-2 pe-0">
+          <a class="navbar-brand font-weight-bolder ms-lg-0 ms-3 " href="ajoutMemoire.html">
+            Ajout mémoires
+          </a>
+          <button class="navbar-toggler shadow-none ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon mt-2">
+                <span class="navbar-toggler-bar bar1"></span>
+                <span class="navbar-toggler-bar bar2"></span>
+                <span class="navbar-toggler-bar bar3"></span>
+              </span>
+          </button>
+          <div class="collapse navbar-collapse" id="navigation">
+            <ul class="navbar-nav mx-auto">
+              <li class="nav-item">
+                <a class="nav-link d-flex align-items-center me-2 active" aria-current="page" href="/memoires/liste">
+                  <i class="fa fa-chart-pie opacity-6 text-dark me-1"></i>
+                  Tableau de bord
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link me-2" href="/ajoutMemoire">
+                  <i class="fa fa-book" aria-hidden="true"></i></i>
+                  Licence
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link me-2" href="/ajoutMaster">
+                  <i class="fa fa-graduation-cap" aria-hidden="true"></i>
+                  Master
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link me-2" href="/ajoutThese">
+                  <i class="fa fa-university" aria-hidden="true"></i>
+                  Doctorats
+                </a>
+              </li>
+            </ul>
+
+          </div>
+        </div>
+      </nav>
+      <!-- End Navbar -->
+    </div>
+  </div>
+</div>
+<main class="main-content  mt-0">
+  <section>
+
+    <div class="row">
+      <div class="col-6 d-lg-flex d-none h-100 my-auto pe-0 position-absolute top-0 start-0 text-center justify-content-center flex-column">
+        <div class="position-relative bg-gradient-primary h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center" style="background-image: url('../assets/img/illustrations/BB.jpg'); background-size: cover;">
+        </div>
+      </div>
+      <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column ms-auto me-auto ms-lg-auto me-lg-5">
+        <div class="card card-plain">
+          <H3><b>Ajouter mémoire licence</b></H3>
+          <div class="card-body">
+
+            <form id="licenceForm" th:action="@{/memoires/ajouter}" method="post">
+              <input type="hidden" name="type" value="LICENCE">
+              <div class="input-group input-group-outline mb-3">
+                <label class="form-label" for="titreLICENCE"> Titre</label>
+                <input type="text" class="form-control"  id="titreLICENCE" name="titre" required>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3">
+                    <label for="etudiantNomLICENCE" class="form-label">Nom(Etudiant)</label>
+                    <input type="text" class="form-control" id="etudiantNomLICENCE" name="etudiantNom" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div for="etudiantPrenomLICENCE" class="input-group input-group-outline mb-3">
+                    <label class="form-label">Prénom </label>
+                    <input type="text" class="form-control" wid="etudiantPrenomLICENCE" name="etudiantPrenom" required >
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3">
+                    <label for="encadrantNomLICENCE" class="form-label">Nom(Encadreur)</label>
+                    <input type="text" class="form-control" id="encadrantNomLICENCE" name="encadrantNom" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div for="encadrantPrenomLICENCE" class="input-group input-group-outline mb-3">
+                    <label class="form-label">Prénom</label>
+                    <input type="text" class="form-control" id="encadrantPrenomLICENCE" name="encadrantPrenom" required>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex gap-3">
+                <div class="flex-fill">
+                  <div class="input-group input-group-outline mb-3">
+                    <label for="anneeLICENCE" class="form-label">Année</label>
+                    <input type="number" class="form-control" id="anneeLICENCE" name="annee" min="1900" max="2099" required>
+                  </div>
+                </div>
+                <div class="flex-fill">
+                  <div class="input-group input-group-outline mb-3">
+                    <label for="exemplairesLICENCE" class="form-label">Exemplaire</label>
+                    <input type="number" class="form-control" id="exemplairesLICENCE" name="exemplaires" min="1" required>
+                  </div>
+                </div>
+              </div>
+              <!-- Ajout du champ de sélection -->
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="mb-3">
+                    <label for="ufrNom" class="form-label">UFR</label>
+                    <select id="ufrNom" name="ufrNom" class="form-select" onchange="updateDepartements()" required>
+                      <option value="">-- Sélectionner un UFR --</option>
+                      <option value="UFR Sciences et Techniques (ST)">UFR Sciences et Techniques (ST)</option>
+                      <option value="UFR Lettres, Art, Sciences Humaines (LASHU)">UFR Lettres, Art, Sciences Humaines (LASHU)</option>
+                      <option value="UFR Sciences Economiques et Sociales (SES)">UFR Sciences Economiques et Sociales (SES)</option>
+                      <option value="UFR Sciences Santé (SS)">UFR Sciences Santé (SS)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="mb-3">
+                    <label for="departementNom" class="form-label">Département</label>
+                    <select id="departementNom" name="departementNom" class="form-select" onchange="updateFilieres()" required>
+                      <option value="">-- Sélectionner un département --</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="mb-3">
+                    <label for="filiereNom" class="form-label">Filière</label>
+                    <select id="filiereNom" name="filiereNom" class="form-select" required>
+                      <option value="">-- Sélectionner une filière --</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="text-center">
+                <button type="submit" class="btn btn-lg bg-gradient-dark btn-lg w-100 mt-4 mb-0">Ajouter</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+</main>
+<!--   Core JS Files   -->
+<script src="../assets/js/core/popper.min.js"></script>
+<script src="../assets/js/core/bootstrap.min.js"></script>
+<script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
+<script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
+<script>
+    var win = navigator.platform.indexOf('Win') > -1;
+    if (win && document.querySelector('#sidenav-scrollbar')) {
+      var options = {
+        damping: '0.5'
+      }
+      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+    }
+  </script>
+<!-- Github buttons -->
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+<!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
+<script src="../assets/js/material-dashboard.min.js?v=3.2.0"></script>
+
+<script>
+    function showForm(formId) {
+      const forms = ['licenceForm', 'masterForm', 'doctoratForm'];
+      forms.forEach(id => {
+        document.getElementById(id).style.display = id === formId ? 'block' : 'none';
+      });
+    }
+
+    const data = {
+      "UFR Sciences et Techniques (ST)": {
+       "Géographie": ["Aménagement du territoire", "Environnement"],
+        "Mathématiques": ["Mathématiques appliquées", "Mathématiques Pures"],
+        "Informatique": ["Génie logiciel", "Réseaux", "Intelligence Artificielle (IA)"],
+        "Chimie": ["Chimie du Solide et des Materiaux (CSM)", "Synthèse Organique des Produits Naturels (SOPN)"],
+        "Physique": ["Physique des matériaux", "Science des Atmosphères des Océans (SAO)", "Energies Renouvelables"],
+        "Agroforésterie": ["Agroforésterie"]
+      },
+       "UFR Lettres, Art, Sciences Humaines (LASHU)": {
+        "Histoire": ["Archéologie", "Géopolitique", "Histoire de la Séné-Gambie", "Egyptologie"],
+        "Lettres Modernes (LM)": ["Etudes Littéraires", "Sciences du Langage"],
+        "Langues Etrangères Appliquées (LEA)": ["Tourisme", "Développement Local", "Langues et Civilisations"]
+      },
+      "UFR Sciences Economiques et Sociales (SES)": {
+        "Management Informatique des Organisations(MIO)": ["Méthodes Informatiques Appliquées à la Gestion (MIAGE)", "Management Informatique des Organisations(MIO)", "Management des Systèmes Informatique Appliqué(MSIA)"],
+        "Sociologie": ["Sociologie"],
+        "Economie-Gestion (ECO-GES)": ["Finance et Développement", "Evaluation d'impact", "Economie", "Gestion"],
+        "Droit": ["Droit des Collectivités Locales", "Droit Humanitaire", "Droit des affaires"],
+        "Tourisme": ["Tourisme"]
+      },
+      "UFR Sciences Santé (SS)": {
+        "Santé": ["Médecine", "Pharmacie", "Sciences infirmières", "Biologie", "Obstétrique"]
+      }
+    };
+
+    function updateDepartements() {
+      const ufrSelect = document.getElementById("ufrNom");
+      const departementSelect = document.getElementById("departementNom");
+      const selectedUFR = ufrSelect.value;
+
+      departementSelect.innerHTML = '<option value="">-- Sélectionner un département --</option>';
+
+      if (data[selectedUFR]) {
+        Object.keys(data[selectedUFR]).forEach(departement => {
+          const option = document.createElement("option");
+          option.value = departement;
+          option.textContent = departement;
+          departementSelect.appendChild(option);
+        });
+      }
+
+      document.getElementById("filiereNom").innerHTML = '<option value="">-- Sélectionner une filière --</option>';
+    }
+
+    function updateFilieres() {
+      const departementSelect = document.getElementById("departementNom");
+      const filiereSelect = document.getElementById("filiereNom");
+      const selectedUFR = document.getElementById("ufrNom").value;
+      const selectedDepartement = departementSelect.value;
+
+      filiereSelect.innerHTML = '<option value="">-- Sélectionner une filière --</option>';
+
+      if (data[selectedUFR] && data[selectedUFR][selectedDepartement]) {
+        data[selectedUFR][selectedDepartement].forEach(filiere => {
+          const option = document.createElement("option");
+          option.value = filiere;
+          option.textContent = filiere;
+          filiereSelect.appendChild(option);
+        });
+      }
+    }
+  </script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".input-group-outline input").forEach(function (input) {
+      input.addEventListener("focus", function () {
+        this.parentNode.classList.add("focus");
+      });
+
+      input.addEventListener("blur", function () {
+        if (this.value !== "") {
+          this.parentNode.classList.add("filled");
+        } else {
+          this.parentNode.classList.remove("filled");
+        }
+        this.parentNode.classList.remove("focus");
+      });
+    });
+  });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll(".input-group-outline input").forEach(function (input) {
+          input.addEventListener("input", function () {
+              if (this.value.trim() !== "") {
+                  this.parentNode.classList.add("filled");
+              } else {
+                  this.parentNode.classList.remove("filled");
+              }
+          });
+      });
+  });
+  </script>
+
+
+
+
+</body>
+
+</html>

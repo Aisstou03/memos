@@ -1,0 +1,38 @@
+//Un diagramme de classes montre les relations entre les entités de votre système (les classes et leurs associations).
+
+@startuml
+class Utilisateur {
+    +id: Long
+    +nom: String
+    +prenom: String
+    +email: String
+    +password: String
+    +role: String
+    +authentifier(): boolean
+}
+
+class Memoire {
+    +cote: String
+    +titre: String
+    +etudiant : String
+    +encadreur : String
+    +filiere: String
+    +annee: Integer
+    +exempplaires
+    +ajouterMemoire()
+    +modifierMemoire()
+    +consultationMemoire()
+    +supprimerMemoire()
+}
+
+class Notification {
+    +id: Long
+    +message: String
+    +date: Date
+    +envoyerNotification()
+}
+
+Utilisateur "1" -- "0..*" Memoire : "Ajoute"
+Memoire "1" -- "0..*" Notification : "Génère"
+Utilisateur "1" -- "0..*" Notification : "Reçoit" // Lien entre utilisateur et notifications
+@enduml

@@ -1,0 +1,24 @@
+//Un diagramme de cas d'utilisation représente les interactions des utilisateurs avec les fonctionnalités du système
+
+@startuml
+actor Administrateur
+actor Utilisateur
+
+usecase AjouterMemoire as "Ajouter un mémoire"
+usecase SupprimerMemoire as "Supprimer un mémoire"
+usecase ModifierMemoire as "Modifier un mémoire"
+usecase ConsulterMemoire as "Consulter un mémoire"
+usecase CreerUtilisateur as "Créer un utilisateur"
+usecase SupprimerUtilisateur as "Supprimer un utilisateur"
+
+Utilisateur --> AjouterMemoire
+Utilisateur --> ModifierMemoire
+Utilisateur --> ConsulterMemoire
+
+Administrateur --> CreerUtilisateur
+Administrateur --> SupprimerUtilisateur
+Administrateur --> SupprimerMemoire
+Administrateur --> AjouterMemoire
+Administrateur --> ModifierMemoire
+Administrateur --> ConsulterMemoire
+@enduml

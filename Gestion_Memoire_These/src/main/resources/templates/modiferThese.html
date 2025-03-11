@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modification These </title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="../static/css/style.css" th:href="@{/css/style.css}"/>
+  <link rel="apple-touch-icon" sizes="76x76" href="../img/logo1.png">
+  <link rel="icon" type="image/png" href="../img/logo1.png">
+  <!-- Ajouter ce lien dans la section <head> de ton fichier HTML -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+  <style>
+        .row {
+            display: flex;
+            flex-wrap: nowrap; /* Empêche le retour à la ligne */
+            gap: 10px; /* Ajoute un petit espace entre les champs */
+        }
+  </style>
+</head>
+<body>
+<!-- Bouton de retour -->
+<div class="container">
+  <a href="#" class="back-button">
+    <span class="back-icon">⬅</span> Retour
+  </a>
+</div>
+
+<div class="container">
+  <h2>Modification de Thèse</h2>
+  <!-- Formulaire de recherche -->
+  <form th:action="@{/theses/modifier/recherche}" method="get">
+    <div class="search-container">
+      <input type="text" class="form-control" name="cote" placeholder="Cote" />
+      <input type="text" class="form-control" name="titre" placeholder="Titre" />
+      <input type="text" class="form-control" name="etudiant" placeholder="Etudiant" />
+      <input type="text" class="form-control" name="encadrant" placeholder="Encadrant" />
+      <input type="number" class="form-control" name="annee" placeholder="Année" />
+      <input type="text" class="form-control" name="filiere" placeholder="Filière" />
+      <button type="submit" class="search-button">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+  </form>
+  <br/>
+
+  <!-- Message d'erreur ou d'information  <div th:if="${message}" class="alert alert-info">
+    <span th:text="${message}"></span>
+  </div> -->
+
+  <div class="card p-4 shadow">
+    <!-- Liste des mémoires trouvés <div th:if="${these != null}">
+      <h3>Liste des thèses trouvés</h3>
+      <ul>
+        <li th:each="memoire : ${memoires}">
+          <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" th:text="${these.titre}"></a>
+        </li>
+      </ul>
+    </div> -->
+
+
+
+
+    <!-- Formulaire de modification du mémoire -->
+    <div th:if="${these != null}">
+      <form th:action="@{/theses/modifier/{id}(id=${these.id})}" th:object="${these}" method="post">
+        <!-- ID caché -->
+        <input type="hidden" th:field="*{id}" />
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="cote">Côte</label>
+            <input type="text" id="cote" th:field="*{cote}" class="form-control" readonly />
+          </div>
+          <div class="col-md-6">
+            <label for="titre">Titre</label>
+            <input type="text" id="titre" th:field="*{titre}" class="form-control" />
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="etudiant">Étudiant</label>
+            <input type="text" id="etudiant" class="form-control" list="etudiant-list"
+                   placeholder="Saisissez ou choisissez un étudiant"
+                   oninput="setEtudiantId(this)" />
+            <datalist id="etudiant-list">
+              <option th:each="etd : ${etudiants}"
+                      th:value="${etd.nom} + ' ' + ${etd.prenom}"
+                      th:data-id="${etd.id}" />
+            </datalist>
+            <input type="hidden" id="etudiantId" th:field="*{etudiant.id}" />
+          </div>
+
+          <div class="col-md-6">
+            <label for="encadrant">Encadrant</label>
+            <input type="text" id="encadrant" class="form-control" list="encadrant-list"
+                   placeholder="Saisissez ou choisissez un encadrant"
+                   oninput="setEncadrantId(this)" />
+            <datalist id="encadrant-list">
+              <option th:each="enc : ${encadrants}"
+                      th:value="${enc.nom} + ' ' + ${enc.prenom}"
+                      th:data-id="${enc.id}" />
+            </datalist>
+            <input type="hidden" id="encadrantId" th:field="*{encadrant.id}" />
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="annee">Année</label>
+            <input type="number" id="annee" th:field="*{annee}" class="form-control" />
+          </div>
+
+          <div class="col-m-6">
+            <label for="exemplaires">Nombre d'exemplaires</label>
+            <input type="number" id="exemplaires" th:field="*{exemplaires}" class="form-control" />
+          </div>
+        </div>
+
+        <div class="text-center">
+          <button type="submit" class="btn btn-success">Modifier</button>
+        </div>
+      </form>
+    </div>
+
+    <script>
+        function setEtudiantId(input) {
+            let options = document.getElementById("etudiant-list").options;
+            let hiddenInput = document.getElementById("etudiantId");
+            for (let option of options) {
+                if (option.value === input.value) {
+                    hiddenInput.value = option.getAttribute("data-id");
+                    return;
+                }
+            }
+            hiddenInput.value = ""; // Si l'utilisateur entre un nom incorrect
+        }
+
+        function setEncadrantId(input) {
+            let options = document.getElementById("encadrant-list").options;
+            let hiddenInput = document.getElementById("encadrantId");
+            for (let option of options) {
+                if (option.value === input.value) {
+                    hiddenInput.value = option.getAttribute("data-id");
+                    return;
+                }
+            }
+            hiddenInput.value = "";
+        }
+    </script>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

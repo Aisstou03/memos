@@ -1,0 +1,100 @@
+body { background-color: #f8f9fa; }
+.container { margin-top: 30px; }
+.back-button { display: flex; align-items: center; text-decoration: none; color: black; font-size: 18px; font-weight: bold; }
+.back-button:hover { color: #007bff; }
+.back-icon { font-size: 24px; margin-right: 8px; }
+.dropdown { position: relative; display: inline-block; }
+.dropdown-content { display: none; position: absolute; background-color: white; min-width: 120px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); border-radius: 5px; z-index: 1; }
+.dropdown-content a { display: block; padding: 8px 12px; text-decoration: none; color: black; font-size: 14px; }
+.dropdown-content a:hover { background-color: #f1f1f1; }
+.dropdown:hover .dropdown-content { display: block; }
+.action-container { position: relative; display: inline-block; }
+.action-container .dropdown-content { display: none; position: absolute; right: 0; background-color: white; min-width: 120px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); border-radius: 5px; z-index: 1; }
+.action-container:hover .dropdown-content { display: block; }
+/* Conteneur principal du formulaire */
+.search-form {
+    width: 95%;
+    display: flex;
+    justify-content: center;
+    padding: 7px;
+    margin: 23px;
+    height: 70px; /* Ajuste la hauteur pour correspondre aux selects */
+}
+
+
+/* Conteneur des champs */
+.search-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    background: #fff; /* Fond sombre */
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    height: 60px; /* Ajuste la hauteur pour correspondre aux selects */
+
+}
+
+/* Champs de recherche */
+.search-container input {
+    flex: 1;
+    min-width: 50px;
+    padding: 6px;
+    border: 1px solid #222;
+    font-size: 14px; /* Texte plus petit */
+    height: 33px; /* Ajuste la hauteur pour correspondre aux selects */
+
+    border-radius: 5px;
+    background: #fff;
+    color: #222;
+    outline: none;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Effet au survol des champs */
+.search-container input:focus {
+    border-color: #007bff; /* blue fluo */
+    background: #fff;
+}
+
+/* Bouton de recherche */
+.search-button {
+    padding: 6px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s ease-in-out;
+}
+
+/* Effet hover sur le bouton */
+.search-button:hover {
+    background-color: #0056b3;
+}
+.btn-custom {
+    border: 2px solid #343a40; /* Bordure foncée */
+    background: linear-gradient(45deg, #343a40, #5a6268); /* Dégradé gris foncé */
+    color: white; /* Texte blanc */
+    padding: 6px 20px; /* Taille ajustée */
+    font-size: 16px; /* Réduction de la taille du texte */
+    border-radius: 5px; /* Coins arrondis */
+    transition: all 0.3s ease-in-out; /* Effet de transition fluide */
+    height: 38px; /* Ajuste la hauteur pour correspondre aux selects */
+    display: flex; /* Assure un bon alignement */
+    align-items: center; /* Centre le texte verticalement */
+    justify-content: center; /* Centre le texte horizontalement */
+    margin-top: -15px; /* Remonte légèrement le bouton */
+    margin-bottom: 17px;
+
+}
+
+.btn-custom:hover {
+    background: #5a6268; /* Changement de couleur au survol */
+    border-color: #5a6268;
+    transform: scale(1.05); /* Légère augmentation au survol */
+}
+
+
+

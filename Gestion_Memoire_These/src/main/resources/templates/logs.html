@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Journal des Activités</title>
+  <!-- Lien vers Bootstrap pour un style élégant -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body {
+      background-color: #f8f9fa; /* Couleur de fond claire */
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      color: #343a40; /* Titre sombre */
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    table {
+      margin-top: 20px;
+    }
+    thead {
+      background-color: #343a40; /* En-tête sombre */
+      color: white;
+    }
+    tbody tr:nth-child(even) {
+      background-color: #f2f2f2; /* Lignes paires */
+    }
+    tbody tr:hover {
+      background-color: #d9edf7; /* Survol */
+    }
+    .container {
+      margin-top: 40px;
+      margin-bottom: 40px;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Ombre douce */
+    }
+    .btn-logout {
+      margin-top: 20px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Journal des Activités</h1>
+
+  <!-- Tableau des connexions -->
+  <h2>Historique des Connexions</h2>
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover">
+      <thead>
+      <tr>
+        <th>Nom d'utilisateur</th>
+        <th>Adresse IP</th>
+        <th>Date et Heure</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="log : ${loginHistories}">
+        <td th:text="${log.username}">Nom d'utilisateur</td>
+        <td th:text="${log.ipAddress}">Adresse IP</td>
+        <td th:text="${log.loginTime}">Date et Heure</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Tableau des actions -->
+  <h2>Historique des Actions</h2>
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover">
+      <thead>
+      <tr>
+        <th>Nom d'utilisateur</th>
+        <th>Action</th>
+        <th>Date et Heure</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="action : ${actionLogs}">
+        <td th:text="${action.username}">Nom d'utilisateur</td>
+        <td th:text="${action.action}">Action</td>
+        <td th:text="${action.actionDate}">Date et Heure</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Informations sur l'utilisateur connecté -->
+  <div class="mt-4">
+    <p>
+      Connecté en tant que <strong th:text="${nom}"></strong>
+      <strong th:text="${prenom}"></strong> |
+      Rôle(s) : <strong th:text="${roles}"></strong>
+    </p>
+    <a href="/logout" class="btn btn-danger btn-logout">Déconnexion</a>
+  </div>
+</div>
+
+<!-- Scripts Bootstrap -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

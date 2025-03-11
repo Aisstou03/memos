@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Theses </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="../static/css/style.css" th:href="@{/css/style.css}"/>
+    <link rel="apple-touch-icon" sizes="76x76" href="../img/logo1.png">
+    <link rel="icon" type="image/png" href="../img/logo1.png">
+    <!-- Ajouter ce lien dans la section <head> de ton fichier HTML -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+
+</head>
+<body>
+    <!-- Bouton de retour -->
+    <div class="container">
+        <a href="/memoires/liste" class="back-button">
+            <span class="back-icon">⬅</span> Retour
+        </a>
+    </div>
+
+    <div class="container">
+        <h2 class="text-center mb-4"><b>Liste des thèses <span th:text="${nombreMemoires}"></span></b></h2>
+        <!-- Formulaire de recherche -->
+        <form id="searchForm" class="search-form" action="/theses/recherche" method="post">
+            <div class="search-container">
+                <input type="text" id="searchCote" name="cote" placeholder="Côte (Ex. LAF13/2)">
+                <input type="text" id="searchTitre" name="titre" placeholder="Titre du mémoire">
+                <input type="text" id="searchEtudiant" name="etudiant" placeholder="Nom de l'étudiant">
+                <input type="text" id="searchEncadrant" name="encadrant" placeholder="Nom de l'encadrant">
+                <input type="number" id="searchAnnee" name="annee" placeholder="Année (Ex. 2024)">
+                <button type="submit" class="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </form>
+
+        <!-- Affichage des résultats uniquement si la recherche a été effectuée -->
+        <div th:if="${rechercheEffectuee}">
+            <h4>
+                Résultats de la recherche : <span th:text="${nombreMemoiresTrouves}"></span> mémoire(s) trouvé(s)
+            </h4>
+            <table class="table table-bordered table-hover">
+                <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Côte</th>
+                    <th>Titre</th>
+                    <th>Étudiant</th>
+                    <th>Encadrant</th>
+                    <th>Année</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="memoire, iterStat : ${memoires}">
+                    <td th:text="${iterStat.index + 1}"></td>
+                    <td th:text="${memoire.cote}"></td>
+                    <td th:text="${memoire.titre}"></td>
+                    <td th:text="${memoire.etudiant.nom} + ' ' + ${memoire.etudiant.prenom}"></td>
+                    <td th:text="${memoire.encadrant.nom} + ' ' + ${memoire.encadrant.prenom}"></td>
+                    <td th:text="${memoire.annee}"></td>
+                    <td>
+                        <div class="action-container">
+                            <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
+                            <div class="dropdown-content">
+                                <a th:href="@{/theses/modifier/{id}(id=${these.id})}" onclick="editThese(${these.id})">
+                                    Modifier
+                                </a>
+                                <a th:href="@{/theses/supprimer/{id}(id=${these.id})}" onclick="deleteRow(${these.id})">
+                                    Supprimer
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Message si aucun résultat trouvé -->
+        <div th:if="${nombreMemoiresTrouves == 0}" class="alert alert-warning">
+            <strong>Attention!</strong> Aucun mémoire trouvé pour les critères spécifiés.
+            <a href="/memoires/doctorats">liste</a>
+        </div>
+
+        <div class="card p-4 shadow">
+            <h4 class="text-center mb-4">Filtrer les Mémoires de Thèses</h4>
+            <!-- Formulaire de filtrage -->
+            <form id="licenceForm" th:action="@{/filtre/these}" method="post">
+                <!-- Champs de sélection et bouton sur la même ligne -->
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label for="ufrNom" class="form-label">UFR</label>
+                            <select id="ufrNom" name="ufrNom" class="form-select" onchange="updateDepartements()" required>
+                                <option value="">-- Sélectionner un UFR --</option>
+                                <option value="UFR Sciences et Techniques (ST)">UFR Sciences et Techniques (ST)</option>
+                                <option value="UFR Lettres, Art, Sciences Humaines (LASHU)">UFR Lettres, Art, Sciences Humaines (LASHU)</option>
+                                <option value="UFR Sciences Santé (SS)">UFR Sciences Santé (SS)</option>
+                                <option value="UFR Sciences Economiques et Sociales (SES)">UFR Sciences Economiques et Sociales (SES)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Bouton Afficher dans la même ligne -->
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="submit" class="btn btn-custom">Afficher</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Résultats de filtrage -->
+            <div th:each="entryUFR : ${thesesParUFRAndEcole}">
+                <h3 th:text="${entryUFR.key}"></h3>  <!-- Afficher le nom de l'UFR -->
+
+                <!-- Parcours des écoles doctorales sous l'UFR -->
+                <div th:each="entryEcole : ${entryUFR.value}">
+                    <h4 th:text="${entryEcole.key}"></h4> <!-- Afficher le nom de l'École Doctorale (ou "Sans école doctorale") -->
+
+                    <table class="table table-bordered mt-3">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Titre</th>
+                            <th>Étudiant</th>
+                            <th>Encadrant</th>
+                            <th>Année</th>
+                            <th>Exemplaires</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <!-- Boucle pour afficher les thèses sous chaque École Doctorale -->
+                        <tr th:each="these : ${entryEcole.value}">
+                            <td th:text="${these.id}"></td>
+                            <td th:text="${these.titre}"></td>
+                            <td th:text="${these.etudiant.nom + ' ' + these.etudiant.prenom}"></td>
+                            <td th:text="${these.encadrant != null ? these.encadrant.nom + ' ' + these.encadrant.prenom : 'Non spécifié'}"></td>
+                            <td th:text="${these.annee}"></td>
+                            <td th:text="${these.exemplaires}"></td>
+                            <td>
+                                <div class="action-container">
+                                    <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
+                                    <div class="dropdown-content">
+                                        <a th:href="@{/theses/modifier/{id}(id=${these.id})}" onclick="editThese(${these.id})">
+                                            Modifier
+                                        </a>
+                                        <a th:href="@{/theses/supprimer/{id}(id=${these.id})}" onclick="deleteRow(${these.id})">
+                                            Supprimer
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <br/>
+            <!-- Liste de toutes les mémoires de thèse -->
+            <table class="table table-bordered mt-3">
+                <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Titre</th>
+                    <th>Étudiant</th>
+                    <th>Encadrant</th>
+                    <th>Année</th>
+                    <th>Exemplaires</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="these : ${theses}">
+                    <td th:text="${these.id}"></td>
+                    <td th:text="${these.titre}"></td>
+                    <td th:text="${these.etudiant.nom + ' ' + these.etudiant.prenom}"></td>
+                    <!-- Affichage de l'encadrant -->
+                    <td th:text="${these.encadrant.nom + ' ' + these.encadrant.prenom}"></td>
+                    <td th:text="${these.annee}"></td>
+                    <td th:text="${these.exemplaires}"></td>
+                    <td>
+                        <div class="action-container">
+                            <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
+                            <div class="dropdown-content">
+                                <a th:href="@{/theses/modifier/{id}(id=${these.id})}" onclick="editThese(${these.id})">
+                                    Modifier
+                                </a>
+                                <a th:href="@{/theses/supprimer/{id}(id=${these.id})}" onclick="deleteRow(${these.id})">
+                                    Supprimer
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</html>

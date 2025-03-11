@@ -1,0 +1,349 @@
+   /* Styles personnalisés pour la sidebar et autres éléments */
+
+
+        .sidebar .nav-link {
+            font-size: 0.95rem;
+            padding: 10px 15px;
+            color: white;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: #15855d; /* Vert plus sombre */
+            color: #fff;
+        }
+
+        .sidebar .dropdown-menu {
+            background-color: #135e45; /* Vert encore plus sombre */
+            border: none;
+        }
+
+        .sidebar .dropdown-menu .dropdown-item {
+            color: white;
+        }
+
+        .sidebar .dropdown-menu .dropdown-item:hover {
+            background-color: #0e4735;
+        }
+          /* Supprimer les flèches de la liste déroulante */
+          .navbar-nav .dropdown-toggle::after {
+            display: none;
+          }
+ .navbar {
+     background-color: #1b9a76; /* Vert */
+   }
+
+   .navbar-nav .dropdown:hover .dropdown-menu {
+     display: block;
+   }
+
+   /* Style pour la liste déroulante */
+   .custom-dropdown {
+     background-color: #1b9a76; /* Vert */
+   }
+
+   .custom-dropdown .dropdown-item {
+     color: #ffffff;
+   }
+
+   .custom-dropdown .dropdown-item:hover {
+     background-color: #ffffff;
+     color: #1b9a76;
+   }
+        /* Titre de la barre latérale */
+        .bg-green-title {
+            background-color: #1b9a76;
+            color: white;
+            padding: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 0;
+        }
+      /* Style des cartes */
+      .stats-box {
+        padding: 5px;
+      }
+
+      .stats-card {
+         background-color: #fff; /* Fond blanc */
+          border: 1px solid #e0e0e0; /* Bordure légère */
+          border-radius: 10px; /* Coins arrondis */
+          width: 250px; /* Réduit la largeur */
+          height: 30px; /* Hauteur compacte */
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Ombre plus marquée */
+          transition: all 0.3s ease-in-out; /* Effet de transition au survol */
+          color: #1b9a76;
+      }
+
+      .stats-card:hover {
+        transform: scale(1.05); /* Agrandissement au survol */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Ombre plus marquée */
+        filter: brightness(1.2); /* Augmente la luminosité */
+      }
+
+      /* Header des cartes */
+      .stats-card .card-header {
+        background: white;
+        color: #1b9a76;
+        font-weight: bold;
+        font-size: 1.1rem;
+        text-align: left;
+        padding: 10px;
+        border-bottom: 2px solid #147a58;
+      }
+
+      /* Corps des cartes */
+      .stats-card .card-body {
+        text-align: left;
+        padding: 20px;
+      }
+
+      .stats-card h3 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      .stats-card p {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.8); /* Texte légèrement atténué */
+      }
+
+        .dropdown-item {
+            color: white;
+        }
+
+        .dropdown-item:hover {
+            background-color: #15855d;
+        }
+
+        .table th {
+            background:#1b9a76;
+            color: white;
+            text-align: center;
+        }
+        .table td {
+            text-align: center;
+        }
+        .table-container {
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            background: white;
+            padding: 20px;
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+        .table-hover tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+        .btn-edit {
+            background-color: #28a745;
+            color: white; /* Texte en blanc */
+            border-radius: 7px; /* Coins arrondis */
+            width: 10;
+            height: 50;
+        }
+
+.btn-edit:hover {
+  background-color: #0056b3; /* Bleu plus foncé au survol */
+}
+
+.btn-delete {
+  color: white; /* Texte en blanc */
+  border: none; /* Pas de bordure */
+  border-radius: 7px; /* Coins arrondis */
+ background-color: #28a745;
+  border-color: #28a745;
+   width: 10;
+   height: 50;
+}
+
+.btn-delete:hover {
+  background-color: #d62839; /* Rouge plus foncé au survol */
+}
+
+.header-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #fff;
+}
+.header{
+    background:#1b9a76;
+    color : white;
+    width : 1107px;
+}
+
+..d-flex .fas {
+     font-size: 18px; /* Réduit la taille des icônes */
+     color: #333; /* Couleur par défaut */
+     cursor: pointer; /* Curseur pointer pour indiquer l'interactivité */
+ }
+
+
+ /* Boutons */
+ .right-icons .btn {
+     font-size: 12px; /* Réduit la taille du texte */
+     padding: 4px 8px; /* Espacement intérieur plus petit */
+     border-radius: 4px;
+ }
+
+ /* Icônes */
+ .right-icons i {
+     font-size: 16px; /* Réduit la taille des icônes */
+     padding: 5px; /* Espacement autour des icônes */
+     border-radius: 50%; /* Apparence arrondie */
+     transition: background-color 0.3s ease;
+ }
+
+ .right-icons i:hover {
+     background-color: #f1f1f1; /* Couleur de fond au survol */
+ }
+
+ .notification-icon,
+ .user-icon {
+     padding: 8px;
+     border-radius: 50%; /* Apparence ronde */
+     transition: background-color 0.3s ease;
+     cursor: pointer;
+ }
+
+ .notification-icon:hover,
+ .user-icon:hover {
+     color: #1b9a76;
+ }
+
+ .btn {
+     font-size: 14px; /* Réduit la taille du texte dans les boutons */
+     padding: 6px 10px; /* Ajuste l'espacement intérieur */
+     border: 1px solid #ddd; /* Bordure subtile */
+     border-radius: 5px;
+     background-color: #1b9a76; /* Couleur de fond verte au survol */
+     color: white; /* Texte en blanc au survol */
+     display: flex;
+     align-items: center;
+     gap: 5px; /* Espacement entre l'icône et le texte */
+     transition: background-color 0.3s ease, color 0.3s ease;
+ }
+
+ .btn i {
+     font-size: 16px; /* Taille légèrement plus petite pour les icônes dans les boutons */
+ }
+
+ .btn:hover {
+    color: #1b9a76;
+     background-color: #f8f9fa; /* Couleur de fond légère */
+     border: 1px solid #ddd; /* Bordure subtile */
+     border-radius: 5px;
+
+ }
+
+ .me-3 {
+     margin-right: 15px; /* Espacement à droite entre les éléments */
+ }
+
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navbar-custom {
+    flex-wrap: wrap;
+    padding: 0.8rem 1rem;
+  }
+
+  .header-title {
+    flex-basis: 100%;
+    text-align: center;
+  }
+
+  .d-flex.align-items-center {
+    justify-content: center;
+  }
+}
+
+.charts-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px; /* Espacement entre les graphiques */
+    margin: 20px auto;
+    align-items: flex-start; /* Aligner les titres et les diagrammes */
+}
+
+.chart-wrapper {
+    flex: 1; /* Chaque graphique prend une largeur égale */
+    display: flex;
+    flex-direction: column; /* Empile le titre et le graphique */
+    align-items: center; /* Centre les éléments horizontalement */
+}
+
+.chart-title {
+    margin-bottom: 10px; /* Espace entre le titre et le graphique */
+    font-size: 1.2em; /* Taille de police légèrement plus grande pour le titre */
+    text-align: center; /* Centre le titre */
+    color: #333; /* Couleur subtile mais lisible */
+}
+
+canvas {
+    width: 75% !important; /* Force le canvas à prendre toute la largeur disponible dans son conteneur */
+    height: 200px !important; /* Définit une hauteur uniforme pour chaque graphique */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Bordures vertes pour les champs de recherche */
+#searchForm .form-control {
+  border: 2px solid #1b9a76; /* Bordure verte */
+  border-radius: 7px; /* Coins arrondis */
+  box-shadow: none; /* Enlever l'ombre de focus */
+}
+
+/* Appliquer une bordure verte plus sombre quand le champ est sélectionné */
+#searchForm .form-control:focus {
+  border-color: #1b9a76; /* Couleur verte plus sombre lors du focus */
+  box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); /* Légère ombre autour du champ */
+}
+
+/* Pour le bouton de recherche (optionnel) */
+#searchForm .btn-success {
+  background-color: #1b9a76;
+  border-color: #1b9a76;
+  transition: background-color 0.3s ease;
+  text-align: center;
+}
+
+#searchForm .btn-success:hover {
+  background-color: white;
+  border-color: #1b9a76;
+  color: #1b9a76;
+
+}
+
+
+/* Titre vert */
+.green-title {
+    color: #1b9a76; /* Vert spécifique */
+    font-size: 2rem; /* Taille du titre */
+    font-weight: bold; /* Grasset du texte */
+    margin-bottom: 20px; /* Espacement sous le titre */
+}
+
+/* Alignement et espacement des éléments (titre + icônes) */
+.header-title {
+    display: flex;
+    justify-content: center; /* Centre horizontalement */
+    align-items: center; /* Centre verticalement */
+    text-align: center; /* Assure que tout est centré */
+}
+
+
+/* Espacement entre les icônes et le titre */
+.ms-3 {
+    margin-left: 1rem; /* Espacement entre les icônes et le titre */
+}
+
+/* Ajouter un effet de survol sur les boutons pour améliorer l'interaction */
+.btn:hover {
+    transform: scale(1.1); /* Agrandir légèrement au survol */
+    transition: transform 0.2s ease;
+}
+

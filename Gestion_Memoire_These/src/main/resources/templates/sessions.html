@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Sessions Actives</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+  <h1 class="text-center">Sessions Utilisateurs Actives</h1>
+
+  <table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+      <th>Utilisateur</th>
+      <th>Dernière activité</th>
+      <th>Session ID</th>
+      <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="session : ${sessions}">
+      <td th:text="${session.principal.username}">Nom Utilisateur</td>
+      <td th:text="${session.lastRequest}">Dernière activité</td>
+      <td th:text="${session.sessionId}">Session ID</td>
+      <td>
+        <form th:action="@{/sessions/terminate}" method="post">
+          <input type="hidden" name="sessionId" th:value="${session.sessionId}"/>
+          <button type="submit" class="btn btn-danger btn-sm">Terminer</button>
+        </form>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

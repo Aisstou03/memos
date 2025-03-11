@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Succès - Inscription Réussie</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
+    <div class="card shadow-lg p-4" style="width: 100%; max-width: 500px;">
+        <img src="https://via.placeholder.com/150" class="card-img-top mx-auto d-block" alt="Success Icon" style="width: 100px;">
+        <div class="card-body text-center">
+            <h4 class="card-title text-success">Inscription Réussie !!!</h4>
+            <p class="card-text text-secondary">Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter pour accéder à votre espace personnel.</p>
+            <a th:href="@{/dashbord}" class="btn btn-secondary">Tableau de Bord</a>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

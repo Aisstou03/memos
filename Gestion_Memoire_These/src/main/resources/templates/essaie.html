@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="../img/logo1.png">
+  <link rel="icon" type="image/png" href="../img/logo1.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.3.0/css/flat-ui.min.css"
+        integrity="sha512-6f7HT84a/AplPkpSRSKWqbseRTG4aRrhadjZezYQ0oVk/B+nm/US5KzQkyyOyh0Mn9cyDdChRdS9qaxJRHayww=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.3.0/css/flat-ui.min.css" rel="stylesheet"/>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <title>
+    Gestion des mémoire de la BUZ
+  </title>
+  <!--     Fonts and icons     -->
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
+  <!-- Nucleo Icons -->
+  <link href="../assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="../assets/css/nucleo-svg.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../static/css/style.css" th:href="@{/css/style.css}"/>
+  <script src="../static/js/charts.js" th:src="@{/js/charts.js}"></script>
+
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <!-- Material Icons -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <!-- CSS Files -->
+  <link id="pagestyle" href="../assets/css/material-dashboard.css?v=3.2.0" rel="stylesheet" />
+</head>
+
+<body class="g-sidenav-show  bg-gray-100">
+  <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2  bg-white my-2" id="sidenav-main">
+    <div class="sidenav-header">
+      <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
+      <a class="navbar-brand px-4 py-3 m-0" href="#" target="_blank">
+        <img th:src="@{/img/logo1.png}" class="navbar-brand-img" width="35" height="39" alt="main_logo">
+        <span class="ms-1 text-sm text-dark">BU - UASZ</span>
+      </a>
+    </div>
+    <hr class="horizontal dark mt-0 mb-2">
+    <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link active bg-gradient-dark text-white" href="../pages/dashboard.html">
+            <i class="material-symbols-rounded opacity-5">dashboard</i>
+            <span class="nav-link-text ms-1">Tableau de bord</span>
+          </a>
+        </li> <br/>
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="/listeResponsables">
+          <i class="fa fa-users" aria-hidden="true"></i>
+            <span class="nav-link-text ms-1">Utilisateurs</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="/ajoutMemoire">
+            <i class="material-symbols-rounded opacity-5">receipt_long</i>
+            <span class="nav-link-text ms-1">Ajout mémoires</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="#" data-bs-toggle="modal" data-bs-target="#rechercheModal">
+            <i class="material-symbols-rounded opacity-5">download</i>
+            <span class="nav-link-text ms-1">Télécharger</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="#" id="notificationBtn">
+            <i class="material-symbols-rounded opacity-5">notifications</i>
+            <span class="nav-link-text ms-1">Notifications</span>
+            <span class="notification-count" th:text="${notifications != null && !notifications.isEmpty() ? notifications.size() : '0'}"
+                  th:style="${notifications == null || notifications.isEmpty() ? 'display: none;' : ''}">0</span>
+          </a>
+        </li><br/>
+
+        <li class="nav-item mt-3">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">Informations</h6>
+        </li>
+
+        <!-- Modifiez votre bouton de chat dans la navigation pour inclure le badge -->
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="#" id="openChatBtn">
+            <i class="material-symbols-rounded opacity-5">person</i>
+            <span class="nav-link-text ms-1">Chat</span>
+            <span class="message-badge" id="unreadCount" style="display: none;">0</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="../pages/profile.html">
+            <i class="material-symbols-rounded opacity-5">person</i>
+            <span class="nav-link-text ms-1">Profil</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="/logout">
+            <i class="material-symbols-rounded opacity-5">login</i>
+            <span class="nav-link-text ms-1">Se Déconnecter</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="sidenav-footer position-absolute w-100 bottom-0 ">
+      <div class="mx-1">
+        <a href="/profil" class="nav-link text-muted" target="_blank" th:text="|${nom} ${prenom}|"></a>
+      </div>
+    </div>
+  </aside>
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    <!-- Navbar -->
+    <nav class="navbar navbar-main navbar-expand-lg px-0 mx-3 shadow-none border-radius-xl" id="navbarBlur" data-scroll="true">
+      <div class="container-fluid py-1 px-3">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
+            <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Utilisateur</a></li>
+            <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Responsable</li>
+          </ol>
+        </nav>
+        <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
+          <div class="ms-md-auto pe-md-3 d-flex align-items-center">
+
+          </div>
+        </div>
+        <ul class="navbar-nav d-flex align-items-center  justify-content-end">
+
+          <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
+            <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
+              <div class="sidenav-toggler-inner">
+                <i class="sidenav-toggler-line"></i>
+                <i class="sidenav-toggler-line"></i>
+                <i class="sidenav-toggler-line"></i>
+              </div>
+            </a>
+          </li>
+          <li class="nav-item px-3 d-flex align-items-center">
+            <a href="javascript:;" class="nav-link text-body p-0">
+              <i class="material-symbols-rounded fixed-plugin-button-nav">settings</i>
+            </a>
+          </li>
+          <li class="nav-item dropdown pe-3 d-flex align-items-center">
+            <a href="javascript:;" class="nav-link text-body p-0" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="material-symbols-rounded">notifications</i>
+            </a>
+          </li>
+        </ul>
+      </div>
+      </div>
+    </nav>
+
+    <div class="modal fade" id="rechercheModal" tabindex="-1" aria-labelledby="rechercheModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="rechercheModalLabel">Recherche Mémoire</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+          </div>
+          <div class="modal-body">
+            <form action="/rechercheParAnnee" method="get">
+              <div class="mb-3">
+                <label for="annee" class="form-label">Année</label>
+                <input type="number" class="form-control" name="annee" id="annee" required>
+              </div>
+              <div class="mb-3">
+                <label for="type" class="form-label">Type</label>
+                <select class="form-select" name="type" id="type">
+                  <option value="LICENCE">Licence</option>
+                  <option value="MASTER">Master</option>
+                  <option value="DOCTORANT">Doctorant</option>
+                </select>
+              </div>
+              <!-- Nouveaux champs optionnels -->
+              <div class="mb-3">
+                <label for="ufr" class="form-label">UFR (optionnel)</label>
+                <input type="text" class="form-control" name="ufr" id="ufr">
+              </div>
+              <div class="mb-3">
+                <label for="departement" class="form-label">Département (optionnel)</label>
+                <input type="text" class="form-control" name="departement" id="departement">
+              </div>
+              <button type="submit" class="btn btn-primary w-100">
+                Rechercher
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End Navbar -->
+    <div class="container-fluid py-2">
+      <div class="row">
+        <div class="ms-3">
+          <h3 class="mb-0 h4 font-weight-bolder">Tableau de bord</h3>
+          <style>
+
+            /* Animation d'écriture */
+            @keyframes typing {
+              from {
+                width: 0;
+              }
+              to {
+                width: 100%;
+              }
+            }
+
+            /* Conteneur principal */
+            .conteneur-defilement {
+              width: 100%;
+              text-align: center;
+              overflow: hidden;
+              padding: 10px 0;
+              background-color: #f8f9fa; /* Couleur de fond légère */
+            }
+
+            /* Texte avec effet d'écriture */
+            .texte-defilant {
+              display: inline-block;
+              border-right: 3px solid #333; /* Curseur */
+              font-size: 18px;
+              font-weight: bold;
+              color: #333;
+              white-space: nowrap; /* Empêche le retour à la ligne */
+              overflow: hidden; /* Cache le texte non écrit */
+              width: 0; /* Point de départ */
+              animation: typing 9s steps(100, end) forwards, blink 0.8s step-start infinite;
+            }
+          </style>
+
+          <!-- Bloc Thymeleaf avec texte défilant -->
+          <div class="conteneur-defilement">
+            <p class="texte-defilant">
+              Bienvenue dans votre page de gestion des mémoires et thèses de l'Université Assane SECK de Ziguinchor.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Message de succès -->
+        <div th:if="${message}" id="success-alert" class="custom-alert alert-success">
+          <strong>Succès!</strong> <span th:text="${message}"></span>
+          <button onclick="closeAlert('success-alert')" class="btn btn-sm btn-primary">OK</button>
+        </div>
+
+        <!-- Message d'erreur -->
+        <div th:if="${error}" id="error-alert" class="custom-alert alert-danger">
+          <strong>Erreur!</strong> <span th:text="${error}"></span>
+          <button onclick="closeAlert('error-alert')" class="btn btn-sm btn-primary">OK</button>
+        </div>
+
+        <script>
+          function closeAlert(alertId) {
+              document.getElementById(alertId).style.display = "none";
+          }
+      </script>
+
+        <style>
+    .custom-alert {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 15px;
+        border-radius: 8px;
+        color: white;
+        backdrop-filter: blur(10px);
+        background: rgba(0, 0, 0, 0.4);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        text-align: center;
+        min-width: 300px;
+    }
+
+    .alert-success {
+        border: none;
+    }
+
+    .alert-danger {
+        border: 2px solid #dc3545;
+    }
+
+    .custom-alert button {
+        margin-left: 10px;
+    }
+</style>
+
+        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+          <div class="card">
+            <div class="card-header p-2 ps-3">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <p class="text-sm mb-0 text-capitalize">Licences</p>
+                  <h4 class="mb-0" th:text="${licenceCount}"></h4>
+                </div>
+                <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                  <i class="fa fa-book" aria-hidden="true"></i>
+                </div>
+              </div>
+            </div>
+            <hr class="dark horizontal my-0">
+            <div class="card-footer p-2 ps-3">
+              <style>
+                  .btn-rechercher {
+                      background-color: rgb(34, 34, 37);
+                      color: white;
+                      padding: 6px 8px;
+                      border: none;
+                      cursor: pointer;
+                      border-radius: 18px;
+                      transition: background-color 0.3s ease;
+                  }
+
+                  .btn-rechercher:hover {
+                      background-color: rgb(54, 54, 57);
+                  }
+              </style>
+              <a href="/licence" class="btn-rechercher">Voir plus</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+          <div class="card">
+            <div class="card-header p-2 ps-3">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <p class="text-sm mb-0 text-capitalize">Masters</p>
+                  <h4 class="mb-0" th:text="${masterCount}"></h4>
+                  <!-- NOMBRE DE MASTER-->
+                </div>
+                <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                  <i class="fa fa-graduation-cap" aria-hidden="true"></i>
+                </div>
+              </div>
+            </div>
+            <hr class="dark horizontal my-0">
+            <div class="card-footer p-2 ps-3">
+               <style>
+                  .btn-rechercher {
+                      background-color: rgb(34, 34, 37);
+                      color: white;
+                      padding: 6px 8px;
+                      border: none;
+                      cursor: pointer;
+                      border-radius: 18px;
+                      transition: background-color 0.3s ease;
+                  }
+
+                  .btn-rechercher:hover {
+                      background-color: rgb(54, 54, 57);
+                  }
+              </style>
+              <a href="/master" class="btn-rechercher">Voir plus</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+          <div class="card">
+            <div class="card-header p-2 ps-3">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <p class="text-sm mb-0 text-capitalize">Doctorats</p>
+                  <h4 class="mb-0" th:text="${doctoratCount}"></h4>
+                  <!--Affichage nombre totale DOCTORAT -->
+                </div>
+                <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                  <i class="fa fa-university" aria-hidden="true"></i>
+                </div>
+              </div>
+            </div>
+            <hr class="dark horizontal my-0">
+            <div class="card-footer p-2 ps-3">
+               <style>
+                  .btn-rechercher {
+                      background-color: rgb(34, 34, 37);
+                      color: white;
+                      padding: 6px 8px;
+                      border: none;
+                      cursor: pointer;
+                      border-radius: 18px;
+                      transition: background-color 0.3s ease;
+                  }
+
+                  .btn-rechercher:hover {
+                      background-color: rgb(54, 54, 57);
+                  }
+              </style>
+
+              <form th:action="@{/ }" method="get">
+                <a href="/memoires/doctorats" class="btn-rechercher">Voir plus</a>
+              </form>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="col-xl-3 col-sm-6">
+          <div class="card">
+            <div class="card-header p-2 ps-3">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <p class="text-sm mb-0 text-capitalize"><b> <h4>Explorez</h4> </b></p>
+                </div>
+                <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                  <i class="fa fa-search" aria-hidden="true"></i>
+                </div>
+              </div>
+            </div>
+            <hr class="dark horizontal my-0">
+            <div class="card-footer p-2 ps-3">
+              <style>
+                  .btn-rechercher {
+                      background-color: rgb(34, 34, 37);
+                      color: white;
+                      padding: 6px 12px;
+                      border: none;
+                      cursor: pointer;
+                      border-radius: 18px;
+                      transition: background-color 0.3s ease;
+                  }
+
+                  .btn-rechercher:hover {
+                      background-color: rgb(83, 83, 86);
+                  }
+              </style>
+
+              <form th:action="@{/rechercher}" method="get">
+                <button type="submit" class="btn-rechercher">
+                  Rechercher
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div th:if="${successMessage}" id="success-alert" class="custom-alert alert-success">
+        <strong>Succès!</strong> <span th:text="${successMessage}"></span>
+        <button onclick="closeAlert('success-alert')" class="btn btn-sm btn-primary">OK</button>
+      </div>
+
+      <div th:if="${errorMessage}" id="error-alert" class="custom-alert alert-danger">
+        <strong>Erreur!</strong> <span th:text="${errorMessage}"></span>
+        <button onclick="closeAlert('error-alert')" class="btn btn-sm btn-primary">OK</button>
+      </div>
+
+      <script>
+          function closeAlert(alertId) {
+              document.getElementById(alertId).style.display = "none";
+          }
+      </script>
+
+      <style>
+    .custom-alert {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 15px;
+        border-radius: 8px;
+        color: white;
+        backdrop-filter: blur(10px); /* Effet de flou pour un fond transparent */
+        background: rgba(0, 0, 0, 0.4); /* Fond semi-transparent */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        text-align: center;
+        width: auto;
+        min-width: 300px;
+    }
+
+    .alert-danger {
+        border: 2px solid #dc3545;
+    }
+
+    .custom-alert button, .custom-alert a {
+        margin-left: 10px;
+    }
+</style>
+      <!--LICENCE-->
+      <div class="row">
+        <!-- Licence -->
+        <div class="col-lg-4 col-md-6 mt-4 mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="mb-0"> Licence</h6>
+              <div class="pe-2">
+                <div class="chart">
+                  <canvas id="chart-licence" class="chart-canvas" height="170"></canvas>
+                </div>
+              </div>
+              <hr class="dark horizontal">
+              <div class="d-flex">
+                <i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
+                <p class="mb-0 text-sm">Mis à jour récemment</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Master -->
+        <div class="col-lg-4 col-md-6 mt-4 mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="mb-0"> Master</h6>
+              <div class="pe-2">
+                <div class="chart">
+                  <canvas id="chart-master" class="chart-canvas" height="170"></canvas>
+                </div>
+              </div>
+              <hr class="dark horizontal">
+              <div class="d-flex">
+                <i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
+                <p class="mb-0 text-sm">Mis à jour récemment</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Doctorat -->
+        <div class="col-lg-4 mt-4 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="mb-0"> Doctorat</h6>
+              <div class="pe-2">
+                <div class="chart">
+                  <canvas id="chart-doctorat" class="chart-canvas" height="170"></canvas>
+                </div>
+              </div>
+              <hr class="dark horizontal">
+              <div class="d-flex">
+                <i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
+                <p class="mb-0 text-sm">Mis à jour récemment</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <script th:inline="javascript">
+          /*<![CDATA[*/
+          var annees = /*[[${annees}]]*/ [];
+          var licencesCounts = /*[[${licencesCounts}]]*/ [];
+          var mastersCounts = /*[[${mastersCounts}]]*/ [];
+          var thesesCounts = /*[[${thesesCounts}]]*/ [];
+          /*]]>*/
+        </script>
+
+      </div>
+
+
+      <footer class="footer py-4  ">
+        <div class="container-fluid">
+          <div class="row align-items-center justify-content-lg-between">
+            <div class="col-lg-6 mb-lg-0 mb-4">
+              <div class="copyright text-center text-sm text-muted text-lg-start">
+                © <script>
+                    document.write(new Date().getFullYear())
+                  </script>
+                <a href="#" class="font-weight-bold" target="_blank">Université Assane Seck de Ziguinchor</a>
+                Tous droits réserver.
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <ul class="nav nav-footer justify-content-center justify-content-lg-end">
+                <li class="nav-item">
+                  <a href="https://uasz.sn" class="nav-link text-muted" target="_blank">UASZ</a>
+                </li>
+                <li class="nav-item">
+                  <a href="https://www.bibliotheque.uasz.sn" class="nav-link text-muted" target="_blank">BU</a>
+                </li>
+                <li class="nav-item">
+                  <a href="https://rivieredusud.uasz.sn" class="nav-link text-muted" target="_blank">Riviére du Sud</a>
+                </li>
+                <li class="nav-item">
+                  <a href="#" class="nav-link text-muted" target="_blank">A propos</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </main>
+  <div class="fixed-plugin">
+    <div class="card shadow-lg">
+      <div class="card-header pb-0 pt-3">
+        <div class="float-start">
+          <h5 class="mt-3 mb-0">Configuration du Théme</h5>
+          <p>Les Options du tableau de bord.</p>
+        </div>
+        <div class="float-end mt-4">
+          <button class="btn btn-link text-dark p-0 fixed-plugin-close-button">
+            <i class="material-symbols-rounded">clear</i>
+          </button>
+        </div>
+        <!-- End Toggle Button -->
+      </div>
+      <hr class="horizontal dark my-1">
+      <div class="card-body pt-sm-3 pt-0">
+        <!-- Sidebar Backgrounds -->
+        <div>
+          <h6 class="mb-0">Couleur du Navbar</h6>
+        </div>
+        <a href="javascript:void(0)" class="switch-trigger background-color">
+          <div class="badge-colors my-2 text-start">
+            <span class="badge filter bg-gradient-primary" data-color="primary" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-dark active" data-color="dark" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-info" data-color="info" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-success" data-color="success" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-warning" data-color="warning" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-danger" data-color="danger" onclick="sidebarColor(this)"></span>
+          </div>
+        </a>
+        <!-- Sidenav Type -->
+        <div class="mt-3">
+          <h6 class="mb-0">Théme du Tableau de bord</h6>
+          <p class="text-sm">Choississez le type de couleur.</p>
+        </div>
+        <div class="d-flex">
+          <button class="btn bg-gradient-dark px-3 mb-2" data-class="bg-gradient-dark" onclick="sidebarType(this)">Sombre</button>
+          <button class="btn bg-gradient-dark px-3 mb-2 ms-2" data-class="bg-transparent" onclick="sidebarType(this)">Transparent</button>
+          <button class="btn bg-gradient-dark px-3 mb-2  active ms-2" data-class="bg-white" onclick="sidebarType(this)">Blanc</button>
+        </div>
+        <p class="text-sm d-xl-none d-block mt-2">You can change the sidenav type just on desktop view.</p>
+        <!-- Navbar Fixed -->
+        <div class="mt-3 d-flex">
+          <h6 class="mb-0">Fixer la Navbar</h6>
+          <div class="form-check form-switch ps-0 ms-auto my-auto">
+            <input class="form-check-input mt-1 ms-auto" type="checkbox" id="navbarFixed" onclick="navbarFixed(this)">
+          </div>
+        </div>
+        <hr class="horizontal dark my-3">
+        <div class="mt-2 d-flex">
+          <h6 class="mb-0">Blanc / Sombre</h6>
+          <div class="form-check form-switch ps-0 ms-auto my-auto">
+            <input class="form-check-input mt-1 ms-auto" type="checkbox" id="dark-version" onclick="darkMode(this)">
+          </div>
+        </div>
+        <div class="w-100 text-center">
+
+          <h6 class="mt-3">UASZ @ 2025</h6>
+
+        </div>
+      </div>
+    </div>
+  </div>
+<!--   Core JS Files   -->
+  <script src="../assets/js/core/popper.min.js"></script>
+  <script src="../assets/js/core/bootstrap.min.js"></script>
+  <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
+  <script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
+  <script src="../assets/js/plugins/chartjs.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Github buttons -->
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
+  <script src="../assets/js/material-dashboard.min.js?v=3.2.0"></script>
+
+
+
+  <!-- Popup de notifications -->
+  <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="notificationModalLabel">📬 Notifications</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul class="list-group notification-list">
+            <li th:each="notification : ${notifications}"
+                class="list-group-item notification-item d-flex justify-content-between align-items-center"
+                th:classappend="${notification.lue} ? '' : 'list-group-item-success'">
+              <div class="notification-message">
+                <span th:text="${notification.message}">Message de notification</span>
+              </div>
+              <div class="d-flex">
+                <button class="btn btn-sm btn-success me-1 mark-read-btn"
+                        th:attr="data-id=${notification.id}"
+                        th:if="${!notification.lue}">Lue</button>
+                <button class="btn btn-sm btn-danger delete-btn"
+                        th:attr="data-id=${notification.id}">Supprimer</button>
+              </div>
+            </li>
+            <li th:if="${notifications.isEmpty()}" class="list-group-item text-center">
+              Aucune notification
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript pour les notifications -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Ouvrir le modal de notification
+      document.getElementById('notificationBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        var notificationModal = new bootstrap.Modal(document.getElementById('notificationModal'));
+        notificationModal.show();
+      });
+
+      // Gérer le marquage comme lu
+      document.querySelectorAll('.mark-read-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          const item = this.closest('.notification-item');
+
+          // Requête AJAX pour marquer comme lu
+          fetch(`/notifications/api/lire/${id}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(response => {
+            if (response.ok) {
+              // Mettre à jour l'interface
+              item.classList.remove('list-group-item-success');
+              this.remove();
+
+              // Mettre à jour le compteur
+              updateNotificationCount(-1);
+            }
+          });
+        });
+      });
+
+      // Gérer la suppression
+      document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          const item = this.closest('.notification-item');
+
+          // Requête AJAX pour supprimer
+          fetch(`/notifications/api/supprimer/${id}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(response => {
+            if (response.ok) {
+              // Supprimer de l'interface
+              item.remove();
+
+              // Vérifier s'il reste des notifications
+              const remainingItems = document.querySelectorAll('.notification-item').length;
+              if (remainingItems === 0) {
+                const emptyMessage = document.createElement('li');
+                emptyMessage.className = 'list-group-item text-center';
+                emptyMessage.textContent = 'Aucune notification';
+                document.querySelector('.notification-list').appendChild(emptyMessage);
+              }
+
+              // Mettre à jour le compteur
+              updateNotificationCount(-1);
+            }
+          });
+        });
+      });
+
+      // Fonction pour mettre à jour le compteur
+      function updateNotificationCount(change) {
+        const countElement = document.querySelector('.notification-count');
+        let count = parseInt(countElement.textContent);
+        count += change;
+
+        if (count <= 0) {
+          countElement.style.display = 'none';
+          countElement.textContent = '0';
+        } else {
+          countElement.style.display = '';
+          countElement.textContent = count;
+        }
+      }
+    });
+  </script>
+
+  <!-- CSS pour les notifications -->
+  <style>
+    .notification-count {
+      position: absolute;
+      top: 0;
+      right: 5px;
+      background-color: #dc3545;
+      color: white;
+      border-radius: 50%;
+      font-size: 12px;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .nav-item {
+      position: relative;
+    }
+
+    .notification-item {
+      transition: all 0.3s ease;
+    }
+  </style>
+
+
+
+
+
+
+  <!-- Ajoutez ceci dans votre <head> existant -->
+  <style>
+      /* Style pour le popup de chat */
+      .chat-popup {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 350px;
+        height: 500px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        display: none;
+        flex-direction: column;
+        z-index: 1000;
+        overflow: hidden;
+      }
+
+      .chat-popup.active {
+        display: flex;
+      }
+
+      .chat-popup-header {
+        background-color: #3498db;
+        color: #fff;
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .chat-popup-header h3 {
+        margin: 0;
+      }
+
+      .close-chat {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+      }
+
+      .chat-popup-messages {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+        background-color: #ecf0f1;
+      }
+
+      .chat-popup-form {
+        display: flex;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-top: 1px solid #ddd;
+      }
+
+      .chat-popup-form input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-right: 10px;
+      }
+
+      .chat-popup-form button {
+        padding: 10px 20px;
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      /* Style pour l'indicateur de messages non lus */
+      .message-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background-color: #e74c3c;
+        color: white;
+        border-radius: 50%;
+        padding: 3px 6px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .nav-link {
+        position: relative;
+      }
+
+      /* Styles des messages */
+      .popup-message {
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 80%;
+        position: relative;
+      }
+
+      .popup-message.sent {
+        background-color: #3498db;
+        color: #fff;
+        margin-left: auto;
+      }
+
+      .popup-message.received {
+        background-color: #fff;
+        color: #333;
+        margin-right: auto;
+        border: 1px solid #ddd;
+      }
+
+      .popup-message-actions {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        display: none;
+      }
+
+      .popup-message:hover .popup-message-actions {
+        display: block;
+      }
+
+      .popup-message-actions button {
+        background: none;
+        border: none;
+        color: inherit;
+        cursor: pointer;
+        font-size: 12px;
+        margin-left: 3px;
+      }
+
+      .popup-message-date {
+        font-size: 0.8em;
+        color: #777;
+        margin-top: 5px;
+      }
+    </style>
+
+  <!-- Ajoutez ceci à la fin de votre body -->
+  <div class="chat-popup" id="chatPopup">
+    <div class="chat-popup-header">
+      <h3>Chat Général</h3>
+      <button class="close-chat" id="closeChat">&times;</button>
+    </div>
+    <div class="chat-popup-messages" id="popupMessages"></div>
+    <form class="chat-popup-form" id="popupChatForm">
+      <input type="text" id="popupMessageInput" placeholder="Écrire un message..." required>
+      <button type="submit">Envoyer</button>
+    </form>
+  </div>
+
+
+  <!-- Ajoutez ceci à la fin de votre body, juste avant la fermeture </body> -->
+  <script>
+      // Variables globales
+      const currentUser = "[[${currentUser}]]"; // Utilisateur connecté
+      let lastSeenMessageId = 0;
+      let isPopupOpen = false;
+
+      // Éléments DOM
+      const chatPopup = document.getElementById('chatPopup');
+      const popupMessages = document.getElementById('popupMessages');
+      const openChatBtn = document.getElementById('openChatBtn');
+      const closeChat = document.getElementById('closeChat');
+      const popupChatForm = document.getElementById('popupChatForm');
+      const unreadCount = document.getElementById('unreadCount');
+
+      // Ouvrir le popup de chat
+      openChatBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        chatPopup.classList.add('active');
+        isPopupOpen = true;
+        loadPopupMessages();
+
+        // Réinitialiser le compteur
+        unreadCount.textContent = '0';
+        unreadCount.style.display = 'none';
+      });
+
+      // Fermer le popup de chat
+      closeChat.addEventListener('click', function() {
+        chatPopup.classList.remove('active');
+        isPopupOpen = false;
+      });
+
+      // Envoyer un message depuis le popup
+      popupChatForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const messageInput = document.getElementById('popupMessageInput');
+        const contenu = messageInput.value;
+
+        if (!contenu.trim()) return;
+
+        // Envoyer le message au backend
+        const response = await fetch('/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `contenu=${encodeURIComponent(contenu)}`,
+        });
+
+        if (response.ok) {
+          messageInput.value = ''; // Vider le champ de saisie
+          loadPopupMessages(); // Recharger les messages
+        }
+      });
+
+      // Charger les messages dans le popup
+      async function loadPopupMessages() {
+        const response = await fetch('/api/messages');
+        const messages = await response.json();
+
+        if (messages.length > 0) {
+          // Mettre à jour le dernier message vu
+          lastSeenMessageId = messages[messages.length - 1].id;
+        }
+
+        popupMessages.innerHTML = ''; // Vider les messages actuels
+
+        messages.forEach(message => {
+          const messageElement = document.createElement('div');
+          messageElement.className = message.auteur.username === currentUser ? 'popup-message sent' : 'popup-message received';
+          messageElement.setAttribute('data-id', message.id);
+
+          messageElement.innerHTML = `
+            <div class="popup-message-actions" ${message.auteur.username === currentUser ? '' : 'style="display: none;"'}>
+              <button onclick="editPopupMessage('${message.id}')"><i class="fas fa-edit"></i></button>
+              <button onclick="deletePopupMessage('${message.id}')"><i class="fas fa-trash"></i></button>
+            </div>
+            <strong>${message.auteur.prenom}  ${message.auteur.nom}</strong>
+            <p>${message.contenu}</p>
+            <span class="popup-message-date">${new Date(message.dateEnvoi).toLocaleString()}</span>
+          `;
+
+          popupMessages.appendChild(messageElement);
+        });
+
+        // Faire défiler vers le dernier message
+        popupMessages.scrollTop = popupMessages.scrollHeight;
+      }
+
+      // Vérifier les nouveaux messages
+      async function checkNewMessages() {
+        const response = await fetch('/api/messages');
+        const messages = await response.json();
+
+        if (messages.length === 0) return;
+
+        const lastMessageId = messages[messages.length - 1].id;
+
+        // Si de nouveaux messages sont disponibles et que le popup est fermé
+        if (lastMessageId > lastSeenMessageId && !isPopupOpen) {
+          // Compter les messages non lus
+          const unreadMessages = messages.filter(msg => msg.id > lastSeenMessageId);
+
+          if (unreadMessages.length > 0) {
+            unreadCount.textContent = unreadMessages.length;
+            unreadCount.style.display = 'block';
+          }
+        }
+
+        // Si le popup est ouvert, mettre à jour les messages
+        if (isPopupOpen) {
+          loadPopupMessages();
+        }
+      }
+
+      // Supprimer un message
+      async function deletePopupMessage(messageId) {
+        if (confirm("Êtes-vous sûr de vouloir supprimer ce message ?")) {
+          const response = await fetch(`/messages/${messageId}`, { method: 'DELETE' });
+          if (response.ok) {
+            loadPopupMessages();
+          }
+        }
+      }
+
+      // Modifier un message
+      async function editPopupMessage(messageId) {
+        const messageElement = document.querySelector(`.popup-message[data-id="${messageId}"]`);
+        const messageContent = messageElement.querySelector('p').textContent;
+        const newContent = prompt("Modifier le message :", messageContent);
+
+        if (newContent && newContent !== messageContent) {
+          const response = await fetch(`/messages/${messageId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `contenu=${encodeURIComponent(newContent)}`,
+          });
+
+          if (response.ok) {
+            loadPopupMessages();
+          }
+        }
+      }
+
+      // Vérifier les nouveaux messages toutes les 5 secondes
+      setInterval(checkNewMessages, 5000);
+
+      // Vérifier les nouveaux messages au chargement de la page
+      document.addEventListener('DOMContentLoaded', function() {
+        checkNewMessages();
+      });
+    </script>
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="apple-touch-icon" sizes="76x76" href="../img/logo1.png">
+    <link rel="icon" type="image/png" href="../img/logo1.png">
+    <title>
+        Mon Profil
+    </title>
+    <!-- Fonts and icons -->
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
+    <!-- Nucleo Icons -->
+    <link href="../assets/css/nucleo-icons.css" rel="stylesheet" />
+    <link href="../assets/css/nucleo-svg.css" rel="stylesheet" />
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <!-- Material Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <!-- CSS Files -->
+    <link id="pagestyle" href="../assets/css/material-dashboard.css?v=3.2.0" rel="stylesheet" />
+    <!-- Custom CSS -->
+    <style>
+    .profile-section {
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .profile-section h3 {
+      color: #555;
+      margin-bottom: 15px;
+    }
+
+    .profile-section label {
+      display: block;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .profile-section input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .profile-section button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 15px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .profile-section button:hover {
+      background: #218838;
+    }
+
+    .error {
+      color: red;
+      font-weight: bold;
+    }
+
+    .success {
+      color: green;
+      font-weight: bold;
+    }
+
+    .message-section {
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+    }
+
+    .message-section h3 {
+      color: #555;
+      margin-bottom: 15px;
+    }
+  </style>
+    <style>
+    :root {
+      --primary-color: #344767;
+      --accent-color: #4CAF50;
+      --light-gray: #f8f9fa;
+      --medium-gray: #e9ecef;
+      --text-color: #344767;
+      --error-color: #dc3545;
+      --success-color: #198754;
+      --border-radius: 0.5rem;
+      --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --transition: all 0.3s ease;
+    }
+
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--light-gray);
+      color: var(--text-color);
+    }
+
+
+    .profile-section {
+      padding: 1.75rem;
+      background: #fff;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      margin-bottom: 1.5rem;
+      transition: var(--transition);
+      border: 1px solid var(--medium-gray);
+    }
+
+    .profile-section:hover {
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-section h3 {
+      color: var(--primary-color);
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      font-size: 1.25rem;
+      border-bottom: 2px solid var(--medium-gray);
+      padding-bottom: 0.75rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .profile-section label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--primary-color);
+      font-size: 0.875rem;
+    }
+
+    .profile-section input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--medium-gray);
+      border-radius: 0.375rem;
+      transition: var(--transition);
+      font-size: 0.875rem;
+      background-color: var(--light-gray);
+    }
+
+    .profile-section input:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);
+      outline: none;
+    }
+
+    .profile-section button {
+      width: 100%;
+      padding: 0.75rem;
+      margin-top: 1rem;
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: var(--transition);
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .profile-section button:hover {
+      background: #3d8b40;
+      box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+    }
+
+    .error {
+      color: var(--error-color);
+      font-weight: 500;
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      border-radius: 0.375rem;
+      background-color: rgba(220, 53, 69, 0.1);
+      border-left: 3px solid var(--error-color);
+    }
+
+    .success {
+      color: var(--success-color);
+      font-weight: 500;
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      border-radius: 0.375rem;
+      background-color: rgba(25, 135, 84, 0.1);
+      border-left: 3px solid var(--success-color);
+    }
+
+    .message-section {
+      padding: 1.75rem;
+      background: #fff;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      margin-bottom: 1.5rem;
+      height: 100%;
+    }
+
+    .avatar-wrapper {
+      padding: 4px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: var(--box-shadow);
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+
+    .online {
+      background-color: var(--success-color);
+    }
+
+    .offline {
+      background-color: var(--error-color);
+    }
+
+    .input-with-icon {
+      position: relative;
+    }
+
+    .input-with-icon i {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--primary-color);
+      opacity: 0.5;
+    }
+
+    .card-profile {
+      margin-top: -6rem;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .form-actions button {
+      width: auto;
+      padding: 0.75rem 1.5rem;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--error-color);
+      color: white;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+
+    .page-header {
+      background-position: center;
+      background-size: cover;
+      position: relative;
+    }
+
+    /* Password strength indicator */
+    .password-strength {
+      height: 5px;
+      margin-top: 5px;
+      border-radius: 2px;
+      background-color: var(--medium-gray);
+    }
+
+    .password-strength-bar {
+      height: 100%;
+      border-radius: 2px;
+      transition: var(--transition);
+    }
+
+    .strength-weak {
+      width: 33%;
+      background-color: var(--error-color);
+    }
+
+    .strength-medium {
+      width: 66%;
+      background-color: #ffc107;
+    }
+
+    .strength-strong {
+      width: 100%;
+      background-color: var(--success-color);
+    }
+
+    /* Message design */
+    .message-item {
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: var(--border-radius);
+      background-color: var(--light-gray);
+      border-left: 3px solid var(--accent-color);
+    }
+
+    .message-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .message-sender {
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .message-date {
+      font-size: 0.75rem;
+      color: #6c757d;
+    }
+
+    .message-content {
+      font-size: 0.875rem;
+    }
+
+    .notification-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background-color: var(--accent-color);
+      border-radius: 50%;
+      margin-left: 5px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Responsive improvements */
+    @media (max-width: 992px) {
+      .card-profile {
+        margin-top: -3rem;
+      }
+    }
+  </style>
+
+</head>
+<style>
+.page-header {
+    background: linear-gradient(45deg, #007bff, #00c6ff, #4CAF50, #ffc107);
+    background-size: 95% 95%;
+    animation: gradientBG 5s infinite alternate;
+    color: white;
+    text-align: center;
+    padding: 4rem 0;
+    font-size: 3rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+}
+
+</style>
+
+<body class="g-sidenav-show bg-gray-100">
+<!-- Sidebar -->
+<aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-xl fixed-start ms-2 bg-white my-2" id="sidenav-main">
+    <div class="sidenav-header">
+        <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
+        <a class="navbar-brand px-4 py-3 m-0" href="#" target="_blank">
+            <img src="../img/logo1.png" class="navbar-brand-img" width="26" height="26" alt="logo">
+            <span class="ms-1 text-sm font-weight-bold text-dark">Mon Profile</span>
+        </a>
+    </div>
+    <hr class="horizontal dark mt-0 mb-2">
+    <div class="collapse navbar-collapse w-auto max-height-vh-100 h-100" id="sidenav-collapse-main">
+        <ul class="navbar-nav">
+
+            <li class="nav-item">
+                <a class="nav-link active bg-gradient-primary text-white" href="javascript:void(0);" onclick="window.history.back();">
+                    <span class="nav-link-text ms-1">Retour</span>
+                </a>
+            </li>
+
+
+            <li class="nav-item mt-3">
+                <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-8">Compte</h6>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" href="profil">
+                    <div class="text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="material-symbols-rounded opacity-10">person</i>
+                    </div>
+                    <span class="nav-link-text ms-1">Profil</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link text-dark" href="#section-info">
+                    <div class="text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="material-symbols-rounded me-2">account_circle</i>
+                    </div>
+                    <span class="nav-link-text ms-1">Informations Personnelles</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link text-dark" href="#section-password">
+                    <div class="text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="material-symbols-rounded me-2">lock</i>
+
+                    </div>
+                    <span class="nav-link-text ms-1">Mot de Passe</span>
+                </a>
+            </li>
+
+
+        </ul>
+    </div>
+</aside>
+
+
+
+<!-- Main Content -->
+<main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
+    <!-- Navbar -->
+    <nav class="navbar navbar-main navbar-expand-lg position-sticky mt-4 top-1 px-0 mx-4 shadow-none border-radius-xl z-index-sticky" id="navbarBlur" data-scroll="true">
+        <div class="container-fluid py-1 px-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
+                    <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Accueil</a></li>
+                    <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Profil</li>
+                </ol>
+
+            </nav>
+            <li class="nav-item d-flex align-items-center">
+                <a href="profil" class="nav-link text-body font-weight-bold px-0">
+                    <i class="material-symbols-rounded me-2">account_circle</i>
+                    <span class="d-sm-inline d-none" th:text="${utilisateur.prenom}">Prénom</span>
+                </a>
+            </li>
+            </ul>
+        </div>
+        </div>
+    </nav>
+    <!-- End Navbar -->
+
+    <!-- Profile Content -->
+    <div class="container-fluid px-4 py-4">
+        <div class="page-header min-height-300 border-radius-xl mt-2"
+             style="background-image: url('https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=2070&q=80');">
+            <span class="mask bg-gradient-primary opacity-6"></span>
+        </div>
+
+        <div class="card card-body mx-2 mx-md-2 mt-n6 mb-4 card-profile">
+            <div class="row gx-4 mb-2">
+                <div class="col-auto">
+                    <div class="avatar avatar-xl position-relative avatar-wrapper">
+                        <img th:src="'https://ui-avatars.com/api/?name=' + ${utilisateur.prenom} + '+' + ${utilisateur.nom} + '&background=random&size=128'"
+                             alt="Photo de profil"
+                             class="w-100 border-radius-lg shadow-sm">
+
+
+                    </div>
+                </div>
+                <div class="col-auto my-auto">
+                    <div class="h-100">
+                        <h5 class="mb-1 font-weight-bold" th:text="${utilisateur.prenom + ' ' + utilisateur.nom}">Nom Utilisateur</h5>
+                        <p class="mb-0 font-weight-normal text-sm">
+                            <span class="status-indicator" th:classappend="${utilisateur.isOnline} ? 'online' : 'offline'"></span>
+                            <span th:text="${utilisateur.isOnline} ? 'En ligne' : 'Hors ligne'">Statut</span> -
+                            <span class="text-muted" th:text="${utilisateur.username}">email@example.com</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 my-sm-auto ms-sm-auto me-sm-0 mx-auto mt-3 text-end">
+                    <div class="dropdown">
+                        <button class="btn btn-success dropdown-toggle" type="button" id="profileActions" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="material-symbols-rounded">settings</i> Actions
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="profileActions">
+                            <li><a class="dropdown-item" href="#section-info">Modifier mes informations</a></li>
+                            <li><a class="dropdown-item" href="#section-password">Changer mon mot de passe</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="/logout">Déconnexion</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12 col-xl-8">
+                    <!-- SECTION : Informations personnelles -->
+                    <div class="profile-section" id="section-info">
+                        <div class="section-header">
+                            <h3><i class="material-symbols-rounded me-2">account_circle</i>Informations personnelles</h3>
+                            <span class="badge bg-primary">Informations principales</span>
+                        </div>
+
+                        <!-- Message de succès / erreur -->
+                        <div th:if="${erreurProfil}" class="error" role="alert">
+                            <i class="material-symbols-rounded me-2">error</i>
+                            <span th:text="${erreurProfil}">Message d'erreur</span>
+                        </div>
+                        <div th:if="${messageProfil}" class="success" role="alert">
+                            <i class="material-symbols-rounded me-2">check_circle</i>
+                            <span th:text="${messageProfil}">Message de succès</span>
+                        </div>
+
+                        <form action="/modifierProfil" method="post">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="nom">Nom</label>
+                                        <div class="input-with-icon">
+                                            <input type="text" id="nom" name="nom" th:value="${utilisateur.nom}" required autocomplete="family-name">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="prenom">Prénom</label>
+                                        <div class="input-with-icon">
+                                            <input type="text" id="prenom" name="prenom" th:value="${utilisateur.prenom}" required autocomplete="given-name">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="username">Adresse e-mail</label>
+                                <div class="input-with-icon">
+                                    <input type="email" id="username" name="username" th:value="${utilisateur.username}" required autocomplete="email">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save me-2"></i> Enregistrer les modifications
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- SECTION : Modification du mot de passe -->
+                    <div class="profile-section mt-4" id="section-password">
+                        <div class="section-header">
+                            <h3><i class="material-symbols-rounded me-2">lock</i>Sécurité du compte</h3>
+                            <span class="badge bg-warning">Confidentiel</span>
+                        </div>
+
+                        <!-- Message de succès / erreur -->
+                        <div th:if="${erreurMotDePasse}" class="error" role="alert">
+                            <i class="material-symbols-rounded me-2">error</i>
+                            <span th:text="${erreurMotDePasse}">Message d'erreur</span>
+                        </div>
+                        <div th:if="${messageMotDePasse}" class="success" role="alert">
+                            <i class="material-symbols-rounded me-2">check_circle</i>
+                            <span th:text="${messageMotDePasse}">Message de succès</span>
+                        </div>
+
+                        <form action="/modifierMotDePasse" method="post" id="passwordForm">
+                            <div class="form-group">
+                                <label for="ancienPassword">Mot de passe actuel</label>
+                                <div class="input-with-icon">
+                                    <input type="password" id="ancienPassword" name="ancienPassword" required>
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="nouveauPassword">Nouveau mot de passe</label>
+                                <div class="input-with-icon">
+                                    <input type="password" id="nouveauPassword" name="nouveauPassword" required onkeyup="checkPasswordStrength()">
+                                    <i class="fas fa-key"></i>
+                                </div>
+                                <div class="password-strength mt-2">
+                                    <div id="passwordStrengthBar" class="password-strength-bar"></div>
+                                </div>
+                                <small id="passwordHelpBlock" class="form-text text-muted">
+                                    Votre mot de passe doit contenir au moins 8 caractères, dont des lettres majuscules, minuscules et des chiffres.
+                                </small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirmationPassword">Confirmer le nouveau mot de passe</label>
+                                <div class="input-with-icon">
+                                    <input type="password" id="confirmationPassword" name="confirmationPassword" required onkeyup="checkPasswordMatch()">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <small id="confirmPasswordHelp" class="form-text"></small>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-success" id="submitPassword">
+                                    <i class="fas fa-key me-2"></i> Mettre à jour le mot de passe
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>  <!-- Core JS Files -->
+<script src="../assets/js/core/popper.min.js"></script>
+<script src="../assets/js/core/bootstrap.min.js"></script>
+<script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
+<script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
+
+</body>
+
+</html>
