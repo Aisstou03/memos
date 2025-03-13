@@ -67,10 +67,15 @@ Prérequis :
 -Un IDE comme IntelliJ IDEA ou VS Code
 
 Instructions
+
 -Cloner le répertoire : git clone "https://github.com/Aisstou03/memos.git"
+
 -Se déplacer dans le dossier de projet :cd Gestion_Memoire_These
+
 -Configurer la base de données dans application.properties avec le nom de la base de donnée "gestion"
+
 -Compiler et exécuter le projet : mvn spring-boot:run
+
 -Accéder à l'application via http://localhost:8080
 
 
