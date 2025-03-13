@@ -68,7 +68,7 @@ Prérequis :
 
 Instructions
 
--Cloner le répertoire : git clone "https://github.com/Aisstou03/memos.git"
+-Cloner le répertoire : git clone https://github.com/Aisstou03/memos.git
 
 -Se déplacer dans le dossier de projet :cd Gestion_Memoire_These
 
