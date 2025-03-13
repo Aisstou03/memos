@@ -87,7 +87,7 @@ Mise en place de Spring Security pour les rôles
 
 Dynamisation de recherche incrémentale
 
-Implémentation de la fonction de modification de information de l'étudiant et encadrant pour un memoire
+Implémentation de la fonction de modification des informations de l'étudiant et encadrant pour un memoire
 
 
 
