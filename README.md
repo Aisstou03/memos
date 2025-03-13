@@ -1,5 +1,6 @@
 Gestion des Mémoires et Thèses de l'université Assane Seck de Ziguinchor
 
+
 Description du Projet
 
 Ce projet est une application web permettant de faciliter la gestion des mémoires et thèses au sein de l'UASZ. Il offre des fonctionnalités du GRUB pour la gestion des memoires, thèses et des utilisateurs telles que l'ajout, modification, recherche et  suppression.
@@ -26,84 +27,79 @@ Option de filtrage de l'affichage par ufr, departement et filiere ou par ecole d
 
 Statistique des nombres de type de memoires, thèses et utilisateurs en ligne
 
-Graphes de statistiques de nombre de memoire et thèses en fonction des ufr
+Graphes de statistiques de nombre de memoire et thèses en fonction de l'année
 
-Systemes de logs
+Graphes de statistiques de nombre de memoire et thèses en fonction des ufr pour une année choisi
+
+Systemes de logs pour des traçes
 
 Listes des memoires, thèsesavec une possibilité de recherche incrémentale en fonction des données possédées
 
 Listes de tous les utilisateurs et des utilisateurs connectés
 
+Génération d'attestation automatique en finction du memoire 
+
+
 
 Technologies Utilisées
 
-Backend : Spring Boot, Spring Security, JPA/Hibernate
+-Backend : Spring Boot, Spring Security, JPA/Hibernate, Token
 
-Frontend : Thymeleaf, Bootstrap
+-Frontend : Thymeleaf, Bootstrap, css, scss, js, ajax
 
-Base de données : PostgreSQL/MySQL
+-Base de données : MySQL
 
-Outils : Git, GitHub, Maven
+-Outils : Git, GitHub, Maven, Vscode
 
-Environnement : Ubuntu 22.10
+-Environnement : Intellij
+
 
 Installation et Exécution
 
-Prérequis
-
-JDK 17+
-
-Maven
-
-PostgreSQL/MySQL
-
-Un IDE comme IntelliJ IDEA ou VS Code
+Prérequis : 
+-JDK 17+
+-Maven
+-MySQL
+-Un IDE comme IntelliJ IDEA ou VS Code
 
 Instructions
+-Cloner le répertoire : git clone "https://github.com/Aisstou03/memos.git"
+-Se déplacer dans le dossier de projet :cd Gestion_Memoire_These
+-Configurer la base de données dans application.properties avec le nom de la base de donnée "gestion"
+-Compiler et exécuter le projet : mvn spring-boot:run
+-Accéder à l'application via http://localhost:8080
 
-Cloner le répertoire :
 
-git clone https://github.com/votre-utilisateur/nom-du-projet.git
-cd nom-du-projet
-
-Configurer la base de données dans application.properties
-
-Compiler et exécuter le projet :
-
-mvn spring-boot:run
-
-Accéder à l'application via http://localhost:8080
-
-Défis Rencontrés
+Défis Rencontrés :
 
 Gestion des relations entre entités complexes
 
 Mise en place de Spring Security pour les rôles
 
-Dynamisation de l'ajout d'encadrants avec Thymeleaf
+Dynamisation de recherche incrémentale
 
-Implémentation de la corbeille pour la suppression de mémoires
+Implémentation de la fonction de modification de information de l'étudiant et encadrant pour un memoire
 
-Succès et Améliorations Futures
 
-Fonctionnalité de corbeille fonctionnelle
 
-Ajout d'encadrants dynamiquement via Thymeleaf
+Succès et Améliorations Futures :
+
+Fonctionnalité de changement de police pour les nom scientifique par exemple
+
+Ajout d'encadrants en cliquant sur le bouton + via Thymeleaf
 
 Possibilité d'améliorer l'interface utilisateur et d'ajouter une API REST
 
-Intégration d'un système de notifications
+autocomplétion pour la recherche
+
+
 
 Contribution
 
-Les contributions sont les bienvenues !
+Les contributions sont les bienvenues 
 
-Forker le projet
 
-Créer une branche (feature/amélioration)
-
-Soumettre une pull request
 
 Licence
 
-Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus d'informations.
+Tous droits réservés à l'université Assance Seck de Ziguinchor.
