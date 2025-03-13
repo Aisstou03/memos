@@ -57,9 +57,13 @@ Technologies Utilisées
 Installation et Exécution
 
 Prérequis : 
+
 -JDK 17+
+
 -Maven
+
 -MySQL
+
 -Un IDE comme IntelliJ IDEA ou VS Code
 
 Instructions
