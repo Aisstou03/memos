@@ -21,7 +21,7 @@
     </div>
 
     <div class="container">
-        <h2 class="text-center mb-4"><b>Liste des mémoires pour la licence <span th:text="${nombreMemoires}"></span></b></h2>
+        <h2 class="text-center mb-4"><b>Liste des mémoires de licence <span th:text="${nombreMemoires}"></span></b></h2>
         <!-- Formulaire de recherche -->
         <form id="searchForm" class="search-form" action="/licences/recherche" method="post">
             <div class="search-container">
@@ -71,9 +71,15 @@
                                 <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
                                     Modifier
                                 </a>
-                                <a th:href="@{/memoires/supprimer/{id}(id=${memoire.id})}" onclick="deleteRow(${memoire.id})">
-                                    Supprimer
-                                </a>
+                                <a href="#" onclick="confirmDelete([[${memoire.id}]])">Supprimer</a>
+
+                                <script>
+                                    function confirmDelete(memoireId) {
+                                        if (confirm("Êtes-vous sûr de vouloir supprimer ce mémoire ?")) {
+                                            window.location.href = "/memoires/supprimer/" + memoireId;
+                                        }
+                                    }
+                                </script>
                             </div>
                         </div>
                     </td>
@@ -166,9 +172,7 @@
                                             <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
                                                 Modifier
                                             </a>
-                                            <a th:href="@{/memoires/supprimer/{id}(id=${memoire.id})}" onclick="deleteRow(${memoire.id})">
-                                                Supprimer
-                                            </a>
+                                            <a href="#" onclick="confirmDelete([[${memoire.id}]])">Supprimer</a>
                                         </div>
                                     </div>
                                 </td>
@@ -218,9 +222,7 @@
                                     <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
                                         Modifier
                                     </a>
-                                    <a th:href="@{/memoires/supprimer/{id}(id=${memoire.id})}" onclick="deleteRow(${memoire.id})">
-                                        Supprimer
-                                    </a>
+                                    <a href="#" onclick="confirmDelete([[${memoire.id}]])">Supprimer</a>
                                 </div>
                             </div>
                         </td>
@@ -231,7 +233,7 @@
             </div>
         </div>
     </div>
-
+    <br>
     <!-- Script AJAX pour charger les départements et filières dynamiquement -->
     <script>
         const data = {
@@ -296,6 +298,36 @@
             });
           }
         }
+    </script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".menu-icon").forEach(icon => {
+            icon.addEventListener("click", function (event) {
+                event.stopPropagation();
+                let dropdown = this.nextElementSibling;
+                document.querySelectorAll(".dropdown-content").forEach(menu => {
+                    if (menu !== dropdown) {
+                        menu.classList.remove("show");
+                    }
+                });
+                dropdown.classList.toggle("show");
+            });
+        });
+
+        // Fermer le menu quand on clique ailleurs
+        document.addEventListener("click", function () {
+            document.querySelectorAll(".dropdown-content").forEach(menu => {
+                menu.classList.remove("show");
+            });
+        });
+
+        // Empêcher la fermeture si on clique sur les options du menu
+        document.querySelectorAll(".dropdown-content").forEach(menu => {
+            menu.addEventListener("click", function (event) {
+                event.stopPropagation();
+            });
+        });
+    });
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

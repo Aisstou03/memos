@@ -80,25 +80,26 @@
 
                     <!-- Étudiant (Nom et Prénom dans une seule liste déroulante) -->
                     <div class="form-group mb-3">
-                        <div class="col-md-6">
-                            <label for="etudiant" class="form-label">Étudiant</label>
-                            <input type="text" id="etudiant" name="etudiantNomComplet" th:field="*{etudiant.nomComplet}"
-                                   class="form-control" list="etudiant-list" placeholder="Saisissez ou choisissez un étudiant" />
-                            <datalist id="etudiant-list">
-                              <option th:each="etd : ${etudiants}" th:value="${etd.nom} + ' ' + ${etd.prenom}" th:data-id="${etd.id}" />
-                            </datalist>
-                            <input type="hidden" id="etudiantId" th:field="*{etudiant.id}" />
-                        </div>
+                        <div class="row"> <!-- Ajout de la classe row -->
+                            <div class="col-md-6">
+                                <label for="etudiant" class="form-label">Étudiant</label>
+                                <input type="text" id="etudiant" name="etudiantNomComplet" th:field="*{etudiant.nomComplet}"
+                                       class="form-control" list="etudiant-list" placeholder="Saisissez ou choisissez un étudiant" />
+                                <datalist id="etudiant-list">
+                                    <option th:each="etd : ${etudiants}" th:value="${etd.nom} + ' ' + ${etd.prenom}" th:data-id="${etd.id}" />
+                                </datalist>
+                                <input type="hidden" id="etudiantId" th:field="*{etudiant.id}" />
+                            </div>
 
-                        <!-- Encadrant (Nom et Prénom dans une seule liste déroulante) -->
-                        <div class="col-md-6">
-                          <label for="encadrant" class="form-label">Encadrant</label>
-                          <input type="text" id="encadrant" th:field="*{encadrant.nomComplet}" class="form-control"
-                                 list="encadrant-list" placeholder="Saisissez ou choisissez un encadrant" />
-                          <datalist id="encadrant-list">
-                            <option th:each="enc : ${encadrants}" th:value="${enc.nom} + ' ' + ${enc.prenom}" />
-                          </datalist>
-                          <input type="hidden" id="encadrantId" th:field="*{encadrant.id}" />
+                            <div class="col-md-6">
+                                <label for="encadrant" class="form-label">Encadrant</label>
+                                <input type="text" id="encadrant" th:field="*{encadrant.nomComplet}" class="form-control"
+                                       list="encadrant-list" placeholder="Saisissez ou choisissez un encadrant" />
+                                <datalist id="encadrant-list">
+                                    <option th:each="enc : ${encadrants}" th:value="${enc.nom} + ' ' + ${enc.prenom}" />
+                                </datalist>
+                                <input type="hidden" id="encadrantId" th:field="*{encadrant.id}" />
+                            </div>
                         </div>
                     </div>
 
@@ -137,7 +138,7 @@
             </div>
         </div>
     </div>
-
+    <br>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

@@ -47,7 +47,7 @@ public class Memoire {
     @JoinColumn(name = "ufr_id")
     @JsonBackReference
     private Ufr ufr;
-    @Transient
-    private int numero;
+    private boolean corbeille = false; // Ajout du champ corbeille
+
 
 }

@@ -223,6 +223,12 @@ public class MemoireService {
         return memoireSauvegardee;
     }
 
+    //liste des memoires se trouvant dans la corbeille
+    public List<Memoire> getMemoiresDansCorbeille() {
+        return memoireRepository.findByCorbeilleTrue();
+    }
+
+
     public List<Memoire> rechercherMemos(Map<String, String> params) {
         Specification<Memoire> spec = Specification.where(null);
 

@@ -1,24 +1,52 @@
-//Un diagramme de cas d'utilisation représente les interactions des utilisateurs avec les fonctionnalités du système
-
 @startuml
-actor Administrateur
-actor Utilisateur
+left to right direction
 
-usecase AjouterMemoire as "Ajouter un mémoire"
-usecase SupprimerMemoire as "Supprimer un mémoire"
-usecase ModifierMemoire as "Modifier un mémoire"
-usecase ConsulterMemoire as "Consulter un mémoire"
-usecase CreerUtilisateur as "Créer un utilisateur"
-usecase SupprimerUtilisateur as "Supprimer un utilisateur"
+actor "Super Administrateur" as SuperAdmin
+actor "Stagiaire" as Stagiaire
+actor "Administrateur" as Admin
 
-Utilisateur --> AjouterMemoire
-Utilisateur --> ModifierMemoire
-Utilisateur --> ConsulterMemoire
+rectangle "Système de Gestion des Mémoires et Thèses" {
+    usecase "Ajouter un mémoire" as AjouterMemoire
+    usecase "Modifier un mémoire" as ModifierMemoire
+    usecase "Supprimer un mémoire" as SupprimerMemoire
+    usecase "Consulter un mémoire" as ConsulterMemoire
+    usecase "Télécharger un mémoire/thèse" as Telecharger
+    usecase "Créer un utilisateur" as CreerUtilisateur
+    usecase "Supprimer un utilisateur" as SupprimerUtilisateur
+    usecase "Recevoir notifications" as VoirNotification
+    usecase "Interagir dans le groupe de messagerie" as InteragirGroupe
+    usecase "Modifier son profil" as ModifierProfil
+    usecase "Générer une attestation de mémoire/thèse" as GenererAttestation
+    usecase "Connexion" as Connexion
 
-Administrateur --> CreerUtilisateur
-Administrateur --> SupprimerUtilisateur
-Administrateur --> SupprimerMemoire
-Administrateur --> AjouterMemoire
-Administrateur --> ModifierMemoire
-Administrateur --> ConsulterMemoire
+}
+
+SuperAdmin -[#black]-> CreerUtilisateur
+SuperAdmin -[#black]-> SupprimerUtilisateur
+SuperAdmin -[#black]-> VoirNotification
+SuperAdmin -[#black]-> GenererAttestation
+SuperAdmin -[#black]-> Telecharger
+SuperAdmin -[#black]-> Connexion
+
+Stagiaire -[#green]-> AjouterMemoire
+Stagiaire -[#green]-> ModifierMemoire
+Stagiaire -[#green]-> ConsulterMemoire
+Stagiaire -[#green]-> ModifierProfil
+Stagiaire -[#green]-> InteragirGroupe
+Stagiaire -[#green]-> Telecharger
+Stagiaire -[#green]-> Connexion
+
+
+Admin -[#blue]-> AjouterMemoire
+Admin -[#blue]-> ModifierMemoire
+Admin -[#blue]-> SupprimerMemoire
+Admin -[#blue]-> ConsulterMemoire
+Admin -[#blue]-> ModifierProfil
+Admin -[#blue]-> InteragirGroupe
+Admin -[#blue]-> GenererAttestation
+Admin -[#blue]-> Telecharger
+Admin -[#blue]-> CreerUtilisateur
+Admin -[#blue]-> SupprimerUtilisateur
+Admin -[#blue]-> Connexion
+
 @enduml

@@ -1,23 +1,26 @@
 @startuml AddMemoryActivity
 start
-:Afficher le formulaire d'ajout de mémoire;
-:Remplir les informations sur le mémoire;
+:Se connecter;
+if (Informations non valides ?) then (non)
+    :Afficher message d'erreur;
+    :Redemander les informations de connexion;
+    repeat
+    :Saisir les identifiants;
+    repeat while (Informations non valides ?)
+endif
+
+:Afficher le tableau de bord correspondant;
+:Accéder au formulaire d'ajout de mémoire;
+:Remplir les informations du mémoire;
 if (Informations valides ?) then (oui)
     :Enregistrer le mémoire dans la base de données;
     :Afficher message "Mémoire ajoutée avec succès";
+    :Envoyer notification aux administrateurs;
 else (non)
     :Afficher message d'erreur;
+    :Demander correction des champs invalides;
 endif
+
 stop
 @enduml
 
-
-@startuml NotificationActivity
-start
-:Écouter les événements de modification;
-if (Modification d'un mémoire ?) then (oui)
-    :Créer une notification;
-    :Envoyer notification à l'utilisateur;
-endif
-stop
-@enduml

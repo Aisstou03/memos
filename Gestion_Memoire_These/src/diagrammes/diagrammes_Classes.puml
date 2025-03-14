@@ -1,28 +1,80 @@
-//Un diagramme de classes montre les relations entre les entités de votre système (les classes et leurs associations).
-
 @startuml
-class Utilisateur {
+
+class Personne {
     +id: Long
     +nom: String
     +prenom: String
+}
+
+class Utilisateur extends Personne {
     +email: String
     +password: String
-    +role: String
+    +role: Role
     +authentifier(): boolean
 }
 
+class Encadrant extends Personne {
+     +cin: String
+}
+
+class Etudiant extends Personne {
+      +matricule: String
+}
+
+class Role  {
+      +id: Long
+      +role: String
+}
+
+class SuperAdmin extends Utilisateur {
+}
+
+class Stagiaire extends Utilisateur {
+}
+
+class Admin extends Utilisateur {
+}
+
+class TypeMemoire {
+    +LICENCE
+    +MASTER
+    +DOCTORAT
+}
+
+class Filiere {
+    +id: Long
+    +nom: String
+}
+
+class Departement {
+    +id: Long
+    +nom: String
+}
+
+class Ufr {
+    +id: Long
+    +nom: String
+}
+
+class EcoleDoctorale {
+    +id: Long
+    +nom: String
+}
+
 class Memoire {
+    +id: Long
     +cote: String
     +titre: String
-    +etudiant : String
-    +encadreur : String
-    +filiere: String
     +annee: Integer
-    +exempplaires
-    +ajouterMemoire()
-    +modifierMemoire()
-    +consultationMemoire()
-    +supprimerMemoire()
+    +exemplaires: Integer
+    +ajouter()
+    +modifier()
+    +consulter()
+    +supprimer()
+}
+
+class These extends Memoire {
+     +ecoleDoctorale: EcoleDoctorale
 }
 
 class Notification {
@@ -32,7 +84,29 @@ class Notification {
     +envoyerNotification()
 }
 
+class Discussion {
+    +id: Long
+    +message: String
+    +date: Date
+}
+
+SuperAdmin "1" -- "0..*" Notification : "Reçoit"
+Admin "1" -- "0..*" Notification : "Reçoit"
 Utilisateur "1" -- "0..*" Memoire : "Ajoute"
+Utilisateur "1" -- "0..*" Discussion : "Participe à"
+
+Etudiant "1" -- "0..*" Memoire : "Rédige"
+Encadrant "1" -- "0..*" Memoire : "Encadre"
+
 Memoire "1" -- "0..*" Notification : "Génère"
-Utilisateur "1" -- "0..*" Notification : "Reçoit" // Lien entre utilisateur et notifications
+
+Memoire "1" --> "1" TypeMemoire : "Possède"
+Memoire "1" --> "1" Filiere : "Appartient à"
+Memoire "1" --> "1" Departement : "Appartient à"
+Memoire "1" --> "1" Ufr : "Appartient à"
+
+These "1" -- "1" EcoleDoctorale : "Dépend de"
+
+Utilisateur "1" -- "1" Role : "A un"
+
 @enduml

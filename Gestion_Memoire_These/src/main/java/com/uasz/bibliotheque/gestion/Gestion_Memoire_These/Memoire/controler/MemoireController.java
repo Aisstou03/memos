@@ -31,6 +31,9 @@ public class MemoireController {
     private MemoireService memoireService;
 
     @Autowired
+    private MemoireRepository memoireRepository;
+
+    @Autowired
     private MessageService messageService;
 
     @Autowired
@@ -236,14 +239,43 @@ public class MemoireController {
         return "modifierMemoire";
     }
 
-    //Suppression
+    //suppression vers la corbeille
     @GetMapping("/memoires/supprimer/{id}")
-    public String supprimerMemoire(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        memoireService.deleteMemoire(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Suppression réussie !");
-        return "redirect:/memoires/liste"; // Redirection après suppression
+    public String envoyerEnCorbeille(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Memoire memoire = memoireService.getMemoireById(id);
+        if (memoire != null) {
+            memoire.setCorbeille(true);
+            memoireRepository.save(memoire);
+            redirectAttributes.addFlashAttribute("successMessage", "Mémoire déplacé dans la corbeille !");
+        }
+        return "redirect:/memoires/liste";
     }
 
+    //restauration
+    @GetMapping("/memoires/restaurer/{id}")
+    public String restaurerMemoire(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Memoire memoire = memoireService.getMemoireById(id);
+        if (memoire != null) {
+            memoire.setCorbeille(false);
+            memoireRepository.save(memoire);
+            redirectAttributes.addFlashAttribute("successMessage", "Mémoire restauré avec succès !");
+        }
+        return "redirect:/memoires/corbeille";
+    }
+
+    //suppression definitive
+    @GetMapping("/memoires/supprimer-definitivement/{id}")
+    public String supprimerDefinitivement(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        memoireService.deleteMemoire(id);
+        redirectAttributes.addFlashAttribute("successMessage", "Mémoire supprimé définitivement !");
+        return "redirect:/memoires/corbeille";
+    }
+
+    // Corbeille
+    @RequestMapping(value = "/memoires/corbeille", method = RequestMethod.GET)
+    public String corbeille(Model model) {
+        return "Corbeille";
+    }
 
     @PostMapping("/memoires/modifier")
     public String modifierMemoire(@ModelAttribute Memoire memoire, RedirectAttributes redirectAttributes) {

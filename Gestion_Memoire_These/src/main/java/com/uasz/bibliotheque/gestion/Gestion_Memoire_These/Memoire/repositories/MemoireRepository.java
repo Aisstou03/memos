@@ -23,4 +23,7 @@ public interface MemoireRepository extends JpaRepository<Memoire, Long>, JpaSpec
     @Query("SELECT m FROM Memoire m WHERE m.annee = :annee AND m.type = :type")
     List<Memoire> findByAnneeAndType(@Param("annee") int annee, @Param("type") TypeMemoire type);
 
+    //liste des memoires se trouvant dans la corbeille
+    List<Memoire> findByCorbeilleTrue();
+
 }

@@ -155,20 +155,3 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 });
 
-
-function deleteRow(element) {
-            element.closest("tr").remove();
-}
-
-function editMemoire(element) {
-    let row = element.closest("tr");
-    let data = [];
-    row.querySelectorAll("td").forEach((td, index) => {
-        if (index < 10) {
-            data.push(td.innerText);
-        }
-    });
-
-    localStorage.setItem("memoireToEdit", JSON.stringify(data));
-    window.location.href = "modifierMemoireLicence.html";
-}

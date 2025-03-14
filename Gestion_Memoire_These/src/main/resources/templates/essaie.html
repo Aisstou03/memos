@@ -10,6 +10,7 @@
         integrity="sha512-6f7HT84a/AplPkpSRSKWqbseRTG4aRrhadjZezYQ0oVk/B+nm/US5KzQkyyOyh0Mn9cyDdChRdS9qaxJRHayww=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.3.0/css/flat-ui.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <title>
@@ -62,17 +63,17 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-dark" href="#" data-bs-toggle="modal" data-bs-target="#rechercheModal">
-            <i class="material-symbols-rounded opacity-5">download</i>
-            <span class="nav-link-text ms-1">Télécharger</span>
-          </a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link text-dark" href="#" id="notificationBtn">
             <i class="material-symbols-rounded opacity-5">notifications</i>
             <span class="nav-link-text ms-1">Notifications</span>
             <span class="notification-count" th:text="${notifications != null && !notifications.isEmpty() ? notifications.size() : '0'}"
                   th:style="${notifications == null || notifications.isEmpty() ? 'display: none;' : ''}">0</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="/memoires/corbeille">
+            <i class="material-symbols-rounded opacity-5">delete</i>
+            <span class="nav-link-text ms-1">Corbeille</span>
           </a>
         </li><br/>
 
