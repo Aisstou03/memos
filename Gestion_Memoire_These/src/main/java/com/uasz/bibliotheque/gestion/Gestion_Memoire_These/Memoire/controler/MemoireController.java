@@ -92,7 +92,6 @@ public class MemoireController {
             @RequestParam("etudiantNom") String etudiantNom,
             @RequestParam("etudiantPrenom") String etudiantPrenom,
             @RequestParam("encadrantNom") String encadrantNom,
-            @RequestParam("encadrantPrenom") String encadrantPrenom,
             RedirectAttributes redirectAttributes) {
 
         try {
@@ -100,7 +99,7 @@ public class MemoireController {
             if (ufrNom.isEmpty() || departementNom.isEmpty() || filiereNom.isEmpty() ||
                     type.isEmpty() || titre.isEmpty() || annee <= 0 || exemplaires <= 0 ||
                     etudiantNom.isEmpty() || etudiantPrenom.isEmpty() ||
-                    encadrantNom.isEmpty() || encadrantPrenom.isEmpty()) {
+                    encadrantNom.isEmpty()) {
 
                 redirectAttributes.addFlashAttribute("error", "Tous les champs sont requis !");
                 return "redirect:/memoires/ajouter";
@@ -109,7 +108,7 @@ public class MemoireController {
             // Ajout du mémoire
             memoireService.ajouterMemoire(
                     ufrNom, departementNom, filiereNom, type, titre, annee, exemplaires,
-                    etudiantNom, etudiantPrenom, encadrantNom, encadrantPrenom
+                    etudiantNom, etudiantPrenom, encadrantNom
             );
 
             // Ajout du message de succès
@@ -239,43 +238,60 @@ public class MemoireController {
         return "modifierMemoire";
     }
 
-    //suppression vers la corbeille
-    @GetMapping("/memoires/supprimer/{id}")
-    public String envoyerEnCorbeille(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        Memoire memoire = memoireService.getMemoireById(id);
-        if (memoire != null) {
+    // Suppression vers la corbeille (Méthode POST au lieu de GET)
+    @PostMapping("/memoires/supprimer")
+    public String envoyerEnCorbeille(@RequestParam Long id, RedirectAttributes redirectAttributes) {
+        Optional<Memoire> memoireOpt = memoireRepository.findById(id);
+        if (memoireOpt.isPresent()) {
+            Memoire memoire = memoireOpt.get();
             memoire.setCorbeille(true);
             memoireRepository.save(memoire);
             redirectAttributes.addFlashAttribute("successMessage", "Mémoire déplacé dans la corbeille !");
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "Mémoire introuvable !");
         }
         return "redirect:/memoires/liste";
     }
 
-    //restauration
-    @GetMapping("/memoires/restaurer/{id}")
-    public String restaurerMemoire(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        Memoire memoire = memoireService.getMemoireById(id);
-        if (memoire != null) {
+    // Affichage de la corbeille
+    @GetMapping("/memoires/corbeille")
+    public String corbeille(Model model) {
+        List<Memoire> memoiresEnCorbeille = memoireRepository.findByCorbeilleTrue();
+        model.addAttribute("memoires", memoiresEnCorbeille);
+        return "Corbeille";
+    }
+
+    @PostMapping("/memoires/restaurer")
+    public String restaurerMemoire(@RequestParam Long id, RedirectAttributes redirectAttributes) {
+        Optional<Memoire> memoireOpt = memoireRepository.findById(id);
+        if (memoireOpt.isPresent()) {
+            Memoire memoire = memoireOpt.get();
             memoire.setCorbeille(false);
             memoireRepository.save(memoire);
             redirectAttributes.addFlashAttribute("successMessage", "Mémoire restauré avec succès !");
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "Mémoire introuvable !");
         }
         return "redirect:/memoires/corbeille";
     }
 
-    //suppression definitive
-    @GetMapping("/memoires/supprimer-definitivement/{id}")
-    public String supprimerDefinitivement(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        memoireService.deleteMemoire(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Mémoire supprimé définitivement !");
+    @PostMapping("/memoires/supprimer-definitivement")
+    public String supprimerDefinitivement(@RequestParam Long id, RedirectAttributes redirectAttributes) {
+        Optional<Memoire> memoireOpt = memoireRepository.findById(id);
+        if (memoireOpt.isPresent()) {
+            Memoire memoire = memoireOpt.get();
+            if (memoire.isCorbeille()) { // Vérifie si le mémoire est bien dans la corbeille avant suppression
+                memoireRepository.delete(memoire);
+                redirectAttributes.addFlashAttribute("successMessage", "Mémoire supprimé définitivement !");
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", "Impossible de supprimer un mémoire qui n'est pas en corbeille.");
+            }
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "Mémoire introuvable !");
+        }
         return "redirect:/memoires/corbeille";
     }
 
-    // Corbeille
-    @RequestMapping(value = "/memoires/corbeille", method = RequestMethod.GET)
-    public String corbeille(Model model) {
-        return "Corbeille";
-    }
 
     @PostMapping("/memoires/modifier")
     public String modifierMemoire(@ModelAttribute Memoire memoire, RedirectAttributes redirectAttributes) {
@@ -343,7 +359,6 @@ public class MemoireController {
     }
 
 
-
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String voir(Model model) {
         return "index"; // Assurez-vous que `formulaireMaster.html` est dans `templates`.
@@ -355,7 +370,7 @@ public class MemoireController {
     @GetMapping("/licence")
     public String afficherToutesLesMemoires(Model model) {
         // Récupérer toutes les mémoires de type LICENCE
-        List<Memoire> memoires = memoireService.getAllMemoiresLicence();
+        List<Memoire> memoires = memoireService.findMemoiresActifs();
 
         // Ajouter les mémoires et les UFR au modèle
         model.addAttribute("memoires", memoires);

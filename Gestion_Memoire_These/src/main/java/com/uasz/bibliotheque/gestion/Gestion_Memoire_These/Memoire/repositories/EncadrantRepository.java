@@ -12,14 +12,8 @@ import java.util.Optional;
 
 @Repository
 public interface EncadrantRepository extends JpaRepository<Encadrant, Long> {
-
-    @Query("SELECT e FROM Encadrant e WHERE CONCAT(e.nom, ' ', e.prenom) = :nomComplet")
-    Optional<Encadrant> findByNomComplet(@Param("nomComplet") String nomComplet);
-
     Optional<Encadrant> findByNom(String nom);
 
-    Optional<Encadrant> findByNomAndPrenomAndFiliere(String nom, String prenom, Filiere filiere);
-    Optional<Encadrant> findByNomAndPrenom(String nom, String prenom);
-
+    Optional<Encadrant> findByNomAndFiliere(String nom, Filiere filiere);
 
 }

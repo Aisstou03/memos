@@ -16,14 +16,9 @@ public class Encadrant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nom;
-    private String prenom;
 
     @ManyToOne
     @JoinColumn(name = "filiere_id")
     private Filiere filiere;  // Ajout de la relation avec Filiere
 
-    // Méthode pour obtenir le nom complet
-    public String getNomComplet() {
-        return this.nom + " " + this.prenom;
-    }
 }

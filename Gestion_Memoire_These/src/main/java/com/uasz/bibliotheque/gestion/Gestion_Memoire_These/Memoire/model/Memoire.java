@@ -47,7 +47,7 @@ public class Memoire {
     @JoinColumn(name = "ufr_id")
     @JsonBackReference
     private Ufr ufr;
+
+    @Column(name = "corbeille", nullable = false)
     private boolean corbeille = false; // Ajout du champ corbeille
-
-
 }

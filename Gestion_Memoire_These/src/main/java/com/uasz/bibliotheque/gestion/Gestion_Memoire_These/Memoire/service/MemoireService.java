@@ -104,7 +104,7 @@ public class MemoireService {
 
     // Ajouter une mémoire
     public void ajouterMemoire(String ufrNom, String departementNom, String filiereNom, String type, String titre, int annee,
-                               int exemplaires, String etudiantNom,String etudiantPrenom, String encadrantPrenom, String encadrantNom) {
+                               int exemplaires, String etudiantNom,String etudiantPrenom, String encadrantNom) {
         // Obtenez la filière
         Filiere filiere = filiereRepository.findByNom(filiereNom)
                 .orElseThrow(() -> new RuntimeException("Filière introuvable"));
@@ -126,8 +126,8 @@ public class MemoireService {
                 .orElseGet(() -> etudiantRepository.save(new Etudiant(null, etudiantNom, etudiantPrenom)));
 
         // Gestion de l'encadrant
-        Encadrant encadrant = encadrantRepository.findByNomAndPrenomAndFiliere(encadrantNom, encadrantPrenom, filiere)
-                .orElseGet(() -> encadrantRepository.save(new Encadrant(null, encadrantNom, encadrantPrenom, filiere)));
+        Encadrant encadrant = encadrantRepository.findByNomAndFiliere(encadrantNom, filiere)
+                .orElseGet(() -> encadrantRepository.save(new Encadrant(null, encadrantNom, filiere)));
 
         // Créez un objet Mémoire et configurez ses valeurs
         Memoire memoire = new Memoire();
@@ -447,5 +447,11 @@ public class MemoireService {
     }
 
 
+    public List<Memoire> findMemoiresActifs() {
+        return memoireRepository.findByCorbeilleFalse();
+    }
 
+    public List<Memoire> findMemoiresDansCorbeille() {
+        return memoireRepository.findByCorbeilleTrue();
+    }
 }

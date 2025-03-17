@@ -67,7 +67,6 @@ public class EcoleDoctoratController {
                             @RequestParam String etudiantNom,
                             @RequestParam String etudiantPrenom,
                             @RequestParam String encadrantNom,
-                            @RequestParam String encadrantPrenom,
                             @RequestParam int annee,
                             @RequestParam int exemplaires,
                             @RequestParam String ecoleDoctorale,
@@ -75,7 +74,7 @@ public class EcoleDoctoratController {
         try {
             // Vérification des champs vides
             if (titre.isBlank() || etudiantNom.isBlank() || etudiantPrenom.isBlank()
-                    || encadrantNom.isBlank() || encadrantPrenom.isBlank()) {
+                    || encadrantNom.isBlank()) {
                 model.addAttribute("error", "Tous les champs doivent être remplis !");
                 return "ajouterThese";
             }
@@ -85,11 +84,10 @@ public class EcoleDoctoratController {
                     .orElseGet(() -> etudiantRepository.save(new Etudiant(null, etudiantNom, etudiantPrenom)));
 
             // Gestion de l'encadrant
-            Encadrant encadrant = encadrantRepository.findByNomAndPrenom(encadrantNom, encadrantPrenom)
+            Encadrant encadrant = encadrantRepository.findByNom(encadrantNom)
                     .orElseGet(() -> {
                         Encadrant newEncadrant = new Encadrant();
                         newEncadrant.setNom(encadrantNom);
-                        newEncadrant.setPrenom(encadrantPrenom);
                         return encadrantRepository.save(newEncadrant);
                     });
 
@@ -128,16 +126,20 @@ public class EcoleDoctoratController {
         }
     }
 
-    //listess des these
     @GetMapping("/memoires/doctorats")
-    public String afficherTheses(Model model) {
+    public String afficherToutesLesTheses(Model model) {
         List<These> theses = theseService.getAllThese();
         model.addAttribute("theses", theses);
-        return "doctorat"; // Renvoie vers la page HTML theses.html
+        model.addAttribute("rechercheEffectuee", false); // Ajouté pour bien différencier les cas
+        return "doctorat";
     }
+
 
     @PostMapping("/filtre/these")
     public String afficherThesesParUFR(@RequestParam String ufrNom, Model model) {
+        // Activer le mode filtrage
+        model.addAttribute("isFiltered", true);
+
         // Filtrer les thèses par UFR
         List<These> thesesFiltrees = theseRepository.findByEcoleDoctoratUfrNom(ufrNom);
 
@@ -148,14 +150,12 @@ public class EcoleDoctoratController {
             String ufr = these.getEcoleDoctorat() != null ? these.getEcoleDoctorat().getUfr().getNom() : "Non spécifié";
             String ecoleDoctorale = these.getEcoleDoctorat() != null ? these.getEcoleDoctorat().getNom() : null;
 
-            // Si l'école doctorale est non nulle, on organise par UFR et École Doctorale
             if (ecoleDoctorale != null) {
                 thesesParUFRAndEcoleDoctorale
                         .computeIfAbsent(ufr, k -> new HashMap<>())
                         .computeIfAbsent(ecoleDoctorale, k -> new ArrayList<>())
                         .add(these);
             } else {
-                // Si l'école doctorale est nulle, on l'ajoute à un groupe "Sans école doctorale"
                 thesesParUFRAndEcoleDoctorale
                         .computeIfAbsent(ufr, k -> new HashMap<>())
                         .computeIfAbsent("Sans école doctorale", k -> new ArrayList<>())
@@ -165,10 +165,10 @@ public class EcoleDoctoratController {
 
         // Ajouter la liste des thèses groupées par UFR et École Doctorale au modèle
         model.addAttribute("thesesParUFRAndEcole", thesesParUFRAndEcoleDoctorale);
+        model.addAttribute("selectedUFR", ufrNom); // Pour vérifier la sélection dans Thymeleaf
 
         return "doctorat";  // Vue qui affichera les thèses filtrées
     }
-
 
     // Méthode pour afficher la page de modification de la thèse
     @GetMapping("/theses/modifier/{id}")
@@ -196,11 +196,43 @@ public class EcoleDoctoratController {
     }
 
     // Méthode pour supprimer une thèse
-    @GetMapping("/theses/supprimer/{id}")
-    public String deleteThesis(@PathVariable("id") Long thesisId, RedirectAttributes redirectAttributes) {
-        theseService.deleteThesis(thesisId);
-        redirectAttributes.addFlashAttribute("successMessage", "Suppression réussie !");
-        return "redirect:/memoires/liste"; // Redirige vers la liste des thèses après la suppression
+    @PostMapping("/theses/supprimer")
+    public String supprimerThese(@RequestParam Long theseId) {
+        These these = theseRepository.findById(theseId).orElse(null);
+        if (these != null) {
+            // Marquer la thèse comme supprimée (déplacée dans la corbeille)
+            these.setEstSupprime(true);
+            theseRepository.save(these);  // Sauvegarder l'état modifié de la thèse
+        }
+        return "redirect:/corbeilleThese"; // Rediriger vers la page de la corbeille après l'archivage
     }
 
+    @GetMapping("/corbeilleThese")
+    public String afficherCorbeille(Model model) {
+        // Récupérer toutes les thèses marquées comme supprimées
+        List<These> thesesDansCorbeille = theseRepository.findByEstSupprime(true);
+        model.addAttribute("thesesDansCorbeille", thesesDansCorbeille);
+        return "corbeilleThese"; // Vue pour afficher les thèses dans la corbeille
+    }
+
+    @PostMapping("/theses/restaurer")
+    public String restaurerThese(@RequestParam Long theseId) {
+        These these = theseRepository.findById(theseId).orElse(null);
+        if (these != null) {
+            // Restauration de la thèse
+            these.setEstSupprime(false);
+            theseRepository.save(these); // Sauvegarder la thèse restaurée
+        }
+        return "redirect:/corbeilleThese"; // Rediriger vers la corbeille après la restauration
+    }
+
+    @PostMapping("/theses/supprimerDefinitivement")
+    public String supprimerDefinitivement(@RequestParam Long theseId) {
+        These these = theseRepository.findById(theseId).orElse(null);
+        if (these != null) {
+            // Suppression définitive de la thèse
+            theseRepository.delete(these);
+        }
+        return "redirect:/corbeilleThese"; // Rediriger vers la corbeille après la suppression
+    }
 }

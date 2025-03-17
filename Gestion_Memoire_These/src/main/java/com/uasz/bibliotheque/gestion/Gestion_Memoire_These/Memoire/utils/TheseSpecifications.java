@@ -41,6 +41,7 @@ public class TheseSpecifications {
         };
     }
 
+
     public static Specification<These> withEncadrant(String encadrant) {
         return (root, query, criteriaBuilder) -> {
             if (encadrant == null) return null;
@@ -49,15 +50,13 @@ public class TheseSpecifications {
             if (parts.length == 1) {
                 String pattern = "%" + parts[0] + "%";
                 return criteriaBuilder.or(
-                        criteriaBuilder.like(criteriaBuilder.lower(root.join("encadrant").get("nom")), pattern),
-                        criteriaBuilder.like(criteriaBuilder.lower(root.join("encadrant").get("prenom")), pattern)
+                        criteriaBuilder.like(criteriaBuilder.lower(root.join("encadrant").get("nom")), pattern)
                 );
             } else {
                 String nomPattern = "%" + parts[0] + "%";
                 String prenomPattern = "%" + parts[1] + "%";
                 return criteriaBuilder.and(
-                        criteriaBuilder.like(criteriaBuilder.lower(root.join("encadrant").get("nom")), nomPattern),
-                        criteriaBuilder.like(criteriaBuilder.lower(root.join("encadrant").get("prenom")), prenomPattern)
+                        criteriaBuilder.like(criteriaBuilder.lower(root.join("encadrant").get("nom")), nomPattern)
                 );
             }
         };
