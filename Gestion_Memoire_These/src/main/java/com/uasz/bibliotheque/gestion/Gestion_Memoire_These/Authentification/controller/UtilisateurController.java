@@ -248,5 +248,4 @@ public class UtilisateurController {
         return "usersOnline"; // Renvoie vers la page HTML
     }
 
-
 }

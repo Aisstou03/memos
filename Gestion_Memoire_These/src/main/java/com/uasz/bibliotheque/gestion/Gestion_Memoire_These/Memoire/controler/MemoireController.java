@@ -2,6 +2,7 @@ package com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.controler;
 
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.modele.Role;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.modele.Utilisateur;
+import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.service.UtilisateurService;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.service.*;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Notification.service.NotificationService;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.chat.service.MessageService;
@@ -29,7 +30,8 @@ public class MemoireController {
 
     @Autowired
     private MemoireService memoireService;
-
+    @Autowired
+    private UtilisateurService utilisateurService;
     @Autowired
     private MemoireRepository memoireRepository;
 
@@ -154,6 +156,8 @@ public class MemoireController {
         model.addAttribute("notifications", notificationService.getNotificationNonLue());
         model.addAttribute("messages", messageService.getMessages());
         model.addAttribute("currentUser", principal.getName()); // Ajouter l'utilisateur actuel
+        long nombreUtilisateurs = utilisateurService.getNombreUtilisateurs();
+        model.addAttribute("nombreUtilisateurs", nombreUtilisateurs);
 
         statistiquesService.ajouterStatistiques(model);
 
