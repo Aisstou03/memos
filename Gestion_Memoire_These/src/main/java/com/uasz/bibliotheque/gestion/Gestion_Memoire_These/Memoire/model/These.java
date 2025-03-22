@@ -34,4 +34,7 @@ public class These {
     @JoinColumn(name = "ecoleDoctorat_id")
     private EcoleDoctorat ecoleDoctorat;
 
+    @Column(name = "est_supprime")
+    private Boolean estSupprime = false;  // Champ pour indiquer si la thèse est dans la corbeille
+
 }

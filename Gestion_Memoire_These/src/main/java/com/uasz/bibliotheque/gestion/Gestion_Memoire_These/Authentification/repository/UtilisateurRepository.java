@@ -21,6 +21,5 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Long> 
     Utilisateur findByUsername(String username);
     List<Utilisateur> findByIsOnline(boolean isOnline);
 
-
-
+    long count(); // Méthode pour compter le nombre d'utilisateurs
 }

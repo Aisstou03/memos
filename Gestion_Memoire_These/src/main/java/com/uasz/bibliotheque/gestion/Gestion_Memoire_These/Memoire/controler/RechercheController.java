@@ -151,21 +151,19 @@ public class RechercheController {
         return "master"; // Vue dédiée
     }
 
+
     @RequestMapping(value = "/theses/recherche", method = RequestMethod.POST)
-    public String afficherTheses(
+    public String rechercherTheses(
             @RequestParam(required = false) String cote,
             @RequestParam(required = false) String titre,
             @RequestParam(required = false) String etudiant,
             @RequestParam(required = false) String encadrant,
             @RequestParam(required = false) Integer annee,
-            @RequestParam(required = false) String ecoleDoctoraleNom, // Ajouté pour le filtrage
-            @RequestParam(required = false) String ufrNom, // Ajouté pour le filtrage
+            @RequestParam(required = false) String ecoleDoctoraleNom,
+            @RequestParam(required = false) String ufrNom,
             Model model
     ) {
-        // Définir une spécification de base pour les thèses
-        Specification<These> spec = Specification.where(null); // Initialise une spécification vide
-
-        // Vérifier si des critères de recherche ont été fournis
+        Specification<These> spec = Specification.where(null);
         boolean hasSearchParams = false;
 
         if (cote != null && !cote.isEmpty()) {
@@ -197,25 +195,22 @@ public class RechercheController {
             hasSearchParams = true;
         }
 
-        // Si la recherche est effectuée, récupérer les résultats
         if (hasSearchParams) {
             List<These> thesesTrouvees = theseService.searchMemos(spec);
-            model.addAttribute("theses", thesesTrouvees);
+            model.addAttribute("thesesTrouvees", thesesTrouvees);
             model.addAttribute("nombreThesesTrouvees", thesesTrouvees.size());
+            model.addAttribute("rechercheEffectuee", true);
 
             if (thesesTrouvees.isEmpty()) {
                 model.addAttribute("message", "Aucune thèse trouvée pour les critères spécifiés.");
             }
-
-            model.addAttribute("rechercheEffectuee", true);
         } else {
             model.addAttribute("rechercheEffectuee", false);
         }
 
-        // Ajouter d'autres attributs nécessaires
         model.addAttribute("typeThese", "Doctorat");
 
-        return "doctorat"; // Vue dédiée
+        return "doctorat"; // Vue correcte
     }
 
 

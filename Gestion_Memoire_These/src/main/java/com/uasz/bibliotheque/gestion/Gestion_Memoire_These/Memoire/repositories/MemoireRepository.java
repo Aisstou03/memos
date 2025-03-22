@@ -23,4 +23,17 @@ public interface MemoireRepository extends JpaRepository<Memoire, Long>, JpaSpec
     @Query("SELECT m FROM Memoire m WHERE m.annee = :annee AND m.type = :type")
     List<Memoire> findByAnneeAndType(@Param("annee") int annee, @Param("type") TypeMemoire type);
 
+    //liste des memoires se trouvant dans la corbeille
+    List<Memoire> findByCorbeilleTrue();
+
+    // Recherche les titres qui commencent par le mot saisi
+    @Query("SELECT m.titre FROM Memoire m WHERE LOWER(m.titre) LIKE LOWER(CONCAT('%', :motCle, '%'))")
+    List<String> findSuggestions(@Param("motCle") String motCle);
+
+    @Query("SELECT m FROM Memoire m WHERE m.corbeille = false")
+    List<Memoire> findMemoiresActifs(); // Récupère les mémoires actifs (non supprimés)
+
+    List<Memoire> findByCorbeilleFalse(); // Alternative : Spring Data JPA comprend automatiquement cette requête
+    
+
 }

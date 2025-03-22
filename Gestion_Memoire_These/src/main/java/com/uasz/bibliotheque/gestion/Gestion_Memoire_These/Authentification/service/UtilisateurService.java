@@ -120,7 +120,7 @@ public class UtilisateurService {
         return utilisateurRepository.findByIsOnline(true);
     }
 
-
-    // Autres méthodes (par exemple savePasswordResetToken, findByPasswordResetToken, etc.)
-
+    public long getNombreUtilisateurs() {
+        return utilisateurRepository.count(); // Retourne le nombre total d'utilisateurs
+    }
 }

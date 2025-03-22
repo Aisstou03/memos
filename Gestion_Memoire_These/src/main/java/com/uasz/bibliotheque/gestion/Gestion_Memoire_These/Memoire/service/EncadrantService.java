@@ -30,8 +30,6 @@ public class EncadrantService {
     public Encadrant createNewSupervisor(Encadrant supervisor) {
         return encadrantRepository.save(supervisor);
     }
-    public Optional<Encadrant> findByNomComplet(String nomComplet) {
-        return encadrantRepository.findByNomComplet(nomComplet);
-    }
+
 }
 

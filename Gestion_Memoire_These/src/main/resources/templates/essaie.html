@@ -6,10 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="apple-touch-icon" sizes="76x76" href="../img/logo1.png">
   <link rel="icon" type="image/png" href="../img/logo1.png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.3.0/css/flat-ui.min.css"
         integrity="sha512-6f7HT84a/AplPkpSRSKWqbseRTG4aRrhadjZezYQ0oVk/B+nm/US5KzQkyyOyh0Mn9cyDdChRdS9qaxJRHayww=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.3.0/css/flat-ui.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <title>
@@ -62,17 +65,17 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-dark" href="#" data-bs-toggle="modal" data-bs-target="#rechercheModal">
-            <i class="material-symbols-rounded opacity-5">download</i>
-            <span class="nav-link-text ms-1">Télécharger</span>
-          </a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link text-dark" href="#" id="notificationBtn">
             <i class="material-symbols-rounded opacity-5">notifications</i>
             <span class="nav-link-text ms-1">Notifications</span>
             <span class="notification-count" th:text="${notifications != null && !notifications.isEmpty() ? notifications.size() : '0'}"
                   th:style="${notifications == null || notifications.isEmpty() ? 'display: none;' : ''}">0</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="/memoires/corbeille">
+            <i class="material-symbols-rounded opacity-5">delete</i>
+            <span class="nav-link-text ms-1">Corbeille</span>
           </a>
         </li><br/>
 
@@ -192,50 +195,66 @@
     <div class="container-fluid py-2">
       <div class="row">
         <div class="ms-3">
-          <h3 class="mb-0 h4 font-weight-bolder">Tableau de bord</h3>
-          <style>
-
-            /* Animation d'écriture */
-            @keyframes typing {
-              from {
-                width: 0;
-              }
-              to {
-                width: 100%;
-              }
-            }
-
-            /* Conteneur principal */
-            .conteneur-defilement {
-              width: 100%;
-              text-align: center;
-              overflow: hidden;
-              padding: 10px 0;
-              background-color: #f8f9fa; /* Couleur de fond légère */
-            }
-
-            /* Texte avec effet d'écriture */
-            .texte-defilant {
-              display: inline-block;
-              border-right: 3px solid #333; /* Curseur */
-              font-size: 18px;
-              font-weight: bold;
-              color: #333;
-              white-space: nowrap; /* Empêche le retour à la ligne */
-              overflow: hidden; /* Cache le texte non écrit */
-              width: 0; /* Point de départ */
-              animation: typing 9s steps(100, end) forwards, blink 0.8s step-start infinite;
-            }
-          </style>
+          <h3 id="dashboard-title" class="mb-0 h4 font-weight-bolder">Tableau de bord</h3>
 
           <!-- Bloc Thymeleaf avec texte défilant -->
-          <div class="conteneur-defilement">
-            <p class="texte-defilant">
+          <div id="dashboard-container" class="conteneur-defilement">
+            <p id="dashboard-text" class="texte-defilant">
               Bienvenue dans votre page de gestion des mémoires et thèses de l'Université Assane SECK de Ziguinchor.
             </p>
           </div>
-
         </div>
+
+        <style>
+  /* Animation d'écriture */
+  @keyframes typing {
+    from {
+      width: 0;
+    }
+    to {
+      width: 100%;
+    }
+  }
+
+  /* Conteneur principal */
+  .conteneur-defilement {
+    width: 100%;
+    text-align: center;
+    overflow: hidden;
+    padding: 10px 0;
+    background-color: #f8f9fa; /* Par défaut : fond clair */
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Texte avec effet d'écriture */
+  .texte-defilant {
+    display: inline-block;
+    border-right: 3px solid #333;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 0;
+    animation: typing 9s steps(100, end) forwards, blink 0.8s step-start infinite;
+  }
+
+  /* Thèmes */
+  .dark-theme {
+    background-color: #1e1e2f !important;
+    color: white !important;
+  }
+
+  .transparent-theme {
+    background-color: transparent !important;
+    color: #333 !important;
+  }
+
+  .white-theme {
+    background-color: #f8f9fa !important;
+    color: #333 !important;
+  }
+</style>
 
         <!-- Message de succès -->
         <div th:if="${message}" id="success-alert" class="custom-alert alert-success">
@@ -254,43 +273,42 @@
               document.getElementById(alertId).style.display = "none";
           }
       </script>
-
         <style>
-    .custom-alert {
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 15px;
-        border-radius: 8px;
-        color: white;
-        backdrop-filter: blur(10px);
-        background: rgba(0, 0, 0, 0.4);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        z-index: 1000;
-        text-align: center;
-        min-width: 300px;
-    }
+          .custom-alert {
+              position: fixed;
+              top: 20px;
+              left: 50%;
+              transform: translateX(-50%);
+              padding: 15px;
+              border-radius: 8px;
+              color: white;
+              backdrop-filter: blur(10px);
+              background: rgba(0, 0, 0, 0.4);
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+              z-index: 1000;
+              text-align: center;
+              min-width: 300px;
+          }
 
-    .alert-success {
-        border: none;
-    }
+          .alert-success {
+              border: none;
+          }
 
-    .alert-danger {
-        border: 2px solid #dc3545;
-    }
+          .alert-danger {
+              border: 2px solid #dc3545;
+          }
 
-    .custom-alert button {
-        margin-left: 10px;
-    }
-</style>
+          .custom-alert button {
+              margin-left: 10px;
+          }
+      </style>
 
         <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
           <div class="card">
             <div class="card-header p-2 ps-3">
               <div class="d-flex justify-content-between">
                 <div>
-                  <p class="text-sm mb-0 text-capitalize">Licences</p>
+                  <p class="text-sm mb-0 text-capitalize">Memoires de Licence</p>
                   <h4 class="mb-0" th:text="${licenceCount}"></h4>
                 </div>
                 <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
@@ -324,7 +342,7 @@
             <div class="card-header p-2 ps-3">
               <div class="d-flex justify-content-between">
                 <div>
-                  <p class="text-sm mb-0 text-capitalize">Masters</p>
+                  <p class="text-sm mb-0 text-capitalize">Memoires de Master</p>
                   <h4 class="mb-0" th:text="${masterCount}"></h4>
                   <!-- NOMBRE DE MASTER-->
                 </div>
@@ -359,7 +377,7 @@
             <div class="card-header p-2 ps-3">
               <div class="d-flex justify-content-between">
                 <div>
-                  <p class="text-sm mb-0 text-capitalize">Doctorats</p>
+                  <p class="text-sm mb-0 text-capitalize">Thèses</p>
                   <h4 class="mb-0" th:text="${doctoratCount}"></h4>
                   <!--Affichage nombre totale DOCTORAT -->
                 </div>
@@ -393,16 +411,17 @@
           </div>
         </div>
 
-
-        <div class="col-xl-3 col-sm-6">
+        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
           <div class="card">
             <div class="card-header p-2 ps-3">
               <div class="d-flex justify-content-between">
                 <div>
-                  <p class="text-sm mb-0 text-capitalize"><b> <h4>Explorez</h4> </b></p>
+                  <p class="text-sm mb-0 text-capitalize">Utilisateurs</p>
+                  <h4 class="mb-0" th:text="${nombreUtilisateurs}"></h4>
+                  <!--Affichage nombre totale utilisateurs -->
                 </div>
                 <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
-                  <i class="fa fa-search" aria-hidden="true"></i>
+                  <i class="bi bi-person"></i>
                 </div>
               </div>
             </div>
@@ -412,7 +431,7 @@
                   .btn-rechercher {
                       background-color: rgb(34, 34, 37);
                       color: white;
-                      padding: 6px 12px;
+                      padding: 6px 8px;
                       border: none;
                       cursor: pointer;
                       border-radius: 18px;
@@ -420,14 +439,12 @@
                   }
 
                   .btn-rechercher:hover {
-                      background-color: rgb(83, 83, 86);
+                      background-color: rgb(54, 54, 57);
                   }
               </style>
 
-              <form th:action="@{/rechercher}" method="get">
-                <button type="submit" class="btn-rechercher">
-                  Rechercher
-                </button>
+              <form th:action="@{/ }" method="get">
+                <a href="/listeResponsables" class="btn-rechercher">Voir plus</a>
               </form>
             </div>
           </div>
@@ -481,7 +498,7 @@
         <div class="col-lg-4 col-md-6 mt-4 mb-4">
           <div class="card">
             <div class="card-body">
-              <h6 class="mb-0"> Licence</h6>
+              <h6 class="mb-0"> Memoires de Licence</h6>
               <div class="pe-2">
                 <div class="chart">
                   <canvas id="chart-licence" class="chart-canvas" height="170"></canvas>
@@ -500,7 +517,7 @@
         <div class="col-lg-4 col-md-6 mt-4 mb-4">
           <div class="card">
             <div class="card-body">
-              <h6 class="mb-0"> Master</h6>
+              <h6 class="mb-0">Memoires de Master</h6>
               <div class="pe-2">
                 <div class="chart">
                   <canvas id="chart-master" class="chart-canvas" height="170"></canvas>
@@ -519,7 +536,7 @@
         <div class="col-lg-4 mt-4 mb-3">
           <div class="card">
             <div class="card-body">
-              <h6 class="mb-0"> Doctorat</h6>
+              <h6 class="mb-0"> Thèses</h6>
               <div class="pe-2">
                 <div class="chart">
                   <canvas id="chart-doctorat" class="chart-canvas" height="170"></canvas>

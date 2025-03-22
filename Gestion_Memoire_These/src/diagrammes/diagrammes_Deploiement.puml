@@ -10,8 +10,18 @@ node "Serveur d'Application" {
 node "Base de Données" {
     database "MySQL" {
         [Tables des Mémoires]
+        [Tables des Encadrant]
+        [Tables des Etudiant]
+        [Tables des ufr]
+        [Tables des Departement]
+        [Tables des Filiere]
+        [Tables des Role]
+        [Tables des These]
+        [Tables des TypeMemoire]
+        [Tables des EcoleDoctorale]
         [Tables des Utilisateurs]
         [Tables des Notifications]
+        [Tables des Messages]
     }
 }
 

@@ -51,16 +51,14 @@ public class MemoireSpecifications {
                 // Recherche sur nom ou prénom si un seul mot est fourni
                 String pattern = "%" + parts[0] + "%";
                 return criteriaBuilder.or(
-                        criteriaBuilder.like(criteriaBuilder.lower(root.join("encadrant").get("nom")), pattern),
-                        criteriaBuilder.like(criteriaBuilder.lower(root.join("encadrant").get("prenom")), pattern)
+                        criteriaBuilder.like(criteriaBuilder.lower(root.join("encadrant").get("nom")), pattern)
                 );
             } else {
                 // Recherche par combinaison de nom et prénom
                 String nomPattern = "%" + parts[0] + "%";
                 String prenomPattern = "%" + parts[1] + "%";
                 return criteriaBuilder.and(
-                        criteriaBuilder.like(criteriaBuilder.lower(root.join("encadrant").get("nom")), nomPattern),
-                        criteriaBuilder.like(criteriaBuilder.lower(root.join("encadrant").get("prenom")), prenomPattern)
+                        criteriaBuilder.like(criteriaBuilder.lower(root.join("encadrant").get("nom")), nomPattern)
                 );
             }
         };
