@@ -17,8 +17,9 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    private static final String[] FOR_RESPONSABLE = {"/Admin/**"};
-    private static final String[] FOR_STAGER = {"/User/**"};
+    private static final String[] FOR_RESPONSABLE = {"/Responsable/**"};
+    private static final String[] FOR_STAGER = {"/Stager/**"};
+    private static final String[] FOR_SUPERADMIN = {"/Admin/**"};
 
     @Autowired
     @Lazy
@@ -39,31 +40,36 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/js/**", "/css/**", "/img/**").permitAll()
-                        .requestMatchers("/login", "/logout", "/resultatsRecherche", "/register", "/error", "/logs", "/sessions", "/Responsable", "/notifications").permitAll()
-                        .requestMatchers("/h2/**","/assets/**","/static/**","/static").permitAll()
-                        .requestMatchers("/reset-password", "/reset-confirm").permitAll()
-                        .requestMatchers(FOR_RESPONSABLE).hasRole("Admin")
-                        .requestMatchers(FOR_STAGER).hasRole("User")
+                        // Pages communes accessibles à tout le monde (que ce soit Responsable ou Stager)
+                        .requestMatchers("/js/**", "/css/**", "/img/**", "/login", "/logout").permitAll()
+                        .requestMatchers("/profil/**", "/dashboard/**").permitAll()  // Page profil et tableau de bord sont communes
+                        .requestMatchers("/js/**", "/css/**", "/img/**", "/static/**", "/assets/**").permitAll()
+
+                        // Pages réservées aux Responsables (Admin)
+                        .requestMatchers("memoires/liste", "/admin/**").hasRole("Responsable")  // Seulement les Responsables peuvent accéder à "/memoires/liste"
+
+                        // Pages réservées aux Stagers
+                        .requestMatchers("/dashboard/stager").hasRole("stager")  // Seuls les Stagers peuvent accéder à leur tableau de bord
+
+                        // Pages réservées au Administrateur
+                        .requestMatchers("/dashboard/stager").hasRole("Admin")  // Seuls les Stagers peuvent accéder à leur tableau de bord
+
+                        // Toute autre requête doit être authentifiée
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .accessDeniedPage("/access-denied")  // Page d'erreur personnalisée
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
                         .usernameParameter("username")
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/", true) // Redirection après connexion
-                        .successHandler((request, response, authentication) -> {
-                            utilisateurService.setUserOnline(authentication.getName());
-                            response.sendRedirect("/"); // Rediriger après connexion réussie
-                        })
+                        .defaultSuccessUrl("/", true) // Redirection après connexion réussie
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessHandler((request, response, authentication) -> {
-                            if (authentication != null && authentication.getName() != null) {
-                                utilisateurService.setUserOffline(authentication.getName());
-                            }
                             response.sendRedirect("/login?logout=true");
                         })
                         .invalidateHttpSession(true)

@@ -62,12 +62,20 @@ public class UtilisateurController {
                         return "redirect:/memoires/liste";
                     case "Stager":
                         return "redirect:/dashbord/stager";
+                    case "Admin":
+                        return "redirect:/dashbord/Admin";
+
                     default:
                         return "redirect:/login?error=role_inconnu";
                 }
             }
         }
         return "redirect:/login";
+    }
+
+    @GetMapping("/access-denied")
+    public String accessDenied() {
+        return "access-denied";  // Fichier Thymeleaf: access-denied.html
     }
 
    /* @GetMapping("/dashbord/stagiaire")
@@ -141,7 +149,7 @@ public class UtilisateurController {
         model.addAttribute("messages", messageService.getMessages());
         model.addAttribute("currentUser", principal.getName()); // Ajouter l'utilisateur actuel
 
-        return "Responsable"; // Assurez-vous que ce nom correspond au fichier Thymeleaf (ex: responsables.html)
+        return "AjoutUtilisateur"; // Assurez-vous que ce nom correspond au fichier Thymeleaf (ex: responsables.html)
     }
 
     @GetMapping("/ajouterUtilisateur")
