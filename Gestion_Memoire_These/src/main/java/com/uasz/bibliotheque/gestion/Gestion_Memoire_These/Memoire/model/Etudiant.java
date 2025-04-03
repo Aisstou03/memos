@@ -15,10 +15,5 @@ public class Etudiant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nom;
-    private String prenom;
 
-    // Méthode pour obtenir le nom complet
-    public String getNomComplet() {
-        return this.nom + " " + this.prenom;
-    }
-}
+   }

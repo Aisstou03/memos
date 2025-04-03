@@ -104,7 +104,7 @@ public class MemoireService {
 
     // Ajouter une mémoire
     public void ajouterMemoire(String ufrNom, String departementNom, String filiereNom, String type, String titre, int annee,
-                               int exemplaires, String etudiantNom,String etudiantPrenom, String encadrantNom) {
+                               int exemplaires, String etudiantNom, String encadrantNom) {
         // Obtenez la filière
         Filiere filiere = filiereRepository.findByNom(filiereNom)
                 .orElseThrow(() -> new RuntimeException("Filière introuvable"));
@@ -122,8 +122,8 @@ public class MemoireService {
         }
 
         // Gestion de l'étudiant
-        Etudiant etudiant = etudiantRepository.findByNomAndPrenom(etudiantNom, etudiantPrenom)
-                .orElseGet(() -> etudiantRepository.save(new Etudiant(null, etudiantNom, etudiantPrenom)));
+        Etudiant etudiant = etudiantRepository.findByNom(etudiantNom)
+                .orElseGet(() -> etudiantRepository.save(new Etudiant(null, etudiantNom)));
 
         // Gestion de l'encadrant
         Encadrant encadrant = encadrantRepository.findByNomAndFiliere(encadrantNom, filiere)
@@ -148,7 +148,7 @@ public class MemoireService {
         memoireRepository.save(memoire);
 
         // Créez une notification après l'ajout du mémoire
-        String messageNotification = "Un nouveau mémoire a été ajouté : " + titre + " de : " + etudiantNom + " " + etudiantPrenom;
+        String messageNotification = "Un nouveau mémoire a été ajouté : " + titre + " de : " + etudiantNom;
         notificationService.creerNotification(messageNotification);
 
         // Journalisation pour vérifier le fonctionnement
@@ -213,8 +213,7 @@ public class MemoireService {
         // Création de la notification après mise à jour
         String titre = memoireSauvegardee.getTitre();
         String etudiantNom = memoireSauvegardee.getEtudiant() != null ? memoireSauvegardee.getEtudiant().getNom() : "Inconnu";
-        String etudiantPrenom = memoireSauvegardee.getEtudiant() != null ? memoireSauvegardee.getEtudiant().getPrenom() : "Inconnu";
-        String messageNotification = "Le mémoire \"" + titre + "\" de " + etudiantNom + " " + etudiantPrenom + " a été modifié.";
+        String messageNotification = "Le mémoire \"" + titre + "\" de " + etudiantNom + " a été modifié.";
         notificationService.creerNotification(messageNotification);
 
         // Journalisation pour vérifier le fonctionnement
@@ -277,13 +276,12 @@ public class MemoireService {
         // Récupération des informations pour la notification avant suppression
         String titre = memoire.getTitre();
         String etudiantNom = memoire.getEtudiant() != null ? memoire.getEtudiant().getNom() : "Inconnu";
-        String etudiantPrenom = memoire.getEtudiant() != null ? memoire.getEtudiant().getPrenom() : "Inconnu";
 
         // Supprime le mémoire
         memoireRepository.delete(memoire);
 
         // Création de la notification
-        String messageNotification = "Le mémoire \"" + titre + "\" de " + etudiantNom + " " + etudiantPrenom + " a été supprimé.";
+        String messageNotification = "Le mémoire \"" + titre + "\" de " + etudiantNom + " a été supprimé.";
         notificationService.creerNotification(messageNotification);
 
         // Journalisation pour vérifier le fonctionnement
@@ -312,33 +310,33 @@ public class MemoireService {
         return memoireRepository.findAll(spec);
     }
 
-    public long countMemosByType(TypeMemoire type) {
-        return memoireRepository.findAllByType(type).size();
+    public long countMemosByTypeNonSupprime(TypeMemoire type) {
+        return memoireRepository.countNonSupprimeMemosByType(type);
     }
 
-    public long countTheses() {
-        return theseRepository.countTheses();
+    public long countThesesNonSupprime() {
+        return theseRepository.countNonSupprimeTheses();
     }
 
     public Map<Integer, Long> countMemosByTypeAndYear(TypeMemoire type) {
-        // Récupérer les années distinctes et compter par type
-        List<Memoire> memoires = memoireRepository.findAllByType(type);
+        // Récupérer uniquement les mémoires non supprimés
+        List<Memoire> memoires = memoireRepository.findAllByTypeAndNotDeleted(type);
         return memoires.stream()
                 .collect(Collectors.groupingBy(
-                        Memoire::getAnnee,   // Regrouper par l'année
+                        Memoire::getAnnee,   // Regrouper par année
                         Collectors.counting() // Compter les mémoires dans chaque année
                 ));
     }
-    public Map<Integer, Long> countThesesByYear() {
-        List<These> theses = theseRepository.findAll(); // Récupérer toutes les thèses
 
+    public Map<Integer, Long> countThesesByYear() {
+        // Récupérer uniquement les thèses non supprimées
+        List<These> theses = theseRepository.findAllNotDeleted();
         return theses.stream()
                 .collect(Collectors.groupingBy(
-                        These::getAnnee,    // Regrouper par l'année
+                        These::getAnnee,    // Regrouper par année
                         Collectors.counting() // Compter les thèses dans chaque année
                 ));
     }
-
 
     //liste de licences filtres
     /**
@@ -368,15 +366,31 @@ public class MemoireService {
         return memoireRepository.findAll(spec);
     }
 
-    //listes des licences
-    public List<Memoire> getAllMemoiresLicence() {
-        return memoireRepository.findAll(MemoireSpecifications.withType(TypeMemoire.LICENCE));
+    // Récupérer les mémoires actifs (hors corbeille) de type LICENCE
+    public List<Memoire> findMemoiresActifs() {
+        return memoireRepository.findByCorbeilleFalseAndType(TypeMemoire.LICENCE);
     }
 
-    //listes des Masters
+    // Récupérer les mémoires actifs (hors corbeille) de type MASTER
     public List<Memoire> getAllMemoiresMaster() {
-        return memoireRepository.findAll(MemoireSpecifications.withType(TypeMemoire.MASTER));
+        return memoireRepository.findByCorbeilleFalseAndType(TypeMemoire.MASTER);
     }
+
+    // Récupérer les mémoires supprimés (en corbeille) de type LICENCE
+    public List<Memoire> getMemoiresSupprimesLicence() {
+        return memoireRepository.findByCorbeilleTrueAndType(TypeMemoire.LICENCE);
+    }
+
+    // Récupérer les mémoires supprimés (en corbeille) de type MASTER
+    public List<Memoire> getMemoiresSupprimesMaster() {
+        return memoireRepository.findByCorbeilleTrueAndType(TypeMemoire.MASTER);
+    }
+
+    // Récupérer les mémoires supprimés (en corbeille) de type THESE     public List<Memoire> getMemoiresSupprimesThese() {
+    //        return memoireRepository.findByCorbeilleTrueAndType(TypeMemoire.THESE);
+    //    }
+
+
 
     //liste de these
     public Map<String, Map<String, List<Memoire>>> getMemoiresDoctoratGroupes() {
@@ -447,11 +461,4 @@ public class MemoireService {
     }
 
 
-    public List<Memoire> findMemoiresActifs() {
-        return memoireRepository.findByCorbeilleFalse();
-    }
-
-    public List<Memoire> findMemoiresDansCorbeille() {
-        return memoireRepository.findByCorbeilleTrue();
-    }
 }

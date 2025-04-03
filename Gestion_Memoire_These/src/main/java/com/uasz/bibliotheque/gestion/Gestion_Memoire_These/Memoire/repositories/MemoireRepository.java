@@ -26,14 +26,13 @@ public interface MemoireRepository extends JpaRepository<Memoire, Long>, JpaSpec
     //liste des memoires se trouvant dans la corbeille
     List<Memoire> findByCorbeilleTrue();
 
-    // Recherche les titres qui commencent par le mot saisi
-    @Query("SELECT m.titre FROM Memoire m WHERE LOWER(m.titre) LIKE LOWER(CONCAT('%', :motCle, '%'))")
-    List<String> findSuggestions(@Param("motCle") String motCle);
+    List<Memoire> findByCorbeilleFalseAndType(TypeMemoire type);
+    List<Memoire> findByCorbeilleTrueAndType(TypeMemoire type);
 
-    @Query("SELECT m FROM Memoire m WHERE m.corbeille = false")
-    List<Memoire> findMemoiresActifs(); // Récupère les mémoires actifs (non supprimés)
+    @Query("SELECT COUNT(m) FROM Memoire m WHERE m.corbeille = false AND m.type = :type")
+    long countNonSupprimeMemosByType(@Param("type") TypeMemoire type);
 
-    List<Memoire> findByCorbeilleFalse(); // Alternative : Spring Data JPA comprend automatiquement cette requête
-    
+    @Query("SELECT m FROM Memoire m WHERE m.corbeille = false AND m.type = :type")
+    List<Memoire> findAllByTypeAndNotDeleted(@Param("type") TypeMemoire type);
 
 }

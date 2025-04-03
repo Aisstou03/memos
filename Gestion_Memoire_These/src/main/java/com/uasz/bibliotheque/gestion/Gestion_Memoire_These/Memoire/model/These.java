@@ -29,6 +29,9 @@ public class These {
     private int annee;
     private int exemplaires;  // Le nombre d'exemplaires
 
+    @Column(name = "corbeille", nullable = false)
+    private boolean corbeille = false; // Ajout du champ corbeille
+
     @JsonBackReference // Empêche la sérialisation de l'UFR dans Departement
     @ManyToOne
     @JoinColumn(name = "ecoleDoctorat_id")

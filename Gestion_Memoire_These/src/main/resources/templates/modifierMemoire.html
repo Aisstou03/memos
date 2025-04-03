@@ -83,10 +83,10 @@
                         <div class="row"> <!-- Ajout de la classe row -->
                             <div class="col-md-6">
                                 <label for="etudiant" class="form-label">Étudiant</label>
-                                <input type="text" id="etudiant" name="etudiantNomComplet" th:field="*{etudiant.nomComplet}"
+                                <input type="text" id="etudiant"  th:field="*{etudiant.nom}"
                                        class="form-control" list="etudiant-list" placeholder="Saisissez ou choisissez un étudiant" />
                                 <datalist id="etudiant-list">
-                                    <option th:each="etd : ${etudiants}" th:value="${etd.nom} + ' ' + ${etd.prenom}" th:data-id="${etd.id}" />
+                                    <option th:each="etd : ${etudiants}" th:value="${etd.nom}" th:data-id="${etd.id}" />
                                 </datalist>
                                 <input type="hidden" id="etudiantId" th:field="*{etudiant.id}" />
                             </div>

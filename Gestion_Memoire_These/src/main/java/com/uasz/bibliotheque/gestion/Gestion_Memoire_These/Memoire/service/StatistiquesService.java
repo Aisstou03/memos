@@ -20,12 +20,12 @@ public class StatistiquesService {
 
     public void ajouterStatistiques(Model model) {
         try {
-            logger.info("Récupération des statistiques des mémoires.");
+            logger.info("Récupération des statistiques des mémoires et thèses non supprimés.");
 
-            // Compter les mémoires par type
-            long licenceCount = memoireService.countMemosByType(TypeMemoire.LICENCE);
-            long masterCount = memoireService.countMemosByType(TypeMemoire.MASTER);
-            long doctoratCount = memoireService.countTheses();
+            // Compter uniquement les mémoires et thèses qui ne sont pas supprimés
+            long licenceCount = memoireService.countMemosByTypeNonSupprime(TypeMemoire.LICENCE);
+            long masterCount = memoireService.countMemosByTypeNonSupprime(TypeMemoire.MASTER);
+            long doctoratCount = memoireService.countThesesNonSupprime();
 
             model.addAttribute("licenceCount", licenceCount);
             model.addAttribute("masterCount", masterCount);
@@ -35,7 +35,7 @@ public class StatistiquesService {
             List<Long> stats = List.of(licenceCount, masterCount, doctoratCount);
             model.addAttribute("stats", stats);
 
-            // Récupération des statistiques par année et par type
+            // Récupération des statistiques par année et par type (seulement pour les mémoires/thèses non supprimés)
             Map<Integer, Long> licencesParAnnee = memoireService.countMemosByTypeAndYear(TypeMemoire.LICENCE);
             Map<Integer, Long> mastersParAnnee = memoireService.countMemosByTypeAndYear(TypeMemoire.MASTER);
             Map<Integer, Long> thesesParAnnee = memoireService.countThesesByYear();

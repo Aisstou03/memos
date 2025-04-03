@@ -25,15 +25,16 @@ public class EtudiantService {
                 .orElseThrow(() -> new IllegalArgumentException("Student not found with ID: " + id));
     }
 
-    public Optional<Etudiant> findByName(String name) {
-        return etudiantRepository.findByNom(name);
+    public Etudiant findByNom(String nom) {
+        return etudiantRepository.findByNom(nom)
+                .orElseThrow(() -> new IllegalArgumentException("Étudiant avec le nom " + nom + " non trouvé"));
     }
 
     public Etudiant createNewStudent(Etudiant student) {
         return etudiantRepository.save(student);
     }
-    public Optional<Etudiant> findByNomComplet(String nomComplet) {
-        return etudiantRepository.findByNomComplet(nomComplet);
+    // Sauvegarde d'un étudiant
+    public Etudiant save(Etudiant etudiant) {
+        return etudiantRepository.save(etudiant);  // Sauvegarde l'étudiant dans la base de données
     }
-
 }

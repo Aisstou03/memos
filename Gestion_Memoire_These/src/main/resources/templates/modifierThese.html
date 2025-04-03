@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modification These </title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="../static/css/style.css" th:href="@{/css/style.css}"/>
+  <link rel="apple-touch-icon" sizes="76x76" href="../img/logo1.png">
+  <link rel="icon" type="image/png" href="../img/logo1.png">
+  <!-- Ajouter ce lien dans la section <head> de ton fichier HTML -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+  <style>
+        .row {
+            display: flex;
+            flex-wrap: nowrap; /* Empêche le retour à la ligne */
+            gap: 10px; /* Ajoute un petit espace entre les champs */
+        }
+  </style>
+</head>
+<body>
+    <!-- Bouton de retour -->
+    <div class="container">
+      <a href="#" class="back-button">
+        <span class="back-icon">⬅</span> Retour
+      </a>
+    </div>
+
+    <div class="container">
+      <h2>Modification de Thèse</h2>
+      <!-- Formulaire de recherche -->
+      <form th:action="@{/theses/modifier/recherche}" method="get">
+        <div class="search-container">
+          <input type="text" class="form-control" name="cote" placeholder="Cote" />
+          <input type="text" class="form-control" name="titre" placeholder="Titre" />
+          <input type="text" class="form-control" name="etudiant" placeholder="Etudiant" />
+          <input type="text" class="form-control" name="encadrant" placeholder="Encadrant" />
+          <input type="number" class="form-control" name="annee" placeholder="Année" />
+          <input type="text" class="form-control" name="filiere" placeholder="Filière" />
+          <button type="submit" class="search-button">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </form>
+      <br/>
+
+      <!-- Message d'erreur ou d'information  <div th:if="${message}" class="alert alert-info">
+        <span th:text="${message}"></span>
+      </div> -->
+
+      <div class="card p-4 shadow">
+        <!-- Liste des mémoires trouvés <div th:if="${these != null}">
+          <h3>Liste des thèses trouvés</h3>
+          <ul>
+            <li th:each="memoire : ${memoires}">
+              <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" th:text="${these.titre}"></a>
+            </li>
+          </ul>
+        </div> -->
+
+
+        <!-- Formulaire de modification du mémoire -->
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+          <p th:text="${errorMessage}"></p>
+        </div>
+
+        <div th:if="${successMessage}" class="alert alert-success" role="alert">
+          <p th:text="${successMessage}"></p>
+        </div>
+
+        <div th:if="${these != null}">
+          <form th:action="@{/theses/modifier/{id}(id=${these.id})}" th:object="${these}" method="post">
+            <!-- ID caché -->
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="form-group">
+              <label for="titre">Titre</label>
+              <input type="text" th:field="*{titre}" class="form-control" />
+            </div>
+
+            <div class="form-group">
+              <label for="etudiant">Étudiant</label>
+              <select th:field="*{etudiant.id}" class="form-control">
+                <option th:each="etudiant : ${etudiants}" th:value="${etudiant.id}" th:text="${etudiant.nom}"></option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="encadrant">Encadrant</label>
+              <select th:field="*{encadrant.id}" class="form-control">
+                <option th:each="encadrant : ${encadrants}" th:value="${encadrant.id}" th:text="${encadrant.nom}"></option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="annee">Année</label>
+              <input type="number" th:field="*{annee}" class="form-control" />
+            </div>
+
+            <div class="form-group">
+              <label for="exemplaires">Nombre d'exemplaires</label>
+              <input type="number" th:field="*{exemplaires}" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Modifier</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <br>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    // Script pour synchroniser l'id et le nom complet
+    document.getElementById('etudiant').addEventListener('input', function (e) {
+      const options = document.querySelectorAll('#etudiant-list option');
+      const hiddenInput = document.getElementById('etudiantId');
+      hiddenInput.value = ''; // Réinitialiser
+      options.forEach(option => {
+        if (option.value === e.target.value) {
+          hiddenInput.value = option.getAttribute('data-id');
+        }
+      });
+    });
+      document.getElementById('encadrant').addEventListener('input', function (e) {
+      const options = document.querySelectorAll('#encadrant-list option');
+      const hiddenInput = document.getElementById('encadrantId');
+      hiddenInput.value = ''; // Réinitialiser
+      options.forEach(option => {
+        if (option.value === e.target.value) {
+          hiddenInput.value = option.getAttribute('data-id');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

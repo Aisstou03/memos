@@ -23,8 +23,13 @@ public class EncadrantService {
         return encadrantRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Supervisor not found with ID: " + id));
     }
-    public Optional<Encadrant> findByNom(String name) {
-        return encadrantRepository.findByNom(name);
+    public Encadrant findByNom(String nom) {
+        return encadrantRepository.findByNom(nom)
+                .orElseThrow(() -> new IllegalArgumentException("Encadrant avec le nom " + nom + " non trouvé"));
+    }
+    // Sauvegarde d'un encadrant
+    public Encadrant save(Encadrant encadrant) {
+        return encadrantRepository.save(encadrant);  // Sauvegarde l'encadrant dans la base de données
     }
 
     public Encadrant createNewSupervisor(Encadrant supervisor) {

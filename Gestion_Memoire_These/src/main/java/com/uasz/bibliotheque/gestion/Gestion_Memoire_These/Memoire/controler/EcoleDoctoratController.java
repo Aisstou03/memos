@@ -1,13 +1,12 @@
 package com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.controler;
 
-import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.model.EcoleDoctorat;
-import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.model.Encadrant;
-import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.model.Etudiant;
-import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.model.These;
+import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.model.*;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.repositories.*;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.service.EncadrantService;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.service.EtudiantService;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.service.TheseService;
+import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.service.UfrService;
+import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Notification.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,10 +19,13 @@ import java.util.stream.Collectors;
 
 @Controller
 public class EcoleDoctoratController {
+    @Autowired
+    private NotificationService notificationService ;
 
     @Autowired
     private TheseRepository theseRepository;
-
+    @Autowired
+    private UfrService ufrService;
     @Autowired
     EtudiantService etudiantService;
 
@@ -65,7 +67,6 @@ public class EcoleDoctoratController {
     @PostMapping("/theses/ajouter")
     public String addThesis(@RequestParam String titre,
                             @RequestParam String etudiantNom,
-                            @RequestParam String etudiantPrenom,
                             @RequestParam String encadrantNom,
                             @RequestParam int annee,
                             @RequestParam int exemplaires,
@@ -73,15 +74,14 @@ public class EcoleDoctoratController {
                             Model model) {
         try {
             // Vérification des champs vides
-            if (titre.isBlank() || etudiantNom.isBlank() || etudiantPrenom.isBlank()
-                    || encadrantNom.isBlank()) {
+            if (titre.isBlank() || etudiantNom.isBlank() || encadrantNom.isBlank()) {
                 model.addAttribute("error", "Tous les champs doivent être remplis !");
                 return "ajouterThese";
             }
 
             // Gestion de l'étudiant
-            Etudiant etudiant = etudiantRepository.findByNomAndPrenom(etudiantNom, etudiantPrenom)
-                    .orElseGet(() -> etudiantRepository.save(new Etudiant(null, etudiantNom, etudiantPrenom)));
+            Etudiant etudiant = etudiantRepository.findByNom(etudiantNom)
+                    .orElseGet(() -> etudiantRepository.save(new Etudiant(null, etudiantNom)));
 
             // Gestion de l'encadrant
             Encadrant encadrant = encadrantRepository.findByNom(encadrantNom)
@@ -134,7 +134,6 @@ public class EcoleDoctoratController {
         return "doctorat";
     }
 
-
     @PostMapping("/filtre/these")
     public String afficherThesesParUFR(@RequestParam String ufrNom, Model model) {
         // Activer le mode filtrage
@@ -170,69 +169,120 @@ public class EcoleDoctoratController {
         return "doctorat";  // Vue qui affichera les thèses filtrées
     }
 
-    // Méthode pour afficher la page de modification de la thèse
+    /**
+     * Affiche la page de modification avec ou sans recherche.
+     */    @GetMapping("/modifier/theses")
+    public String editThesis( Model model) {
+        model.addAttribute("these", new These()); // these vide pour le formulaire
+        model.addAttribute("etudiants", etudiantService.findAll());
+        model.addAttribute("encadrants", encadrantService.findAll());
+        model.addAttribute("ufrs", ufrService.findAllUfrs());
+        return "modifierThese"; // Retourne la page HTML
+    }
+
+    // Méthode pour afficher la page de modification de la thèse choisi
     @GetMapping("/theses/modifier/{id}")
     public String editThesis(@PathVariable("id") Long thesisId, Model model) {
         These these = theseService.getThesisById(thesisId);
+
         if (these == null) {
-            return "redirect:/theses"; // Redirige si la thèse n'existe pas
+            return "redirect:/memoires/doctorats";
         }
 
+        System.out.println("Thèse ID: " + these.getId());
+        System.out.println("Titre: " + these.getTitre());
+        System.out.println("Côte: " + these.getCote());
+        System.out.println("Année: " + these.getAnnee());
+        System.out.println("Exemplaires: " + these.getExemplaires());
+        if (these.getEcoleDoctorat() != null) {
+            System.out.println("UFR: " + these.getEcoleDoctorat().getNom());
+        } else {
+            System.out.println("UFR est NULL !");
+        }
+
+        List<Ufr> ufrs = ufrService.findAllUfrs();
         List<Etudiant> etudiants = etudiantService.findAll();
         List<Encadrant> encadrants = encadrantService.findAll();
 
         model.addAttribute("these", these);
         model.addAttribute("etudiants", etudiants);
         model.addAttribute("encadrants", encadrants);
+        model.addAttribute("ufrs", ufrs);
 
-        return "modifierThese"; // Retourne la page HTML
+        return "modifierThese";
     }
 
-    // Traitement du formulaire de modification
     @PostMapping("/theses/modifier/{id}")
-    public String modifierThesis(@PathVariable Long id, @ModelAttribute These updatedThesis) {
-        theseService.updateThesis(id, updatedThesis);
-        return "redirect:/theses/liste"; // Redirige après modification
+    public String modifierThese(@PathVariable("id") Long id, @ModelAttribute These these, RedirectAttributes redirectAttributes) {
+        try {
+            // Appel au service pour mettre à jour la thèse
+            These updatedThesis = theseService.updateThesis(id, these);
+
+            // Ajout du message de succès et redirection vers la liste des mémoires
+            redirectAttributes.addFlashAttribute("successMessage", "Thèse mise à jour avec succès !");
+            return "redirect:/memoires/doctorats";
+        } catch (IllegalArgumentException e) {
+            // Gestion des erreurs spécifiques (par exemple, étudiant ou encadrant introuvable)
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/theses/modifier/" + id;
+        } catch (Exception e) {
+            // Gestion des erreurs générales (par exemple, erreurs système)
+            redirectAttributes.addFlashAttribute("errorMessage", "Une erreur est survenue lors de la mise à jour.");
+            return "redirect:/theses/modifier/" + id;
+        }
     }
 
     // Méthode pour supprimer une thèse
     @PostMapping("/theses/supprimer")
-    public String supprimerThese(@RequestParam Long theseId) {
-        These these = theseRepository.findById(theseId).orElse(null);
+    public String supprimerThese(@RequestParam Long id, RedirectAttributes redirectAttributes) {
+        These these = theseRepository.findById(id).orElse(null);
         if (these != null) {
             // Marquer la thèse comme supprimée (déplacée dans la corbeille)
+            these.setCorbeille(true);
             these.setEstSupprime(true);
             theseRepository.save(these);  // Sauvegarder l'état modifié de la thèse
+            redirectAttributes.addFlashAttribute("successMessage", "Thèse déplacée dans la corbeille !");
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "Thèse introuvable !");
         }
-        return "redirect:/corbeilleThese"; // Rediriger vers la page de la corbeille après l'archivage
+        return "redirect:/memoires/doctorats"; //  la redirection
     }
 
-    @GetMapping("/corbeilleThese")
-    public String afficherCorbeille(Model model) {
-        // Récupérer toutes les thèses marquées comme supprimées
-        List<These> thesesDansCorbeille = theseRepository.findByEstSupprime(true);
-        model.addAttribute("thesesDansCorbeille", thesesDansCorbeille);
-        return "corbeilleThese"; // Vue pour afficher les thèses dans la corbeille
-    }
 
     @PostMapping("/theses/restaurer")
-    public String restaurerThese(@RequestParam Long theseId) {
+    public String restaurerThese(@RequestParam("theseId") Long theseId, RedirectAttributes redirectAttributes) {
         These these = theseRepository.findById(theseId).orElse(null);
         if (these != null) {
             // Restauration de la thèse
             these.setEstSupprime(false);
+            these.setCorbeille(false);
             theseRepository.save(these); // Sauvegarder la thèse restaurée
+            redirectAttributes.addFlashAttribute("successMessage", "Thèse restauré avec succès !");
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "Thèse introuvable !");
         }
-        return "redirect:/corbeilleThese"; // Rediriger vers la corbeille après la restauration
+        return "redirect:/memoires/corbeille"; // Rediriger vers la corbeille après la restauration
     }
 
     @PostMapping("/theses/supprimerDefinitivement")
-    public String supprimerDefinitivement(@RequestParam Long theseId) {
+    public String supprimerDefinitivement(@RequestParam("id") Long theseId, RedirectAttributes redirectAttributes) {
         These these = theseRepository.findById(theseId).orElse(null);
         if (these != null) {
-            // Suppression définitive de la thèse
             theseRepository.delete(these);
+            redirectAttributes.addFlashAttribute("successMessage", "Thèse supprimé définitivement !");
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "Impossible de supprimer une Thèse qui n'est pas en corbeille.");
         }
-        return "redirect:/corbeilleThese"; // Rediriger vers la corbeille après la suppression
+        return "redirect:/memoires/corbeille"; // Correction de la redirection
+    }
+
+    /**
+     * Generation dattestation
+     */
+    @GetMapping("/theses/genererAttestation/{id}")
+    public String detailsThese(@PathVariable Long id, Model model) {
+        These these = theseService.getThesisById(id);
+        model.addAttribute("these", these);
+        return "GenererAttestationThese"; // page de generation des attestations
     }
 }

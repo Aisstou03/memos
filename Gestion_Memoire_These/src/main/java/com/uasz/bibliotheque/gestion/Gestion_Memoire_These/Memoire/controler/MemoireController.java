@@ -3,6 +3,7 @@ package com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.controler;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.modele.Role;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.modele.Utilisateur;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.service.UtilisateurService;
+import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.repositories.TheseRepository;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.service.*;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Notification.service.NotificationService;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.chat.service.MessageService;
@@ -31,6 +32,9 @@ public class MemoireController {
     @Autowired
     private MemoireService memoireService;
     @Autowired
+    private TheseRepository theseRepository;
+
+    @Autowired
     private UtilisateurService utilisateurService;
     @Autowired
     private MemoireRepository memoireRepository;
@@ -55,8 +59,6 @@ public class MemoireController {
     @Autowired
     private DepartementService departementService;
     private final StatistiquesService statistiquesService;
-
-
 
     //formulaire d'ajout Licence
     @RequestMapping(value = "/ajoutMemoire", method = RequestMethod.GET)
@@ -92,7 +94,6 @@ public class MemoireController {
             @RequestParam("annee") int annee,
             @RequestParam("exemplaires") int exemplaires,
             @RequestParam("etudiantNom") String etudiantNom,
-            @RequestParam("etudiantPrenom") String etudiantPrenom,
             @RequestParam("encadrantNom") String encadrantNom,
             RedirectAttributes redirectAttributes) {
 
@@ -100,7 +101,7 @@ public class MemoireController {
             // Vérification des champs requis
             if (ufrNom.isEmpty() || departementNom.isEmpty() || filiereNom.isEmpty() ||
                     type.isEmpty() || titre.isEmpty() || annee <= 0 || exemplaires <= 0 ||
-                    etudiantNom.isEmpty() || etudiantPrenom.isEmpty() ||
+                    etudiantNom.isEmpty() ||
                     encadrantNom.isEmpty()) {
 
                 redirectAttributes.addFlashAttribute("error", "Tous les champs sont requis !");
@@ -110,7 +111,7 @@ public class MemoireController {
             // Ajout du mémoire
             memoireService.ajouterMemoire(
                     ufrNom, departementNom, filiereNom, type, titre, annee, exemplaires,
-                    etudiantNom, etudiantPrenom, encadrantNom
+                    etudiantNom, encadrantNom
             );
 
             // Ajout du message de succès
@@ -186,10 +187,6 @@ public class MemoireController {
             redirectAttributes.addFlashAttribute("errorMessage", "Mémoire introuvable !");
             return "redirect:/memoires/liste";
         }
-        List<Filiere> filieres = filiereService.findAll(); // Récupération des filières
-        List<Etudiant> etudiants = etudiantService.findAll();
-        List<Encadrant> encadrants = encadrantService.findAll();
-
         model.addAttribute("memoire", memoire);
         model.addAttribute("etudiants", etudiantService.findAll());
         model.addAttribute("encadrants", encadrantService.findAll());
@@ -260,8 +257,14 @@ public class MemoireController {
     // Affichage de la corbeille
     @GetMapping("/memoires/corbeille")
     public String corbeille(Model model) {
-        List<Memoire> memoiresEnCorbeille = memoireRepository.findByCorbeilleTrue();
-        model.addAttribute("memoires", memoiresEnCorbeille);
+        List<Memoire> memoiresLicence = memoireService.getMemoiresSupprimesLicence();
+        List<Memoire> memoiresMaster = memoireService.getMemoiresSupprimesMaster();
+        List<These> thesesDansCorbeille = theseRepository.findByEstSupprime(true);
+
+        model.addAttribute("thesesDansCorbeille", thesesDansCorbeille);
+        model.addAttribute("memoiresLicence", memoiresLicence);
+        model.addAttribute("memoiresMaster", memoiresMaster);
+
         return "Corbeille";
     }
 
@@ -466,4 +469,15 @@ public class MemoireController {
 
         return "master";
     }
+
+    /**
+     * Generation dattestation
+     */
+    @GetMapping("/memoires/genererAttestation/{id}")
+    public String detailsMemoire(@PathVariable Long id, Model model) {
+        Memoire memoire = memoireService.getMemoireById(id);
+        model.addAttribute("memoire", memoire);
+        return "GenererAttestation"; // page de generation des attestations
+    }
+
 }

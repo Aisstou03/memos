@@ -12,9 +12,4 @@ import java.util.Optional;
 public interface EtudiantRepository extends JpaRepository<Etudiant, Long> {
     Optional<Etudiant> findByNom(String nom);
 
-    Optional<Etudiant> findByNomAndPrenom(String nom, String prenom);
-
-    @Query("SELECT e FROM Etudiant e WHERE CONCAT(e.nom, ' ', e.prenom) = :nomComplet")
-    Optional<Etudiant> findByNomComplet(@Param("nomComplet") String nomComplet);
-
 }

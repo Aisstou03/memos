@@ -12,7 +12,9 @@
     <link rel="icon" type="image/png" href="../img/logo1.png">
     <!-- Ajouter ce lien dans la section <head> de ton fichier HTML -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-    <!-- jQuery -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <!-- Bootstrap JS (assurez-vous d'inclure la bonne version) -->
@@ -47,10 +49,10 @@
         <div th:if="${rechercheEffectuee}">
             <h4>Résultats de la recherche : <span th:text="${nombreThesesTrouvees}"></span> thèse(s) trouvée(s)</h4>
 
-            <table class="table table-bordered table-hover">
+            <table class="table table-bordered table-hover" id="table_ListeNormale">
                 <thead class="table-dark">
                 <tr>
-                    <th>ID</th>
+                    <th>Numéro</th>
                     <th>Titre</th>
                     <th>Étudiant</th>
                     <th>Encadrant</th>
@@ -59,10 +61,10 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="these : ${thesesTrouvees}">
-                    <td th:text="${these.id}"></td>
+                <tr th:each="these, iterStat : ${thesesTrouvees}">
+                    <td th:text="${iterStat.index + 1}"></td>
                     <td th:text="${these.titre}"></td>
-                    <td th:text="${these.etudiant != null ? these.etudiant.nom + ' ' + these.etudiant.prenom : 'Non spécifié'}"></td>
+                    <td th:text="${these.etudiant != null ? these.etudiant.nom : 'Non spécifié'}"></td>
                     <td th:text="${these.encadrant != null ? these.encadrant.nom : 'Non spécifié'}"></td>
                     <td th:text="${these.annee}"></td>
                     <td>
@@ -72,26 +74,54 @@
                                 <a th:href="@{/theses/modifier/{id}(id=${these.id})}" onclick="editThese(${these.id})">
                                     Modifier
                                 </a>
-                                <a th:href="@{/theses/supprimer/{id}(id=${these.id})}" onclick="deleteRow(${these.id})">
+                                <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleThese_' + ${these.id}">
                                     Supprimer
                                 </a>
                             </div>
                         </div>
+                        <a th:href="@{/theses/genererAttestation/{id}(id=${these.id})}"
+                           style="margin-left: 17px; color: black; text-decoration: none;">
+                            <i class="bi bi-cloud-arrow-down-fill"
+                               style="cursor: pointer; font-size: 1.2rem;"></i>
+                        </a>
                     </td>
                 </tr>
+                <div th:each="these : ${thesesTrouvees}">
+                    <div class="modal fade" th:id="'form_Supprimer_ListeNormaleThese_' + ${these.id}" tabindex="-1" role="dialog">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Supprimer Thèse</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <form th:action="@{/theses/supprimer}" method="post">
+                                    <div class="modal-body">
+                                        <input type="hidden" name="id" th:value="${these.id}" />
+                                        <p>Voulez-vous vraiment supprimer cette thèse ?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 </tbody>
             </table>
 
-            <!-- Lien pour revenir à la liste complète des mémoires -->
+            <!-- Lien pour revenir à la liste complète des thèses -->
             <div class="text-center mt-3">
                 <a th:href="@{/memoires/doctorats}" class="btn btn-secondary">Voir tous les mémoires</a>
             </div>
         </div>
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+            <p th:text="${errorMessage}"></p>
+        </div>
 
-        <!-- Message si aucun résultat trouvé -->
-        <div th:if="${nombreMemoiresTrouves == 0}" class="alert alert-warning">
-            <strong>Attention!</strong> Aucun mémoire trouvé pour les critères spécifiés.
-            <a href="/memoires/doctorats">liste</a>
+        <div th:if="${successMessage}" class="alert alert-success" role="alert">
+            <p th:text="${successMessage}"></p>
         </div>
 
         <div class="card p-4 shadow">
@@ -131,10 +161,10 @@
                         <!-- On cache l'école doctorale si l'UFR est "UFR Sciences Santé (SS)" -->
                         <h4 th:if="${entryUFR.key != 'UFR Sciences Santé (SS)'}" th:text="${entryEcole.key}"></h4>
 
-                        <table class="table table-bordered mt-3">
+                        <table class="table table-bordered mt-3" id="table_ListeNormale">
                             <thead class="table-dark">
                             <tr>
-                                <th>ID</th>
+                                <th>Numéro</th>
                                 <th>Titre</th>
                                 <th>Étudiant</th>
                                 <th>Encadrant</th>
@@ -144,10 +174,10 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="these : ${entryEcole.value}">
-                                <td th:text="${these.id}"></td>
+                            <tr th:each="these, iterStat : ${entryEcole.value}">
+                                <td th:text="${iterStat.index + 1}"></td>
                                 <td th:text="${these.titre}"></td>
-                                <td th:text="${these.etudiant.nom + ' ' + these.etudiant.prenom}"></td>
+                                <td th:text="${these.etudiant.nom}"></td>
                                 <td th:text="${these.encadrant != null ? these.encadrant.nom : 'Non spécifié'}"></td>
                                 <td th:text="${these.annee}"></td>
                                 <td th:text="${these.exemplaires}"></td>
@@ -155,35 +185,66 @@
                                     <div class="action-container">
                                         <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
                                         <div class="dropdown-content">
-                                            <a th:href="@{/theses/modifier/{id}(id=${these.id})}" onclick="editThese(${these.id})">
+                                            <a th:href="@{/theses/modifier/{id}(id=${these.id})}" onclick="editMemoire(${these.id})">
                                                 Modifier
                                             </a>
-                                            <a th:href="@{/theses/supprimer/{id}(id=${these.id})}" onclick="deleteRow(${these.id})">
+                                            <a href="#" data-bs-toggle="modal" th:data-bs-target="'#form_Supprimer_ListeNormaleThese_' + ${these.id}">
                                                 Supprimer
                                             </a>
                                         </div>
                                     </div>
+                                    <a th:href="@{/theses/genererAttestation/{id}(id=${these.id})}"
+                                       style="margin-left: 17px; color: black; text-decoration: none;">
+                                        <i class="bi bi-cloud-arrow-down-fill"
+                                           style="cursor: pointer; font-size: 1.2rem;"></i>
+                                    </a>
                                 </td>
                             </tr>
                             </tbody>
+
+                            <!-- Modals de confirmation de suppression (placés en dehors du tableau pour éviter des problèmes d'affichage) -->
+                            <div th:each="these : ${entryEcole.value}">
+                                <div class="modal fade" th:id="'form_Supprimer_ListeNormaleThese_' + ${these.id}" tabindex="-1" role="dialog">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Supprimer Thèse</h5>
+                                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <form th:action="@{/theses/supprimer}" method="post">
+                                                <div class="modal-body">
+                                                    <input type="hidden" name="id" th:value="${these.id}" />
+                                                    <p>Voulez-vous vraiment supprimer cette thèse ?</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </table>
                     </div>
                 </div>
 
 
-                <!-- Bouton pour voir tous les mémoires -->
+                <!-- Bouton pour voir tous les these -->
                 <div class="text-center mt-4">
-                    <a th:href="@{/memoires/doctorats}" class="btn btn-secondary">Voir tous les mémoires</a>
+                    <a th:href="@{/memoires/doctorats}" class="btn btn-secondary">Voir tous les theses</a>
                 </div>
             </div>
 
             <br/>
             <!-- Liste de toutes les thèses (affichée uniquement si la recherche n'a PAS été effectuée) -->
             <div th:unless="${rechercheEffectuee}">
-                <table class="table table-bordered mt-3">
+                <table class="table table-bordered mt-3" id="table_ListeNormale">
                     <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
+                        <th>Numéro</th>
                         <th>Titre</th>
                         <th>Étudiant</th>
                         <th>Encadrant</th>
@@ -192,11 +253,12 @@
                         <th>Actions</th>
                     </tr>
                     </thead>
+                    <!-- Tableau -->
                     <tbody>
-                    <tr th:each="these : ${theses}">
-                        <td th:text="${these.id}"></td>
+                    <tr th:each="these, iterStat : ${theses}">
+                        <td th:text="${iterStat.index + 1}"></td>
                         <td th:text="${these.titre}"></td>
-                        <td th:text="${these.etudiant != null ? these.etudiant.nom + ' ' + these.etudiant.prenom : 'Non spécifié'}"></td>
+                        <td th:text="${these.etudiant != null ? these.etudiant.nom : 'Non spécifié'}"></td>
                         <td th:text="${these.encadrant != null ? these.encadrant.nom : 'Non spécifié'}"></td>
                         <td th:text="${these.annee}"></td>
                         <td th:text="${these.exemplaires}"></td>
@@ -204,43 +266,51 @@
                             <div class="action-container">
                                 <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
                                 <div class="dropdown-content">
-                                    <a th:if="${these.id != null}" th:href="@{/theses/modifier/{id}(id=${these.id})}"
-                                       onclick="editThese(${these.id})">
+                                    <a th:href="@{/theses/modifier/{id}(id=${these.id})}" onclick="editMemoire(${these.id})">
                                         Modifier
                                     </a>
-                                    <a th:if="${these.id != null}" data-toggle="modal" href="#" onclick="event.preventDefault(); openConfirmationModal(${these.id});">
+                                    <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleThese_' + ${these.id}">
                                         Supprimer
                                     </a>
                                 </div>
                             </div>
-                            <!-- Modal de confirmation -->
-                            <div id="confirmationModal" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Confirmation de suppression</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p>Êtes-vous sûr de vouloir supprimer cette thèse ?</p>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <form id="deleteForm">
-                                                <input type="hidden" id="theseId" name="theseId">
-                                                <button type="submit" class="btn btn-danger">Oui, supprimer</button>
-                                            </form>
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <a th:href="@{/theses/genererAttestation/{id}(id=${these.id})}"
+                               style="margin-left: 17px; color: black; text-decoration: none;">
+                                <i class="bi bi-cloud-arrow-down-fill"
+                                   style="cursor: pointer; font-size: 1.2rem;"></i>
+                            </a>
                         </td>
                     </tr>
                     </tbody>
+
+                    <!-- Modales placées en dehors du tableau -->
+                    <div th:each="these : ${theses}">
+                        <div class="modal fade" th:id="'form_Supprimer_ListeNormaleThese_' + ${these.id}" tabindex="-1" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Supprimer Thèse</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form th:action="@{/theses/supprimer}" method="post">
+                                        <div class="modal-body">
+                                            <input type="hidden" name="id" th:value="${these.id}" />
+                                            <p>Voulez-vous vraiment supprimer cette thèse ?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </table>
             </div>
         </div>
     </div>
+    <br>
 </body>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -272,40 +342,22 @@
         });
     });
     </script>
+<!-- Inclusion des scripts JavaScript -->
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Popper.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+<!-- Bootstrap JS -->
+<!-- Script pour initialiser DataTable -->
 <script>
-    let selectedTheseId = null;
-
-    // Fonction pour ouvrir le modal et définir l'ID de la thèse à supprimer
-    function openConfirmationModal(theseId) {
-        selectedTheseId = theseId; // Enregistrer l'ID de la thèse sélectionnée
-        document.getElementById("theseId").value = selectedTheseId; // Ajouter l'ID au formulaire
-        var modal = new bootstrap.Modal(document.getElementById('confirmationModal')); // Utilisation de Bootstrap 5
-        modal.show();
-    }
-
-    // Fonction pour envoyer la requête POST de suppression
-    $(document).ready(function () {
-        $('#deleteForm').submit(function (event) {
-            event.preventDefault(); // Empêcher le rechargement de la page
-
-            $.ajax({
-                type: 'POST',
-                url: '/theses/supprimer', // L'URL où tu veux traiter la suppression
-                data: $(this).serialize(), // Sérialiser les données du formulaire
-                success: function (response) {
-                    $('#confirmationModal').modal('hide'); // Fermer le modal
-                    location.reload(); // Recharger la page après suppression
-                },
-                error: function () {
-                    alert("Erreur lors de la suppression de la thèse.");
-                }
-            });
+        $(document).ready(function() {
+            $('#table_ListeNormale').DataTable();
         });
-    });
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!--   Core JS Files   -->
+<script src="../assets/js/core/popper.min.js"></script>
+<script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
+<script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
 
 </html>

@@ -40,33 +40,51 @@
         width: 100%;
         display: flex;
         justify-content: center;
-        overflow-x: auto; /* Pour éviter les débordements sur petits écrans */
         padding: 20px 0;
     }
 
+    .nav-tabs .nav-link {
+      font-size: 12px; /* Réduit la taille de la police */
+      padding: 8px 12px; /* Ajuste l'espacement autour du texte */
+    }
+
+
     /* Style du tableau */
     table {
-        width: 80%;  /* Ajustement de la taille */
+        width: 100%;  /* Réduction de la largeur du tableau */
+        max-width: 1400px; /* Empêche le tableau de s'étendre trop */
         border-collapse: collapse;
         margin: auto;  /* Centre le tableau */
-        color: white; /* Texte blanc */
-        font-size: 14px; /* Taille réduite */
-        transition: background 0.3s ease-in-out;
+        color: black; /* Texte noir */
+        font-size: 13px; /* Taille du texte légèrement réduite */
+        table-layout: fixed; /* Empêche l'expansion des colonnes */
     }
 
+    /* Colonnes avec largeur ajustée */
     th, td {
-        padding: 5px;
-        border: 1px solid white; /* Bordures blanches */
-        text-align: center; /* Alignement centré */
-        white-space: nowrap; /* Empêche le texte de se couper */
-    }
-    .btn-danger {
-        color: black !important;
+        padding: 8px;
+        border: 1px solid white;
+        text-align: center;
+        word-wrap: break-word; /* Permet au texte de passer à la ligne */
+        overflow: hidden;
     }
 
-    th {
-        color: white;
-        font-weight: bold;
+    /* Boutons */
+    .btn {
+        font-size: 12px;
+        padding: 5px 8px;
+    }
+
+    /* Responsivité pour petits écrans */
+    @media (max-width: 768px) {
+        table {
+            width: 95%;  /* S'adapte mieux aux petits écrans */
+            font-size: 12px; /* Réduction de la taille de police */
+        }
+
+        th, td {
+            padding: 5px;
+        }
     }
 
     .statut {
@@ -82,13 +100,6 @@
         border-radius: 5px;
     }
 
-    hr {
-        width: 30%;
-        margin: 10px auto;
-        border: none;
-        height: 2px;
-        margin: 50px 0;
-    }
 
     /* Responsivité : Ajuste la largeur sur petits écrans */
     @media (max-width: 768px) {
@@ -155,7 +166,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link text-dark" href="/memoiores/doctorats">
+        <a class="nav-link text-dark" href="/memoires/doctorats">
           <i class="fa fa-university" aria-hidden="true"></i>
           <span class="nav-link-text ms-1">Thèses</span>
         </a>
@@ -196,12 +207,6 @@
               </div>
             </a>
           </li>
-
-          <li class="nav-item d-flex align-items-center">
-            <a href="#" class="nav-link text-body font-weight-bold px-0">
-              <i class="material-symbols-rounded">account_circle</i>
-            </a>
-          </li>
         </ul>
       </div>
     </div>
@@ -209,76 +214,215 @@
   <!-- End Navbar -->
 
   <div class="container">
-  <h3 class="text-center">📂 Corbeille des Mémoires</h3>
+  <h3 class="text-center">📂 Corbeille des Mémoires et Thèses</h3>
 
   <!-- Message de succès -->
   <div th:if="${successMessage}" class="alert alert-success text-center">
     <strong th:text="${successMessage}"></strong>
   </div>
 
-    <!-- Conteneur pour centrer le tableau -->
-    <div class="container-table">
-      <table class="table table-striped mt-2">
-        <thead class="table-dark">
-        <tr>
-          <th>#</th>
-          <th>Titre</th>
-          <th>Etudiant Nom</th>
-          <th>Etudiant Prenom</th>
-          <th>Encadrant</th>
-          <th>UFR</th>
-          <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="memoire, iterStat : ${memoires}">
-          <td th:text="${iterStat.count}"></td>
-          <td th:text="${memoire.titre}"></td>
-          <td th:text="${memoire.etudiant.nom}"></td>
-          <td th:text="${memoire.etudiant.prenom}"></td>
-          <td th:text="${memoire.encadrant.nom}"></td>
-          <td th:text="${memoire.ufr.nom}"></td>
-          <td>
-            <!-- Bouton pour restaurer -->
-            <form th:action="@{/memoires/restaurer}" method="post">
-              <input type="hidden" name="id" th:value="${memoire.id}" />
-              <button type="submit" class="btn btn-success">♻ Restaurer</button>
-            </form>
-            <!-- Bouton pour ouvrir le modal -->
-            <button type="button" class="btn btn-danger" data-bs-toggle="modal" th:data-bs-target="'#form_Supprimer_Memoire_' + ${memoire.id}">
-              ❌ Supprimer
-            </button>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-      <!-- Modals de suppression (générés dynamiquement) -->
-      <div th:each="memoire : ${memoires}">
-        <div class="modal fade" th:id="'form_Supprimer_Memoire_' + ${memoire.id}" tabindex="-1" role="dialog">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Supprimer Mémoire</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <form th:action="@{/memoires/supprimer-definitivement}" method="post">
-                <div class="modal-body">
-                  <input type="hidden" name="id" th:value="${memoire.id}" />
-                  <p>Etes vous vraiment sûr de vouloir supprimer ce mémoire ? Cette action est irreversible.</p>
-                </div>
-                <div class="modal-footer">
-                  <button type="submit" class="btn btn-danger">Supprimer</button>
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                </div>
+    <!-- Onglets Bootstrap -->
+    <ul class="nav nav-tabs" id="memoireTabs" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" id="licence-tab" data-bs-toggle="tab" data-bs-target="#licence" role="tab">Mémoires de Licence</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="master-tab" data-bs-toggle="tab" data-bs-target="#master" role="tab">Mémoires de Master</a>
+      </li>
+      <!-- Onglet pour Thèses -->
+      <li class="nav-item">
+        <a class="nav-link" id="these-tab" data-bs-toggle="tab" data-bs-target="#these" role="tab" aria-controls="these">Thèses</a>
+      </li>
+    </ul>
+
+    <br>
+    <div class="tab-content">
+      <!-- Tab Licence -->
+      <div class="tab-pane fade show active" id="licence" role="tabpanel">
+        <div th:if="${#lists.isEmpty(memoiresLicence)}" class="alert alert-warning">Aucun mémoire de Licence dans la corbeille.</div>
+        <table th:if="${not #lists.isEmpty(memoiresLicence)}">
+          <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>Titre</th>
+            <th>Etudiant</th>
+            <th>Encadrant</th>
+            <th>UFR</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="memoire, iterStat : ${memoiresLicence}">
+            <td th:text="${iterStat.count}"></td>
+            <td th:text="${memoire.titre}"></td>
+            <td th:text="${memoire.etudiant.nom}"></td>
+            <td th:text="${memoire.encadrant.nom}"></td>
+            <td th:text="${memoire.ufr.nom}"></td>
+            <td>
+              <form th:action="@{/memoires/restaurer}" method="post">
+                <input type="hidden" name="id" th:value="${memoire.id}" />
+                <button type="submit" class="btn btn-success">♻ Restaurer</button>
               </form>
+              <button type="button" class="btn btn-danger" data-bs-toggle="modal" th:data-bs-target="'#form_Supprimer_MemoireLicence_' + ${memoire.id}">
+                ❌ Supprimer
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <!-- Modals de suppression (générés dynamiquement) -->
+        <div th:each="memoire : ${memoiresLicence}">
+          <div class="modal fade" th:id="'form_Supprimer_MemoireLicence_' + ${memoire.id}" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Supprimer Mémoire</h5>
+                  <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form th:action="@{/memoires/supprimer-definitivement}" method="post">
+                  <div class="modal-body">
+                    <input type="hidden" name="id" th:value="${memoire.id}" />
+                    <p>Etes vous vraiment sûr de vouloir supprimer ce mémoire ? Cette action est irreversible.</p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>  <a href="/memoires/liste" class="btn btn-primary">Retour au tableau de bord</a>
-</div>
+
+      <!-- Tab Master -->
+      <div class="tab-pane fade" id="master" role="tabpanel">
+        <div th:if="${#lists.isEmpty(memoiresMaster)}" class="alert alert-warning">Aucun mémoire de Master dans la corbeille.</div>
+        <table class="table table-striped mt-2" th:if="${not #lists.isEmpty(memoiresMaster)}">
+          <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>Titre</th>
+            <th>Etudiant</th>
+            <th>Encadrant</th>
+            <th>UFR</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="memoire, iterStat : ${memoiresMaster}">
+            <td th:text="${iterStat.count}"></td>
+            <td th:text="${memoire.titre}"></td>
+            <td th:text="${memoire.etudiant.nom}"></td>
+            <td th:text="${memoire.encadrant.nom}"></td>
+            <td th:text="${memoire.ufr.nom}"></td>
+            <td>
+              <form th:action="@{/memoires/restaurer}" method="post">
+                <input type="hidden" name="id" th:value="${memoire.id}" />
+                <button type="submit" class="btn btn-success">♻ Restaurer</button>
+              </form>
+              <button type="button" class="btn btn-danger" data-bs-toggle="modal" th:data-bs-target="'#form_Supprimer_Memoire_' + ${memoire.id}">
+                ❌ Supprimer
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+        <!-- Modals de suppression (générés dynamiquement) -->
+        <div th:each="memoire : ${memoiresMaster}">
+          <div class="modal fade" th:id="'form_Supprimer_Memoire_' + ${memoire.id}" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Supprimer Mémoire</h5>
+                  <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form th:action="@{/memoires/supprimer-definitivement}" method="post">
+                  <div class="modal-body">
+                    <input type="hidden" name="id" th:value="${memoire.id}" />
+                    <p>Etes vous vraiment sûr de vouloir supprimer ce mémoire ? Cette action est irreversible.</p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenu de l'onglet Thèses -->
+      <div class="tab-pane fade" id="these" role="tabpanel">
+        <div th:if="${#lists.isEmpty(thesesDansCorbeille)}" class="alert alert-warning">
+          Aucune thèse dans la corbeille.
+        </div>
+        <table class="table table-striped mt-2" th:if="${not #lists.isEmpty(thesesDansCorbeille)}">
+          <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>Titre</th>
+            <th>Étudiant</th>
+            <th>Encadrant</th>
+            <th>UFR</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+            <tr th:each="these, iterStat : ${thesesDansCorbeille}"></td>
+              <td th:text="${iterStat.count}"></td>
+              <td th:text="${these.titre}"></td>
+              <td th:text="${these.etudiant.nom}"></td>
+              <td></td>
+              <td th:text="${these.ecoleDoctorat.ufr.nom}"></td>
+              <td>
+                <form th:action="@{/theses/restaurer}" method="post">
+                  <input type="hidden" name="theseId" th:value="${these.id}" />
+                  <button type="submit" class="btn btn-success">♻ Restaurer</button>
+                </form>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" th:data-bs-target="'#form_Supprimer_These_' + ${these.id}">
+                  ❌ Supprimer
+                </button>
+              </td>
+          </tr>
+          </tbody>
+        </table>
+        <!-- Modals de suppression (générés dynamiquement) -->
+        <div th:each="these : ${thesesDansCorbeille}">
+          <div class="modal fade" th:id="'form_Supprimer_These_' + ${these.id}" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Supprimer Thèse</h5>
+                  <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form th:action="@{/theses/supprimerDefinitivement}" method="post">
+                  <div class="modal-body">
+                    <input type="hidden" name="id" th:value="${these.id}" />
+                    <p>Êtes-vous vraiment sûr de vouloir supprimer cette thèse ? Cette action est irréversible.</p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <a href="/memoires/liste" class="btn btn-primary">Retour au tableau de bord</a>
+  </div>
 
 </main>
 
