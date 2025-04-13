@@ -9,248 +9,161 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="../static/css/style.css" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="../static/css/styles.css" th:href="@{/css/styles.css}"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.3.0/css/flat-ui.min.css"
+          integrity="sha512-6f7HT84a/AplPkpSRSKWqbseRTG4aRrhadjZezYQ0oVk/B+nm/US5KzQkyyOyh0Mn9cyDdChRdS9qaxJRHayww=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.3.0/css/flat-ui.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!--     Fonts and icons     -->
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
+    <!-- Nucleo Icons -->
+    <link href="../assets/css/nucleo-icons.css" rel="stylesheet" />
+    <link href="../assets/css/nucleo-svg.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../static/css/style.css" th:href="@{/css/style.css}"/>
+    <script src="../static/js/charts.js" th:src="@{/js/charts.js}"></script>
+
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <!-- Material Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <!-- CSS Files -->
+    <link id="pagestyle" href="../assets/css/material-dashboard.css?v=3.2.0" rel="stylesheet" />
 
 </head>
 <body>
+<aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2  bg-white my-2" id="sidenav-main">
+    <div class="sidenav-header">
+        <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
+        <a class="navbar-brand px-4 py-3 m-0" href="#" target="_blank">
+            <img th:src="@{/img/logo1.png}" class="navbar-brand-img" width="35" height="39" alt="main_logo">
+            <span class="ms-1 text-sm text-dark">BU - UASZ</span>
+        </a>
+    </div>
+    <hr class="horizontal dark mt-0 mb-2">
+    <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link active bg-gradient-dark text-white" href="../pages/dashboard.html">
+                    <i class="material-symbols-rounded opacity-5">dashboard</i>
+                    <span class="nav-link-text ms-1">Tableau de bord</span>
+                </a>
+            </li> <br/>
+            <li class="nav-item">
+                <a class="nav-link text-dark" href="/listeResponsables">
+                    <i class="fa fa-users" aria-hidden="true"></i>
+                    <span class="nav-link-text ms-1">Utilisateurs</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" href="/ajoutMemoire">
+                    <i class="material-symbols-rounded opacity-5">receipt_long</i>
+                    <span class="nav-link-text ms-1">Ajout mémoires</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" href="#" id="notificationBtn">
+                    <i class="material-symbols-rounded opacity-5">notifications</i>
+                    <span class="nav-link-text ms-1">Notifications</span>
+                    <span class="notification-count" th:text="${notifications != null && !notifications.isEmpty() ? notifications.size() : '0'}"
+                          th:style="${notifications == null || notifications.isEmpty() ? 'display: none;' : ''}">0</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" href="/memoires/corbeille">
+                    <i class="material-symbols-rounded opacity-5">delete</i>
+                    <span class="nav-link-text ms-1">Corbeille</span>
+                </a>
+            </li><br/>
 
-<!-- Bouton de retour -->
-<div class="container">
-    <a href="/memoires/liste" class="back-button">
-        <span class="back-icon">⬅</span> Retour
-    </a>
-</div>
+            <li class="nav-item mt-3">
+                <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">Informations</h6>
+            </li>
 
-<div class="container">
-    <h2 class="text-center mb-4"><b>Liste des mémoires de licence <span th:text="${nombreMemoires}"></span></b></h2>
-    <!-- Formulaire de recherche -->
-    <form id="searchForm" class="search-form" action="/licences/recherche" method="post">
-        <div class="search-container">
-            <input type="text" id="searchCote" name="cote" placeholder="Côte (Ex. LAF13/2)">
-            <input type="text" id="searchTitre" name="titre" placeholder="Titre du mémoire">
-            <input type="text" id="searchEtudiant" name="etudiant" placeholder="Nom de l'étudiant">
-            <input type="text" id="searchEncadrant" name="encadrant" placeholder="Nom de l'encadrant">
-            <input type="text" id="searchFiliere" name="filiere" placeholder="Filière (Ex. Physique)">
-            <input type="number" id="searchAnnee" name="annee" placeholder="Année (Ex. 2024)">
-            <button type="submit" class="search-button">
-                <i class="fas fa-search"></i>
-            </button>
-        </div>
-    </form>
+            <!-- Modifiez votre bouton de chat dans la navigation pour inclure le badge -->
+            <li class="nav-item">
+                <a class="nav-link text-dark" href="#" id="openChatBtn">
+                    <i class="material-symbols-rounded opacity-5">person</i>
+                    <span class="nav-link-text ms-1">Chat</span>
+                    <span class="message-badge" id="unreadCount" style="display: none;">0</span>
+                </a>
+            </li>
 
-    <!-- Affichage des résultats uniquement si la recherche a été effectuée -->
-    <div th:if="${rechercheEffectuee}">
-        <h4>
-            Résultats de la recherche : <span th:text="${nombreMemoiresTrouves}"></span> mémoire(s) trouvé(s)
-        </h4>
-        <table class="table table-bordered table-hover" id="table_ListeNormale" >
-            <thead class="table-dark">
-            <tr>
-                <th>Numéro</th>
-                <th>Titre</th>
-                <th>Étudiant</th>
-                <th>Encadrant</th>
-                <th>Filière</th>
-                <th>Année</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="memoire, iterStat : ${memoires}">
-                <td th:text="${iterStat.index + 1}"></td>
-                <td th:text="${memoire.titre}"></td>
-                <td th:text="${memoire.etudiant.nom}"></td>
-                <td th:text="${memoire.encadrant.nom}"></td>
-                <td th:text="${memoire.filiere.nom}"></td>
-                <td th:text="${memoire.annee}"></td>
-                <td>
-                    <div class="action-container">
-                        <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
-                        <div class="dropdown-content">
-                            <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
-                                Modifier
-                            </a>
-                            <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
-                                Supprimer
-                            </a>
-                        </div>
-                    </div>
-                    <a th:href="@{/memoires/genererAttestation/{id}(id=${memoire.id})}"
-                       style="margin-left: 17px; color: black; text-decoration: none;">
-                        <i class="bi bi-cloud-arrow-down-fill"
-                           style="cursor: pointer; font-size: 1.2rem;"></i>
-                    </a>
-                </td>
-            </tr>
-            </tbody>
-            <!-- MODALES (placées en dehors du tableau) -->
-            <div th:each="memoire : ${memoires}">
-                <div class="modal fade" th:id="'form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}" tabindex="-1" role="dialog">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Supprimer Mémoire</h5>
-                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <form th:action="@{/memoires/supprimer}" method="post">
-                                <div class="modal-body">
-                                    <input type="hidden" name="id" th:value="${memoire.id}" />
-                                    <p>Voulez-vous vraiment supprimer ce mémoire ?</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="submit" class="btn btn-danger">Supprimer</button>
-                                    <button type="button" class="btn btn-default" data-bs-dismiss="modal">Annuler</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </table>
-        <!-- Lien pour revenir à la liste complète des mémoires -->
-        <div class="text-center mt-3">
-            <a th:href="@{/licence}" class="btn btn-secondary">Voir tous les mémoires</a>
+            <li class="nav-item">
+                <a class="nav-link text-dark" href="/profil">
+                    <i class="material-symbols-rounded opacity-5">person</i>
+                    <span class="nav-link-text ms-1">Profil</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" href="/logout">
+                    <i class="material-symbols-rounded opacity-5">login</i>
+                    <span class="nav-link-text ms-1">Se Déconnecter</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="sidenav-footer position-absolute w-100 bottom-0 ">
+        <div class="mx-1">
+            <a href="/profil" class="nav-link text-muted" target="_blank" th:text="|${nom} ${prenom}|"></a>
         </div>
     </div>
+</aside>
+<main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    <!-- Navbar -->
+    <nav class="navbar navbar-main navbar-expand-lg px-0 mx-3 shadow-none border-radius-xl" id="navbarBlur" data-scroll="true">
+        <div class="container-fluid py-1 px-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
+                    <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Utilisateur</a></li>
+                    <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Responsable</li>
+                </ol>
+            </nav>
+            <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
+                <div class="ms-md-auto pe-md-3 d-flex align-items-center">
+                </div>
+            </div>
+        </div>
+    </nav>
 
-    <div class="card p-4 shadow">
-        <h4 class="text-center mb-4">Filtrer les Mémoires de Licence</h4>
-        <!-- Formulaire de filtrage -->
-        <form id="licenceForm" th:action="@{/filtre/licence}" method="post">
-            <!-- Champs de sélection et bouton sur la même ligne -->
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="mb-3">
-                        <label for="ufrNom" class="form-label">UFR</label>
-                        <select id="ufrNom" name="ufrNom" class="form-select" onchange="updateDepartements()" required>
-                            <option value="">-- Sélectionner un UFR --</option>
-                            <option value="UFR Sciences et Techniques (ST)">UFR Sciences et Techniques (ST)</option>
-                            <option value="UFR Lettres, Art, Sciences Humaines (LASHU)">UFR Lettres, Art, Sciences Humaines (LASHU)</option>
-                            <option value="UFR Sciences Economiques et Sociales (SES)">UFR Sciences Economiques et Sociales (SES)</option>
-                            <option value="UFR Sciences Santé (SS)">UFR Sciences Santé (SS)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="mb-3">
-                        <label for="departementNom" class="form-label">Département</label>
-                        <select id="departementNom" name="departementNom" class="form-select" onchange="updateFilieres()" required>
-                            <option value="">-- Sélectionner un département --</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="mb-3">
-                        <label for="filiereNom" class="form-label">Filière</label>
-                        <select id="filiereNom" name="filiereNom" class="form-select" required>
-                            <option value="">-- Sélectionner une filière --</option>
-                        </select>
-                    </div>
-                </div>
+    <!-- Bouton de retour -->
+    <div class="container">
+        <a href="/memoires/liste" class="back-button">
+            <span class="back-icon">⬅</span> Retour
+        </a>
+    </div>
 
-                <!-- Bouton Afficher dans la même ligne -->
-                <div class="col-md-1 d-flex align-items-end">
-                    <button type="submit" class="btn btn-custom">Afficher</button>
-                </div>
+    <div class="container">
+        <h2 class="text-center mb-1"><b>Liste des mémoires de licence <span th:text="${nombreMemoires}"></span></b></h2>
+
+        <!-- Formulaire de recherche -->
+        <form id="searchForm" class="search-form" action="/licences/recherche" method="post">
+            <div class="search-container">
+                <input type="text" id="searchCote" name="cote" placeholder="Côte (Ex. LAF13/2)">
+                <input type="text" id="searchTitre" name="titre" placeholder="Titre du mémoire">
+                <input type="text" id="searchEtudiant" name="etudiant" placeholder="Nom de l'étudiant">
+                <input type="text" id="searchEncadrant" name="encadrant" placeholder="Nom de l'encadrant">
+                <input type="text" id="searchFiliere" name="filiere" placeholder="Filière (Ex. Physique)">
+                <input type="number" id="searchAnnee" name="annee" placeholder="Année (Ex. 2024)">
+                <button type="submit" class="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
         </form>
 
-        <!-- Résultats de filtrage -->
-        <div th:if="${memoiresGroupes != null and not #maps.isEmpty(memoiresGroupes)}">
-            <div th:each="ufrEntry : ${memoiresGroupes}">
-                <h3 th:text="${ufrEntry.key}">Nom de l'UFR</h3>
-
-                <div th:each="departementEntry : ${ufrEntry.value}">
-                    <h4 th:text="${departementEntry.key}">Nom du Département</h4>
-
-                    <table class="table table-striped" id="table_ListeNormale">
-                        <thead class="table-dark">
-                        <tr>
-                            <th>#</th>
-                            <th>Cote</th>
-                            <th>Titre</th>
-                            <th>Étudiant</th>
-                            <th>Encadrant</th>
-                            <th>Filière</th>
-                            <th>Année</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="memoire, iterStat : ${departementEntry.value}">
-                            <td th:text="${iterStat.index + 1}"></td>
-                            <td th:text="${memoire.cote}"></td>
-                            <td th:text="${memoire.titre}"></td>
-                            <td th:text="${memoire.etudiant.nom}"></td>
-                            <td th:text="${memoire.encadrant.nom}"></td>
-                            <td th:text="${memoire.filiere.nom}"></td>
-                            <td th:text="${memoire.annee}"></td>
-                            <td>
-                                <div class="action-container">
-                                    <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
-                                    <div class="dropdown-content">
-                                        <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
-                                            Modifier
-                                        </a>
-                                        <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
-                                            Supprimer
-                                        </a>
-                                    </div>
-                                </div>
-                                <a th:href="@{/memoires/genererAttestation/{id}(id=${memoire.id})}"
-                                   style="margin-left: 17px; color: black; text-decoration: none;">
-                                    <i class="bi bi-cloud-arrow-down-fill"
-                                       style="cursor: pointer; font-size: 1.2rem;"></i>
-                                </a>
-                            </td>
-                        </tr>
-
-                        <!-- Modale de confirmation de suppression (chaque mémoire a son propre modal) -->
-                        <tr th:each="memoire : ${departementEntry.value}">
-                            <td colspan="8"> <!-- Ajouté pour éviter le problème d'affichage -->
-                                <div class="modal fade" th:id="'form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}" tabindex="-1" role="dialog">
-                                    <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Supprimer Mémoire</h5>
-                                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
-                                            <form th:action="@{/memoires/supprimer}" method="post">
-                                                <div class="modal-body">
-                                                    <input type="hidden" name="id" th:value="${memoire.id}" />
-                                                    <p>Voulez-vous vraiment supprimer ce mémoire ?</p>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="submit" class="btn btn-danger">Supprimer</button>
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <a href="/master" >liste</a>
-        </div>
-
-        <br/>
-        <!-- liste de toutes les memoires de licences -->
-        <div  th:unless="${rechercheEffectuee}">
-            <table class="table table-striped" id="table_ListeNormale">
+        <!-- Affichage des résultats uniquement si la recherche a été effectuée -->
+        <div th:if="${rechercheEffectuee}">
+            <h4>
+                Résultats de la recherche : <span th:text="${nombreMemoiresTrouves}"></span> mémoire(s) trouvé(s)
+            </h4>
+            <table  id="table_ListeNormale" >
                 <thead class="table-dark">
                 <tr>
-                    <th>Numero</th>
-                    <th>Cote</th>
+                    <th>Numéro</th>
                     <th>Titre</th>
                     <th>Étudiant</th>
                     <th>Encadrant</th>
@@ -262,7 +175,6 @@
                 <tbody>
                 <tr th:each="memoire, iterStat : ${memoires}">
                     <td th:text="${iterStat.index + 1}"></td>
-                    <td th:text="${memoire.cote}"></td>
                     <td th:text="${memoire.titre}"></td>
                     <td th:text="${memoire.etudiant.nom}"></td>
                     <td th:text="${memoire.encadrant.nom}"></td>
@@ -272,7 +184,9 @@
                         <div class="action-container">
                             <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
                             <div class="dropdown-content">
-                                <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}">Modifier</a>
+                                <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
+                                    Modifier
+                                </a>
                                 <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
                                     Supprimer
                                 </a>
@@ -286,7 +200,6 @@
                     </td>
                 </tr>
                 </tbody>
-
                 <!-- MODALES (placées en dehors du tableau) -->
                 <div th:each="memoire : ${memoires}">
                     <div class="modal fade" th:id="'form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}" tabindex="-1" role="dialog">
@@ -313,11 +226,216 @@
                     </div>
                 </div>
             </table>
+            <!-- Lien pour revenir à la liste complète des mémoires -->
+            <div class="text-center mt-3">
+                <a th:href="@{/licence}" class="btn btn-secondary">Voir tous les mémoires</a>
+            </div>
+        </div>
 
+        <div class="card p-4 shadow">
+            <h4 class="text-center mb-4">Filtrer les Mémoires de Licence</h4>
+            <!-- Formulaire de filtrage -->
+            <form id="licenceForm" th:action="@{/filtre/licence}" method="post">
+                <!-- Champs de sélection et bouton sur la même ligne -->
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label for="ufrNom" class="form-label">UFR</label>
+                            <select id="ufrNom" name="ufrNom" class="form-select" onchange="updateDepartements()" required>
+                                <option value="">-- Sélectionner un UFR --</option>
+                                <option value="UFR Sciences et Techniques (ST)">UFR Sciences et Techniques (ST)</option>
+                                <option value="UFR Lettres, Art, Sciences Humaines (LASHU)">UFR Lettres, Art, Sciences Humaines (LASHU)</option>
+                                <option value="UFR Sciences Economiques et Sociales (SES)">UFR Sciences Economiques et Sociales (SES)</option>
+                                <option value="UFR Sciences Santé (SS)">UFR Sciences Santé (SS)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label for="departementNom" class="form-label">Département</label>
+                            <select id="departementNom" name="departementNom" class="form-select" onchange="updateFilieres()" required>
+                                <option value="">-- Sélectionner un département --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label for="filiereNom" class="form-label">Filière</label>
+                            <select id="filiereNom" name="filiereNom" class="form-select" required>
+                                <option value="">-- Sélectionner une filière --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Bouton Afficher dans la même ligne -->
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="submit" class="btn btn-custom">Afficher</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Résultats de filtrage -->
+            <div th:if="${memoiresGroupes != null and not #maps.isEmpty(memoiresGroupes)}">
+                <div th:each="ufrEntry : ${memoiresGroupes}">
+                    <h3 th:text="${ufrEntry.key}">Nom de l'UFR</h3>
+
+                    <div th:each="departementEntry : ${ufrEntry.value}">
+                        <h4 th:text="${departementEntry.key}">Nom du Département</h4>
+
+                        <table  id="table_ListeNormale">
+                            <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Cote</th>
+                                <th>Titre</th>
+                                <th>Étudiant</th>
+                                <th>Encadrant</th>
+                                <th>Filière</th>
+                                <th>Année</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="memoire, iterStat : ${departementEntry.value}">
+                                <td th:text="${iterStat.index + 1}"></td>
+                                <td th:text="${memoire.cote}"></td>
+                                <td th:text="${memoire.titre}"></td>
+                                <td th:text="${memoire.etudiant.nom}"></td>
+                                <td th:text="${memoire.encadrant.nom}"></td>
+                                <td th:text="${memoire.filiere.nom}"></td>
+                                <td th:text="${memoire.annee}"></td>
+                                <td>
+                                    <div class="action-container">
+                                        <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
+                                        <div class="dropdown-content">
+                                            <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
+                                                Modifier
+                                            </a>
+                                            <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
+                                                Supprimer
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <a th:href="@{/memoires/genererAttestation/{id}(id=${memoire.id})}"
+                                       style="margin-left: 17px; color: black; text-decoration: none;">
+                                        <i class="bi bi-cloud-arrow-down-fill"
+                                           style="cursor: pointer; font-size: 1.2rem;"></i>
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <!-- Modale de confirmation de suppression (chaque mémoire a son propre modal) -->
+                            <tr th:each="memoire : ${departementEntry.value}">
+                                <td colspan="8"> <!-- Ajouté pour éviter le problème d'affichage -->
+                                    <div class="modal fade" th:id="'form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}" tabindex="-1" role="dialog">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Supprimer Mémoire</h5>
+                                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <form th:action="@{/memoires/supprimer}" method="post">
+                                                    <div class="modal-body">
+                                                        <input type="hidden" name="id" th:value="${memoire.id}" />
+                                                        <p>Voulez-vous vraiment supprimer ce mémoire ?</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <a href="/master" >liste</a>
+            </div>
+
+            <br/>
+            <!-- liste de toutes les memoires de licences -->
+            <div  th:unless="${rechercheEffectuee}">
+                <table  id="table_ListeNormale">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Numero</th>
+                        <th>Cote</th>
+                        <th>Titre</th>
+                        <th>Étudiant</th>
+                        <th>Encadrant</th>
+                        <th>Filière</th>
+                        <th>Année</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="memoire, iterStat : ${memoires}">
+                        <td th:text="${iterStat.index + 1}"></td>
+                        <td th:text="${memoire.cote}"></td>
+                        <td th:text="${memoire.titre}"></td>
+                        <td th:text="${memoire.etudiant.nom}"></td>
+                        <td th:text="${memoire.encadrant.nom}"></td>
+                        <td th:text="${memoire.filiere.nom}"></td>
+                        <td th:text="${memoire.annee}"></td>
+                        <td>
+                            <div class="action-container">
+                                <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
+                                <div class="dropdown-content">
+                                    <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}">Modifier</a>
+                                    <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
+                                        Supprimer
+                                    </a>
+                                </div>
+                            </div>
+                            <a th:href="@{/memoires/genererAttestation/{id}(id=${memoire.id})}"
+                               style="margin-left: 17px; color: black; text-decoration: none;">
+                                <i class="bi bi-cloud-arrow-down-fill"
+                                   style="cursor: pointer; font-size: 1.2rem;"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+
+                    <!-- MODALES (placées en dehors du tableau) -->
+                    <div th:each="memoire : ${memoires}">
+                        <div class="modal fade" th:id="'form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}" tabindex="-1" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Supprimer Mémoire</h5>
+                                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <form th:action="@{/memoires/supprimer}" method="post">
+                                        <div class="modal-body">
+                                            <input type="hidden" name="id" th:value="${memoire.id}" />
+                                            <p>Voulez-vous vraiment supprimer ce mémoire ?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                                            <button type="button" class="btn btn-default" data-bs-dismiss="modal">Annuler</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </table>
+
+            </div>
         </div>
     </div>
-</div>
-<br>
+    <br>
+
+</main>
+
 <!-- Script AJAX pour charger les départements et filières dynamiquement -->
 <script>
         const data = {

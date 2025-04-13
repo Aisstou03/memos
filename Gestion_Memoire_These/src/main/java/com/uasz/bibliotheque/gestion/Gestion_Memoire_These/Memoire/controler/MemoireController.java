@@ -95,23 +95,26 @@ public class MemoireController {
             @RequestParam("exemplaires") int exemplaires,
             @RequestParam("etudiantNom") String etudiantNom,
             @RequestParam("encadrantNom") String encadrantNom,
+            @RequestParam("motsCles") String motsCles,  // Chaîne de mots-clés séparée par des virgules
             RedirectAttributes redirectAttributes) {
 
         try {
             // Vérification des champs requis
             if (ufrNom.isEmpty() || departementNom.isEmpty() || filiereNom.isEmpty() ||
                     type.isEmpty() || titre.isEmpty() || annee <= 0 || exemplaires <= 0 ||
-                    etudiantNom.isEmpty() ||
-                    encadrantNom.isEmpty()) {
+                    etudiantNom.isEmpty() || encadrantNom.isEmpty()) {
 
                 redirectAttributes.addFlashAttribute("error", "Tous les champs sont requis !");
                 return "redirect:/memoires/ajouter";
             }
 
+            // Transformation de la chaîne de mots-clés en liste
+            List<String> motsClesList = Arrays.asList(motsCles.split("\\s*,\\s*"));  // Sépare la chaîne sur les virgules et élimine les espaces
+
             // Ajout du mémoire
             memoireService.ajouterMemoire(
                     ufrNom, departementNom, filiereNom, type, titre, annee, exemplaires,
-                    etudiantNom, encadrantNom
+                    etudiantNom, encadrantNom, motsClesList  // Passer la liste des mots-clés
             );
 
             // Ajout du message de succès
@@ -375,32 +378,86 @@ public class MemoireController {
      * Affiche le formulaire de filtrage des mémoires de Licence.
      */
     @GetMapping("/licence")
-    public String afficherToutesLesMemoires(Model model) {
+    public String afficherToutesLesMemoires(Model model, Principal principal) {
         // Récupérer toutes les mémoires de type LICENCE
         List<Memoire> memoires = memoireService.findMemoiresActifs();
 
         // Ajouter les mémoires et les UFR au modèle
         model.addAttribute("memoires", memoires);
+        // Gestion de l'utilisateur connecté
+        if (principal != null) {
+            Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
+            if (utilisateur != null) {
+                // Ajouter les informations de l'utilisateur au modèle
+                model.addAttribute("nom", utilisateur.getNom());
+                model.addAttribute("prenom", utilisateur.getPrenom());
+
+                // Extraire les rôles et les ajouter
+                String roles = utilisateur.getRoles().stream()
+                        .map(Role::getRole)
+                        .reduce((role1, role2) -> role1 + ", " + role2)
+                        .orElse("Aucun rôle");
+                model.addAttribute("roles", roles);
+            }
+        }
+        model.addAttribute("currentUser", principal.getName()); // Ajouter l'utilisateur actuel
+
         return "licence";
     }
 
     @GetMapping("/master")
-    public String afficherToutesLesMemoiresMasters(Model model) {
+    public String afficherToutesLesMemoiresMasters(Model model, Principal principal) {
         // Récupérer toutes les mémoires de type Master
         List<Memoire> memoires = memoireService.getAllMemoiresMaster();
 
         // Ajouter les mémoires et les UFR au modèle
         model.addAttribute("memoires", memoires);
+        // Gestion de l'utilisateur connecté
+        if (principal != null) {
+            Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
+            if (utilisateur != null) {
+                // Ajouter les informations de l'utilisateur au modèle
+                model.addAttribute("nom", utilisateur.getNom());
+                model.addAttribute("prenom", utilisateur.getPrenom());
+
+                // Extraire les rôles et les ajouter
+                String roles = utilisateur.getRoles().stream()
+                        .map(Role::getRole)
+                        .reduce((role1, role2) -> role1 + ", " + role2)
+                        .orElse("Aucun rôle");
+                model.addAttribute("roles", roles);
+            }
+        }
+        model.addAttribute("currentUser", principal.getName()); // Ajouter l'utilisateur actuel
+
         return "master";
     }
 
     @GetMapping("/doctorat")
-    public String afficherToutesLesMemoiresTheses(Model model) {
+    public String afficherToutesLesMemoiresTheses(Model model, Principal principal) {
         // Récupérer toutes les mémoires de type These
         List<These> memoires = theseService.getAllThese();
 
         // Ajouter les mémoires au modèle
         model.addAttribute("memoires", memoires);
+        // Gestion de l'utilisateur connecté
+        if (principal != null) {
+            Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
+            if (utilisateur != null) {
+                // Ajouter les informations de l'utilisateur au modèle
+                model.addAttribute("nom", utilisateur.getNom());
+                model.addAttribute("prenom", utilisateur.getPrenom());
+
+                // Extraire les rôles et les ajouter
+                String roles = utilisateur.getRoles().stream()
+                        .map(Role::getRole)
+                        .reduce((role1, role2) -> role1 + ", " + role2)
+                        .orElse("Aucun rôle");
+                model.addAttribute("roles", roles);
+            }
+        }
+        model.addAttribute("currentUser", principal.getName()); // Ajouter l'utilisateur actuel
+
         return "doctorat"; // Assure-toi que "doctorat" est le nom du fichier Thymeleaf
     }
 
@@ -480,4 +537,78 @@ public class MemoireController {
         return "GenererAttestation"; // page de generation des attestations
     }
 
+    //recherche par mots cles
+    @GetMapping("/essaie/rechercheMotsCles")
+    public String rechercherMemoire(@RequestParam(value = "motCle", required = false) String motCle, Model model, Principal principal) {
+        if (motCle != null && !motCle.trim().isEmpty()) {
+            List<Memoire> resultats = memoireRepository.rechercherParTitreUfrDepartementFiliere(motCle.toLowerCase());
+            model.addAttribute("RechercheMemoiresParMotsCles", resultats);
+            model.addAttribute("motCleRecherche", motCle);
+        }
+        // Gestion de l'utilisateur connecté
+        if (principal != null) {
+            Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
+            if (utilisateur != null) {
+                // Ajouter les informations de l'utilisateur au modèle
+                model.addAttribute("nom", utilisateur.getNom());
+                model.addAttribute("prenom", utilisateur.getPrenom());
+
+                // Extraire les rôles et les ajouter
+                String roles = utilisateur.getRoles().stream()
+                        .map(Role::getRole)
+                        .reduce((role1, role2) -> role1 + ", " + role2)
+                        .orElse("Aucun rôle");
+                model.addAttribute("roles", roles);
+            }
+        }
+
+        // Si aucun critère n'est fourni, récupérer tous les mémoires groupés
+        Map<String, Map<String, List<Memoire>>> memoiresGroupes = memoireService.getMemoiresGroupes();
+        model.addAttribute("memoiresGroupes", memoiresGroupes);
+        model.addAttribute("notifications", notificationService.getNotificationNonLue());
+        model.addAttribute("messages", messageService.getMessages());
+        model.addAttribute("currentUser", principal.getName()); // Ajouter l'utilisateur actuel
+        long nombreUtilisateurs = utilisateurService.getNombreUtilisateurs();
+        model.addAttribute("nombreUtilisateurs", nombreUtilisateurs);
+        statistiquesService.ajouterStatistiques(model);
+
+        return "essaie";
+    }
+
+    @GetMapping("/dash/rechercheMotsCles")
+    public String rechercherMemoireMotCles(@RequestParam(value = "motCle", required = false) String motCle, Model model, Principal principal) {
+        if (motCle != null && !motCle.trim().isEmpty()) {
+            List<Memoire> resultats = memoireRepository.rechercherParTitreUfrDepartementFiliere(motCle.toLowerCase());
+            model.addAttribute("RechercheMemoiresParMotsCles", resultats);
+            model.addAttribute("motCleRecherche", motCle);
+        }
+        // Gestion de l'utilisateur connecté
+        if (principal != null) {
+            Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
+            if (utilisateur != null) {
+                // Ajouter les informations de l'utilisateur au modèle
+                model.addAttribute("nom", utilisateur.getNom());
+                model.addAttribute("prenom", utilisateur.getPrenom());
+
+                // Extraire les rôles et les ajouter
+                String roles = utilisateur.getRoles().stream()
+                        .map(Role::getRole)
+                        .reduce((role1, role2) -> role1 + ", " + role2)
+                        .orElse("Aucun rôle");
+                model.addAttribute("roles", roles);
+            }
+        }
+
+        // Si aucun critère n'est fourni, récupérer tous les mémoires groupés
+        Map<String, Map<String, List<Memoire>>> memoiresGroupes = memoireService.getMemoiresGroupes();
+        model.addAttribute("memoiresGroupes", memoiresGroupes);
+        model.addAttribute("notifications", notificationService.getNotificationNonLue());
+        model.addAttribute("messages", messageService.getMessages());
+        model.addAttribute("currentUser", principal.getName()); // Ajouter l'utilisateur actuel
+        long nombreUtilisateurs = utilisateurService.getNombreUtilisateurs();
+        model.addAttribute("nombreUtilisateurs", nombreUtilisateurs);
+        statistiquesService.ajouterStatistiques(model);
+
+        return "dashboard";
+    }
 }

@@ -22,34 +22,226 @@
 
 </head>
 <body>
-    <!-- Bouton de retour -->
-    <div class="container">
-        <a href="/memoires/liste" class="back-button">
-            <span class="back-icon">⬅</span> Retour
-        </a>
+<!-- Bouton de retour -->
+<div class="container">
+    <a href="/memoires/liste" class="back-button">
+        <span class="back-icon">⬅</span> Retour
+    </a>
+</div>
+
+<div class="container">
+    <h2 class="text-center mb-4"><b>Liste des thèses <span th:text="${nombreMemoires}"></span></b></h2>
+    <!-- Formulaire de recherche -->
+    <form id="searchForm" class="search-form" action="/theses/recherche" method="post">
+        <div class="search-container">
+            <input type="text" id="searchCote" name="cote" placeholder="Côte (Ex. LAF13/2)">
+            <input type="text" id="searchTitre" name="titre" placeholder="Titre du mémoire">
+            <input type="text" id="searchEtudiant" name="etudiant" placeholder="Nom de l'étudiant">
+            <input type="text" id="searchEncadrant" name="encadrant" placeholder="Nom de l'encadrant">
+            <input type="number" id="searchAnnee" name="annee" placeholder="Année (Ex. 2024)">
+            <button type="submit" class="search-button">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </form>
+
+    <!-- Résultats de recherche (s'affichent uniquement si la recherche est effectuée) -->
+    <div th:if="${rechercheEffectuee}">
+        <h4>Résultats de la recherche : <span th:text="${nombreThesesTrouvees}"></span> thèse(s) trouvée(s)</h4>
+
+        <table class="table table-bordered table-hover" id="table_ListeNormale">
+            <thead class="table-dark">
+            <tr>
+                <th>Numéro</th>
+                <th>Titre</th>
+                <th>Étudiant</th>
+                <th>Encadrant</th>
+                <th>Année</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="these, iterStat : ${thesesTrouvees}">
+                <td th:text="${iterStat.index + 1}"></td>
+                <td th:text="${these.titre}"></td>
+                <td th:text="${these.etudiant != null ? these.etudiant.nom : 'Non spécifié'}"></td>
+                <td th:text="${these.encadrant != null ? these.encadrant.nom : 'Non spécifié'}"></td>
+                <td th:text="${these.annee}"></td>
+                <td>
+                    <div class="action-container">
+                        <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
+                        <div class="dropdown-content">
+                            <a th:href="@{/theses/modifier/{id}(id=${these.id})}" onclick="editThese(${these.id})">
+                                Modifier
+                            </a>
+                            <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleThese_' + ${these.id}">
+                                Supprimer
+                            </a>
+                        </div>
+                    </div>
+                    <a th:href="@{/theses/genererAttestation/{id}(id=${these.id})}"
+                       style="margin-left: 17px; color: black; text-decoration: none;">
+                        <i class="bi bi-cloud-arrow-down-fill"
+                           style="cursor: pointer; font-size: 1.2rem;"></i>
+                    </a>
+                </td>
+            </tr>
+            <div th:each="these : ${thesesTrouvees}">
+                <div class="modal fade" th:id="'form_Supprimer_ListeNormaleThese_' + ${these.id}" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Supprimer Thèse</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form th:action="@{/theses/supprimer}" method="post">
+                                <div class="modal-body">
+                                    <input type="hidden" name="id" th:value="${these.id}" />
+                                    <p>Voulez-vous vraiment supprimer cette thèse ?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </tbody>
+        </table>
+
+        <!-- Lien pour revenir à la liste complète des thèses -->
+        <div class="text-center mt-3">
+            <a th:href="@{/memoires/doctorats}" class="btn btn-secondary">Voir tous les mémoires</a>
+        </div>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+        <p th:text="${errorMessage}"></p>
     </div>
 
-    <div class="container">
-        <h2 class="text-center mb-4"><b>Liste des thèses <span th:text="${nombreMemoires}"></span></b></h2>
-        <!-- Formulaire de recherche -->
-        <form id="searchForm" class="search-form" action="/theses/recherche" method="post">
-            <div class="search-container">
-                <input type="text" id="searchCote" name="cote" placeholder="Côte (Ex. LAF13/2)">
-                <input type="text" id="searchTitre" name="titre" placeholder="Titre du mémoire">
-                <input type="text" id="searchEtudiant" name="etudiant" placeholder="Nom de l'étudiant">
-                <input type="text" id="searchEncadrant" name="encadrant" placeholder="Nom de l'encadrant">
-                <input type="number" id="searchAnnee" name="annee" placeholder="Année (Ex. 2024)">
-                <button type="submit" class="search-button">
-                    <i class="fas fa-search"></i>
-                </button>
+    <div th:if="${successMessage}" class="alert alert-success" role="alert">
+        <p th:text="${successMessage}"></p>
+    </div>
+
+    <div class="card p-4 shadow">
+        <h4 class="text-center mb-4">Filtrer les Mémoires de Thèses</h4>
+
+        <!-- Formulaire de filtrage -->
+        <form id="licenceForm" th:action="@{/filtre/these}" method="post">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label for="ufrNom" class="form-label">UFR</label>
+                        <select id="ufrNom" name="ufrNom" class="form-select" required>
+                            <option value="">-- Sélectionner un UFR --</option>
+                            <option value="UFR Sciences et Techniques (ST)">UFR Sciences et Techniques (ST)</option>
+                            <option value="UFR Lettres, Art, Sciences Humaines (LASHU)">UFR Lettres, Art, Sciences Humaines (LASHU)</option>
+                            <option value="UFR Sciences Santé (SS)">UFR Sciences Santé (SS)</option>
+                            <option value="UFR Sciences Economiques et Sociales (SES)">UFR Sciences Economiques et Sociales (SES)</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Bouton Afficher -->
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-custom">Afficher</button>
+                </div>
             </div>
         </form>
 
-        <!-- Résultats de recherche (s'affichent uniquement si la recherche est effectuée) -->
-        <div th:if="${rechercheEffectuee}">
-            <h4>Résultats de la recherche : <span th:text="${nombreThesesTrouvees}"></span> thèse(s) trouvée(s)</h4>
+        <!-- Résultats de filtrage -->
+        <div th:if="${thesesParUFRAndEcole != null and not #maps.isEmpty(thesesParUFRAndEcole)}">
+            <h4 class="mt-4">Résultats du filtrage</h4>
 
-            <table class="table table-bordered table-hover" id="table_ListeNormale">
+            <div th:each="entryUFR : ${thesesParUFRAndEcole}">
+                <h3 th:text="${entryUFR.key}"></h3>  <!-- Afficher le nom de l'UFR -->
+
+                <!-- Parcours des écoles doctorales sous l'UFR -->
+                <div th:each="entryEcole : ${entryUFR.value}">
+                    <!-- On cache l'école doctorale si l'UFR est "UFR Sciences Santé (SS)" -->
+                    <h4 th:if="${entryUFR.key != 'UFR Sciences Santé (SS)'}" th:text="${entryEcole.key}"></h4>
+
+                    <table class="table table-bordered mt-3" id="table_ListeNormale">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>Numéro</th>
+                            <th>Titre</th>
+                            <th>Étudiant</th>
+                            <th>Encadrant</th>
+                            <th>Année</th>
+                            <th>Exemplaires</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="these, iterStat : ${entryEcole.value}">
+                            <td th:text="${iterStat.index + 1}"></td>
+                            <td th:text="${these.titre}"></td>
+                            <td th:text="${these.etudiant.nom}"></td>
+                            <td th:text="${these.encadrant != null ? these.encadrant.nom : 'Non spécifié'}"></td>
+                            <td th:text="${these.annee}"></td>
+                            <td th:text="${these.exemplaires}"></td>
+                            <td>
+                                <div class="action-container">
+                                    <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
+                                    <div class="dropdown-content">
+                                        <a th:href="@{/theses/modifier/{id}(id=${these.id})}" onclick="editMemoire(${these.id})">
+                                            Modifier
+                                        </a>
+                                        <a href="#" data-bs-toggle="modal" th:data-bs-target="'#form_Supprimer_ListeNormaleThese_' + ${these.id}">
+                                            Supprimer
+                                        </a>
+                                    </div>
+                                </div>
+                                <a th:href="@{/theses/genererAttestation/{id}(id=${these.id})}"
+                                   style="margin-left: 17px; color: black; text-decoration: none;">
+                                    <i class="bi bi-cloud-arrow-down-fill"
+                                       style="cursor: pointer; font-size: 1.2rem;"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+
+                        <!-- Modals de confirmation de suppression (placés en dehors du tableau pour éviter des problèmes d'affichage) -->
+                        <div th:each="these : ${entryEcole.value}">
+                            <div class="modal fade" th:id="'form_Supprimer_ListeNormaleThese_' + ${these.id}" tabindex="-1" role="dialog">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Supprimer Thèse</h5>
+                                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <form th:action="@{/theses/supprimer}" method="post">
+                                            <div class="modal-body">
+                                                <input type="hidden" name="id" th:value="${these.id}" />
+                                                <p>Voulez-vous vraiment supprimer cette thèse ?</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" class="btn btn-danger">Supprimer</button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </table>
+                </div>
+            </div>
+
+
+            <!-- Bouton pour voir tous les these -->
+            <div class="text-center mt-4">
+                <a th:href="@{/memoires/doctorats}" class="btn btn-secondary">Voir tous les theses</a>
+            </div>
+        </div>
+
+        <br/>
+        <!-- Liste de toutes les thèses (affichée uniquement si la recherche n'a PAS été effectuée) -->
+        <div th:unless="${rechercheEffectuee}">
+            <table class="table table-bordered mt-3" id="table_ListeNormale">
                 <thead class="table-dark">
                 <tr>
                     <th>Numéro</th>
@@ -57,21 +249,24 @@
                     <th>Étudiant</th>
                     <th>Encadrant</th>
                     <th>Année</th>
+                    <th>Exemplaires</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
+                <!-- Tableau -->
                 <tbody>
-                <tr th:each="these, iterStat : ${thesesTrouvees}">
+                <tr th:each="these, iterStat : ${theses}">
                     <td th:text="${iterStat.index + 1}"></td>
                     <td th:text="${these.titre}"></td>
                     <td th:text="${these.etudiant != null ? these.etudiant.nom : 'Non spécifié'}"></td>
                     <td th:text="${these.encadrant != null ? these.encadrant.nom : 'Non spécifié'}"></td>
                     <td th:text="${these.annee}"></td>
+                    <td th:text="${these.exemplaires}"></td>
                     <td>
                         <div class="action-container">
                             <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
                             <div class="dropdown-content">
-                                <a th:href="@{/theses/modifier/{id}(id=${these.id})}" onclick="editThese(${these.id})">
+                                <a th:href="@{/theses/modifier/{id}(id=${these.id})}" onclick="editMemoire(${these.id})">
                                     Modifier
                                 </a>
                                 <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleThese_' + ${these.id}">
@@ -86,7 +281,10 @@
                         </a>
                     </td>
                 </tr>
-                <div th:each="these : ${thesesTrouvees}">
+                </tbody>
+
+                <!-- Modales placées en dehors du tableau -->
+                <div th:each="these : ${theses}">
                     <div class="modal fade" th:id="'form_Supprimer_ListeNormaleThese_' + ${these.id}" tabindex="-1" role="dialog">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
@@ -108,209 +306,11 @@
                         </div>
                     </div>
                 </div>
-                </tbody>
             </table>
-
-            <!-- Lien pour revenir à la liste complète des thèses -->
-            <div class="text-center mt-3">
-                <a th:href="@{/memoires/doctorats}" class="btn btn-secondary">Voir tous les mémoires</a>
-            </div>
-        </div>
-        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
-            <p th:text="${errorMessage}"></p>
-        </div>
-
-        <div th:if="${successMessage}" class="alert alert-success" role="alert">
-            <p th:text="${successMessage}"></p>
-        </div>
-
-        <div class="card p-4 shadow">
-            <h4 class="text-center mb-4">Filtrer les Mémoires de Thèses</h4>
-
-            <!-- Formulaire de filtrage -->
-            <form id="licenceForm" th:action="@{/filtre/these}" method="post">
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="mb-3">
-                            <label for="ufrNom" class="form-label">UFR</label>
-                            <select id="ufrNom" name="ufrNom" class="form-select" required>
-                                <option value="">-- Sélectionner un UFR --</option>
-                                <option value="UFR Sciences et Techniques (ST)">UFR Sciences et Techniques (ST)</option>
-                                <option value="UFR Lettres, Art, Sciences Humaines (LASHU)">UFR Lettres, Art, Sciences Humaines (LASHU)</option>
-                                <option value="UFR Sciences Santé (SS)">UFR Sciences Santé (SS)</option>
-                                <option value="UFR Sciences Economiques et Sociales (SES)">UFR Sciences Economiques et Sociales (SES)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <!-- Bouton Afficher -->
-                    <div class="col-md-1 d-flex align-items-end">
-                        <button type="submit" class="btn btn-custom">Afficher</button>
-                    </div>
-                </div>
-            </form>
-
-            <!-- Résultats de filtrage -->
-            <div th:if="${thesesParUFRAndEcole != null and not #maps.isEmpty(thesesParUFRAndEcole)}">
-                <h4 class="mt-4">Résultats du filtrage</h4>
-
-                <div th:each="entryUFR : ${thesesParUFRAndEcole}">
-                    <h3 th:text="${entryUFR.key}"></h3>  <!-- Afficher le nom de l'UFR -->
-
-                    <!-- Parcours des écoles doctorales sous l'UFR -->
-                    <div th:each="entryEcole : ${entryUFR.value}">
-                        <!-- On cache l'école doctorale si l'UFR est "UFR Sciences Santé (SS)" -->
-                        <h4 th:if="${entryUFR.key != 'UFR Sciences Santé (SS)'}" th:text="${entryEcole.key}"></h4>
-
-                        <table class="table table-bordered mt-3" id="table_ListeNormale">
-                            <thead class="table-dark">
-                            <tr>
-                                <th>Numéro</th>
-                                <th>Titre</th>
-                                <th>Étudiant</th>
-                                <th>Encadrant</th>
-                                <th>Année</th>
-                                <th>Exemplaires</th>
-                                <th>Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="these, iterStat : ${entryEcole.value}">
-                                <td th:text="${iterStat.index + 1}"></td>
-                                <td th:text="${these.titre}"></td>
-                                <td th:text="${these.etudiant.nom}"></td>
-                                <td th:text="${these.encadrant != null ? these.encadrant.nom : 'Non spécifié'}"></td>
-                                <td th:text="${these.annee}"></td>
-                                <td th:text="${these.exemplaires}"></td>
-                                <td>
-                                    <div class="action-container">
-                                        <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
-                                        <div class="dropdown-content">
-                                            <a th:href="@{/theses/modifier/{id}(id=${these.id})}" onclick="editMemoire(${these.id})">
-                                                Modifier
-                                            </a>
-                                            <a href="#" data-bs-toggle="modal" th:data-bs-target="'#form_Supprimer_ListeNormaleThese_' + ${these.id}">
-                                                Supprimer
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <a th:href="@{/theses/genererAttestation/{id}(id=${these.id})}"
-                                       style="margin-left: 17px; color: black; text-decoration: none;">
-                                        <i class="bi bi-cloud-arrow-down-fill"
-                                           style="cursor: pointer; font-size: 1.2rem;"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            </tbody>
-
-                            <!-- Modals de confirmation de suppression (placés en dehors du tableau pour éviter des problèmes d'affichage) -->
-                            <div th:each="these : ${entryEcole.value}">
-                                <div class="modal fade" th:id="'form_Supprimer_ListeNormaleThese_' + ${these.id}" tabindex="-1" role="dialog">
-                                    <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Supprimer Thèse</h5>
-                                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
-                                            <form th:action="@{/theses/supprimer}" method="post">
-                                                <div class="modal-body">
-                                                    <input type="hidden" name="id" th:value="${these.id}" />
-                                                    <p>Voulez-vous vraiment supprimer cette thèse ?</p>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="submit" class="btn btn-danger">Supprimer</button>
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </table>
-                    </div>
-                </div>
-
-
-                <!-- Bouton pour voir tous les these -->
-                <div class="text-center mt-4">
-                    <a th:href="@{/memoires/doctorats}" class="btn btn-secondary">Voir tous les theses</a>
-                </div>
-            </div>
-
-            <br/>
-            <!-- Liste de toutes les thèses (affichée uniquement si la recherche n'a PAS été effectuée) -->
-            <div th:unless="${rechercheEffectuee}">
-                <table class="table table-bordered mt-3" id="table_ListeNormale">
-                    <thead class="table-dark">
-                    <tr>
-                        <th>Numéro</th>
-                        <th>Titre</th>
-                        <th>Étudiant</th>
-                        <th>Encadrant</th>
-                        <th>Année</th>
-                        <th>Exemplaires</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <!-- Tableau -->
-                    <tbody>
-                    <tr th:each="these, iterStat : ${theses}">
-                        <td th:text="${iterStat.index + 1}"></td>
-                        <td th:text="${these.titre}"></td>
-                        <td th:text="${these.etudiant != null ? these.etudiant.nom : 'Non spécifié'}"></td>
-                        <td th:text="${these.encadrant != null ? these.encadrant.nom : 'Non spécifié'}"></td>
-                        <td th:text="${these.annee}"></td>
-                        <td th:text="${these.exemplaires}"></td>
-                        <td>
-                            <div class="action-container">
-                                <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
-                                <div class="dropdown-content">
-                                    <a th:href="@{/theses/modifier/{id}(id=${these.id})}" onclick="editMemoire(${these.id})">
-                                        Modifier
-                                    </a>
-                                    <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleThese_' + ${these.id}">
-                                        Supprimer
-                                    </a>
-                                </div>
-                            </div>
-                            <a th:href="@{/theses/genererAttestation/{id}(id=${these.id})}"
-                               style="margin-left: 17px; color: black; text-decoration: none;">
-                                <i class="bi bi-cloud-arrow-down-fill"
-                                   style="cursor: pointer; font-size: 1.2rem;"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    </tbody>
-
-                    <!-- Modales placées en dehors du tableau -->
-                    <div th:each="these : ${theses}">
-                        <div class="modal fade" th:id="'form_Supprimer_ListeNormaleThese_' + ${these.id}" tabindex="-1" role="dialog">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Supprimer Thèse</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <form th:action="@{/theses/supprimer}" method="post">
-                                        <div class="modal-body">
-                                            <input type="hidden" name="id" th:value="${these.id}" />
-                                            <p>Voulez-vous vraiment supprimer cette thèse ?</p>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="submit" class="btn btn-danger">Supprimer</button>
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </table>
-            </div>
         </div>
     </div>
-    <br>
+</div>
+<br>
 </body>
 <script>
     document.addEventListener("DOMContentLoaded", function () {

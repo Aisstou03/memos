@@ -5,6 +5,8 @@ import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.model.TypeMem
 import org.springframework.data.jpa.domain.Specification;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.model.Memoire;
 
+import java.util.regex.Pattern;
+
 public class MemoireSpecifications {
 
     public static Specification<Memoire> withCote(String cote) {
@@ -76,11 +78,16 @@ public class MemoireSpecifications {
                 type != null ? criteriaBuilder.equal(root.get("type"), type) : criteriaBuilder.conjunction();
     }
 
-    public static Specification<These> withThese() {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.isNotNull(root.get("ecoleDoctorat"));
+    // Spécification pour filtrer par mots-clés
+    public static Specification<Memoire> withMotsCles(String motsCles) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(criteriaBuilder.lower(root.get("motsCles")), "%" + motsCles.toLowerCase() + "%");
     }
 
-
+    // Combiner les deux spécifications : mots-clés et type de mémoire
+    public static Specification<Memoire> withTypeAndMotsCles(TypeMemoire typeMemoire, String motsCles) {
+        return Specification.where(withType(typeMemoire))
+                .and(withMotsCles(motsCles));
+    }
 
     public static Specification<Memoire> withUFR(String ufrNom) {
         return (root, query, criteriaBuilder) ->
@@ -91,5 +98,7 @@ public class MemoireSpecifications {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("filiere").get("departement").get("nom"), departementNom);
     }
+
+
 
 }

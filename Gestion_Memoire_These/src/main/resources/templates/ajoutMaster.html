@@ -217,6 +217,10 @@
                   </div>
                 </div>
               </div>
+              <div class="input-group input-group-outline mb-3">
+                <label for="motsClesLICENCE" class="form-label">Mots clés</label>
+                <input type="text" class="form-control" id="motsClesLICENCE" name="motsCles" placeholder="ex: IA, cloud, éducation" required>
+              </div>
               <!-- Ajout du champ de sélection -->
               <div class="row">
                 <div class="col-md-4">
@@ -386,5 +390,30 @@
       });
   });
   </script>
+
+<script>
+  document.getElementById('masterForm').addEventListener('submit', function (e) {
+    const ufr = document.getElementById('ufrNom').value;
+    const departement = document.getElementById('departementNom').value;
+    const filiere = document.getElementById('filiereNom').value;
+
+    const motsClesInput = document.getElementById('motsClesLICENCE');
+    let motsClesActuels = motsClesInput.value.trim();
+
+    // Ajouter UFR, Département et Filière comme mots-clés s’ils ne sont pas déjà là
+    const extras = [ufr, departement, filiere]
+      .map(val => val.trim().toLowerCase())
+      .filter(val => val && !motsClesActuels.toLowerCase().includes(val));
+
+    // Fusionner avec les mots clés actuels
+    if (extras.length > 0) {
+      if (motsClesActuels) {
+        motsClesActuels += ', ';
+      }
+      motsClesInput.value = motsClesActuels + extras.join(', ');
+    }
+  });
+</script>
+
 </body>
 </html>

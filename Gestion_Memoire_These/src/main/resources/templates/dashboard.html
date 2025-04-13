@@ -13,6 +13,7 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.3.0/css/flat-ui.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="../static/css/style.css" th:href="@{/css/style.css}"/>
+
   <script src="../static/js/charts.js" th:src="@{/js/charts.js}"></script>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -118,7 +119,16 @@
       </nav>
       <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
         <div class="ms-md-auto pe-md-3 d-flex align-items-center">
-
+          <div class="input-group">
+            <form th:action="@{/dash/rechercheMotsCles}" method="get" class="d-flex">
+              <div class="input-group input-group-outline">
+                <input type="search" class="form-control" name="motCle" placeholder="Rechercher par mot-clé" required>
+                <button type="submit" class="search-button">
+                  <i class="fas fa-search"></i> <!-- Icône dans le bouton -->
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
       <ul class="navbar-nav d-flex align-items-center  justify-content-end">
@@ -239,7 +249,6 @@
               document.getElementById(alertId).style.display = "none";
           }
       </script>
-
         <style>
     .custom-alert {
         position: fixed;
@@ -430,7 +439,68 @@
       <strong>Erreur!</strong> <span th:text="${errorMessage}"></span>
       <button onclick="closeAlert('error-alert')" class="btn btn-sm btn-primary">OK</button>
     </div>
+    <br>
+    <div class="card p-3 shadow">
+      <div th:if="${motCleRecherche != null}">
+        <div th:if="${#lists.isEmpty(RechercheMemoiresParMotsCles)}">
+          <p>Aucun mémoire trouvé pour "<span th:text="${motCleRecherche}"></span>".</p>
+        </div>
 
+        <div th:if="${!#lists.isEmpty(RechercheMemoiresParMotsCles)}">
+          <table id="table_ListeNormale">
+            <thead class="table-dark">
+            <tr>
+              <th>Cote</th>
+              <th>Titre</th>
+              <th>Étudiant</th>
+              <th>Encadrant</th>
+              <th>Année</th>
+              <th>Type</th>
+              <th>UFR</th>
+              <th>Département</th>
+              <th>Filière</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="memoire : ${RechercheMemoiresParMotsCles}">
+              <td th:text="${memoire.cote}">Cote</td>
+
+              <td>
+                            <span th:text="${memoire.titre}"
+                                  th:classappend="${#strings.containsIgnoreCase(memoire.titre, motCleRecherche)} ? 'bg-warning px-1' : ''">
+                            </span>
+              </td>
+              <td th:text ="${memoire.etudiant.nom}">Etudiant</td>
+
+              <td th:text ="${memoire.encadrant.nom}">Encadrant</td>
+
+              <td th:text="${memoire.annee}">Année</td>
+              <td th:text="${memoire.type}">Type</td>
+
+              <td>
+                            <span th:text="${memoire.ufr.nom}"
+                                  th:classappend="${#strings.containsIgnoreCase(memoire.ufr.nom, motCleRecherche)} ? 'bg-warning px-1' : ''">
+                            </span>
+              </td>
+
+              <td>
+                            <span th:text="${memoire.departement.nom}"
+                                  th:classappend="${#strings.containsIgnoreCase(memoire.departement.nom, motCleRecherche)} ? 'bg-warning px-1' : ''">
+                            </span>
+              </td>
+
+              <td>
+                            <span th:text="${memoire.filiere.nom}"
+                                  th:classappend="${#strings.containsIgnoreCase(memoire.filiere.nom, motCleRecherche)} ? 'bg-warning px-1' : ''">
+                            </span>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <br>
     <script>
           function closeAlert(alertId) {
               document.getElementById(alertId).style.display = "none";
@@ -559,7 +629,7 @@
                 <a href="https://www.bibliotheque.uasz.sn" class="nav-link text-muted" target="_blank">BU</a>
               </li>
               <li class="nav-item">
-                <a href="https://rivieredusud.uasz.sn" class="nav-link text-muted" target="_blank">Riviére du Sud</a>
+                <a href="https://rivieresdusud.uasz.sn/" class="nav-link text-muted" target="_blank">Riviére du Sud</a>
               </li>
               <li class="nav-item">
                 <a href="#" class="nav-link text-muted" target="_blank">A propos</a>

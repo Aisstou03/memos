@@ -70,6 +70,7 @@ public class EcoleDoctoratController {
                             @RequestParam String encadrantNom,
                             @RequestParam int annee,
                             @RequestParam int exemplaires,
+                            @RequestParam("motsCles") String motsCles,
                             @RequestParam String ecoleDoctorale,
                             Model model) {
         try {
@@ -116,6 +117,7 @@ public class EcoleDoctoratController {
             these.setAnnee(annee);
             these.setExemplaires(exemplaires);
             these.setEcoleDoctorat(ecoleDoctoratEntity);
+            these.setMotsCles(motsCles);
 
             theseRepository.save(these);
 

@@ -15,10 +15,6 @@ import java.util.Optional;
 public interface MemoireRepository extends JpaRepository<Memoire, Long>, JpaSpecificationExecutor<Memoire> {
 
     List<Memoire> findByType(TypeMemoire typeMemoire);
-    @Query("SELECT m.annee, COUNT(m) FROM Memoire m GROUP BY m.annee ORDER BY m.annee ASC")
-    List<Object[]> countMemosGroupedByYear();
-
-    List<Memoire> findAllByType(TypeMemoire type);
 
     @Query("SELECT m FROM Memoire m WHERE m.annee = :annee AND m.type = :type")
     List<Memoire> findByAnneeAndType(@Param("annee") int annee, @Param("type") TypeMemoire type);
@@ -34,5 +30,13 @@ public interface MemoireRepository extends JpaRepository<Memoire, Long>, JpaSpec
 
     @Query("SELECT m FROM Memoire m WHERE m.corbeille = false AND m.type = :type")
     List<Memoire> findAllByTypeAndNotDeleted(@Param("type") TypeMemoire type);
+
+    //recherche par mots cles
+    @Query("SELECT m FROM Memoire m WHERE " +
+            "LOWER(m.titre) LIKE LOWER(CONCAT('%', :motCle, '%')) OR " +
+            "LOWER(m.ufr.nom) LIKE LOWER(CONCAT('%', :motCle, '%')) OR " +
+            "LOWER(m.departement.nom) LIKE LOWER(CONCAT('%', :motCle, '%')) OR " +
+            "LOWER(m.filiere.nom) LIKE LOWER(CONCAT('%', :motCle, '%'))")
+    List<Memoire> rechercherParTitreUfrDepartementFiliere(@Param("motCle") String motCle);
 
 }

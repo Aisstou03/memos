@@ -90,6 +90,9 @@ public class RechercheController {
         return "licence"; // Vue dédiée
     }
 
+    //recherche de licence par mots cles
+
+
     // recherche de mémoires de Master
     @RequestMapping(value = "/masters/recherche", method = RequestMethod.POST)
     public String afficherMemoiresMaster(

@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table
 @Data
@@ -50,4 +53,12 @@ public class Memoire {
 
     @Column(name = "corbeille", nullable = false)
     private boolean corbeille = false; // Ajout du champ corbeille
+
+    @ManyToMany
+    @JoinTable(
+            name = "memoire_mots_cles",
+            joinColumns = @JoinColumn(name = "memoire_id"),
+            inverseJoinColumns = @JoinColumn(name = "mot_cle_id")
+    )
+    private List<MotCle> motsCles = new ArrayList<>();
 }

@@ -21,6 +21,28 @@ body { background-color: #f8f9fa; }
     height: 70px; /* Ajuste la hauteur pour correspondre aux selects */
 }
 
+/* Bouton de recherche */
+.search-button {
+     border: 2px solid #343a40; /* Bordure foncée */
+    background: linear-gradient(45deg, #343a40, #5a6268); /* Dégradé gris foncé */
+    color: white; /* Texte blanc */
+    padding: 6px 12px;
+    display: flex; /* Assure un bon alignement */
+    align-items: center; /* Centre le texte verticalement */
+    justify-content: center; /* Centre le texte horizontalement */
+     border-radius: 5px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: background 0.3s ease-in-out;
+
+}
+
+/* Effet hover sur le bouton */
+.search-button:hover, .search-btn:hover {
+    background: linear-gradient(45deg, #5a6268, #343a40); /* Inverse le dégradé */
+    color: white;
+    border-color: #5a6268; /* Changement subtil de la bordure */
+}
 
 /* Conteneur des champs */
 .search-container {
@@ -96,5 +118,60 @@ body { background-color: #f8f9fa; }
     transform: scale(1.05); /* Légère augmentation au survol */
 }
 
+/* Réduction de la taille du tableau */
+#table_ListeNormale {
+    font-size: 14px; /* Réduction de la taille du texte */
+
+}
+
+/* Ajustement des cellules */
+#table_ListeNormale th,
+#table_ListeNormale td {
+    padding: 4px; /* Réduction des espacements */
+}
 
 
+
+/* Style des cellules */
+.table th, .table td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 10px;
+}
+
+/* Style des en-têtes */
+.table-dark th {
+    background: linear-gradient(45deg, #343a40, #5a6268);
+    color: white;
+    border-color: #343a40;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .card {
+        max-width: 100%;
+        padding: 15px;
+    }
+
+    .table {
+        max-width: 50%;
+    }
+
+    /* Tableaux en défilement horizontal pour petits écrans */
+    .table-responsive {
+        overflow-x: auto;
+        display: block;
+    }
+}
+
+/* Ajout d'un style pour éviter que les tables débordent */
+@media (max-width: 768px) {
+    .table th, .table td {
+        padding: 8px;
+        font-size: 10px;
+    }
+
+    .table {
+        font-size: 13px; /* Réduit la taille du texte */
+    }
+}

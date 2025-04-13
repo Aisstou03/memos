@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 public class MemoireService {
     @Autowired
     private MemoireRepository memoireRepository;
+    @Autowired
+    private MotCleRepository motCleRepository;
 
     @Autowired
     private FiliereRepository filiereRepository;
@@ -104,32 +106,32 @@ public class MemoireService {
 
     // Ajouter une mémoire
     public void ajouterMemoire(String ufrNom, String departementNom, String filiereNom, String type, String titre, int annee,
-                               int exemplaires, String etudiantNom, String encadrantNom) {
-        // Obtenez la filière
+                               int exemplaires, String etudiantNom, String encadrantNom, List<String> motsCles) {
+        // Obtenir la filière
         Filiere filiere = filiereRepository.findByNom(filiereNom)
                 .orElseThrow(() -> new RuntimeException("Filière introuvable"));
 
-        // Récupérer le département et l'UFR à partir de la base de données
+        // Récupérer le département et l'UFR
         Departement departement = departementRepository.findByNom(departementNom)
                 .orElseThrow(() -> new RuntimeException("Département introuvable"));
 
         Ufr ufr = ufrRepository.findByNom(ufrNom)
                 .orElseThrow(() -> new RuntimeException("UFR introuvable"));
 
-        // Vérification que l'UFR et le département sont cohérents avec la filière (optionnel)
+        // Vérifier que le département correspond bien à l'UFR
         if (!departement.getUfr().equals(ufr)) {
             throw new RuntimeException("L'UFR ne correspond pas à celui du département pour cette filière");
         }
 
-        // Gestion de l'étudiant
+        // Gérer l'étudiant
         Etudiant etudiant = etudiantRepository.findByNom(etudiantNom)
                 .orElseGet(() -> etudiantRepository.save(new Etudiant(null, etudiantNom)));
 
-        // Gestion de l'encadrant
+        // Gérer l'encadrant
         Encadrant encadrant = encadrantRepository.findByNomAndFiliere(encadrantNom, filiere)
                 .orElseGet(() -> encadrantRepository.save(new Encadrant(null, encadrantNom, filiere)));
 
-        // Créez un objet Mémoire et configurez ses valeurs
+        // Créer l'objet Mémoire
         Memoire memoire = new Memoire();
         memoire.setTitre(titre);
         memoire.setAnnee(annee);
@@ -138,20 +140,30 @@ public class MemoireService {
         memoire.setEncadrant(encadrant);
         memoire.setType(TypeMemoire.valueOf(type.toUpperCase()));
         memoire.setFiliere(filiere);
-        memoire.setDepartement(departement);  // Remplir le département
-        memoire.setUfr(ufr);  // Remplir l'UFR
+        memoire.setDepartement(departement);
+        memoire.setUfr(ufr);
+        // Gérer les mots-clés
+        List<MotCle> motsClesEntities = new ArrayList<>();
+        for (String mot : motsCles) {
+            String motNettoye = mot.trim().toLowerCase();
+            MotCle motCle = motCleRepository.findByValeur(motNettoye)
+                    .orElseGet(() -> motCleRepository.save(new MotCle(motNettoye)));
+            motsClesEntities.add(motCle);
+        }
+        memoire.setMotsCles(motsClesEntities);
 
-        // Générez la cote (si nécessaire)
-        String cote = genererCote(memoire.getType(), memoire.getFiliere(), annee, exemplaires);
+        // Générer la cote
+        String cote = genererCote(memoire.getType(), filiere, annee, exemplaires);
         memoire.setCote(cote);
 
+        // Sauvegarder le mémoire
         memoireRepository.save(memoire);
 
-        // Créez une notification après l'ajout du mémoire
+        // Créer une notification
         String messageNotification = "Un nouveau mémoire a été ajouté : " + titre + " de : " + etudiantNom;
         notificationService.creerNotification(messageNotification);
 
-        // Journalisation pour vérifier le fonctionnement
+        // Log console
         System.out.println("Notification créée : " + messageNotification);
     }
 
@@ -222,11 +234,6 @@ public class MemoireService {
         return memoireSauvegardee;
     }
 
-    //liste des memoires se trouvant dans la corbeille
-    public List<Memoire> getMemoiresDansCorbeille() {
-        return memoireRepository.findByCorbeilleTrue();
-    }
-
 
     public List<Memoire> rechercherMemos(Map<String, String> params) {
         Specification<Memoire> spec = Specification.where(null);
@@ -265,28 +272,6 @@ public class MemoireService {
         return memoireRepository.findAll(spec);
     }
 
-    // Méthode pour supprimer un mémoire par son ID
-    public void deleteMemoire(Long id) {
-        // Vérifie si le mémoire existe
-        Memoire memoire = getMemoireById(id);
-        if (memoire == null) {
-            throw new IllegalArgumentException("Mémoire avec ID " + id + " n'existe pas.");
-        }
-
-        // Récupération des informations pour la notification avant suppression
-        String titre = memoire.getTitre();
-        String etudiantNom = memoire.getEtudiant() != null ? memoire.getEtudiant().getNom() : "Inconnu";
-
-        // Supprime le mémoire
-        memoireRepository.delete(memoire);
-
-        // Création de la notification
-        String messageNotification = "Le mémoire \"" + titre + "\" de " + etudiantNom + " a été supprimé.";
-        notificationService.creerNotification(messageNotification);
-
-        // Journalisation pour vérifier le fonctionnement
-        System.out.println("Notification créée : " + messageNotification);
-    }
 
 
     public Map<String, Map<String, List<Memoire>>> getMemoiresGroupes() {
@@ -386,12 +371,6 @@ public class MemoireService {
         return memoireRepository.findByCorbeilleTrueAndType(TypeMemoire.MASTER);
     }
 
-    // Récupérer les mémoires supprimés (en corbeille) de type THESE     public List<Memoire> getMemoiresSupprimesThese() {
-    //        return memoireRepository.findByCorbeilleTrueAndType(TypeMemoire.THESE);
-    //    }
-
-
-
     //liste de these
     public Map<String, Map<String, List<Memoire>>> getMemoiresDoctoratGroupes() {
         // Récupérer tous les mémoires de type Doctorat
@@ -460,5 +439,9 @@ public class MemoireService {
         return entityManager.createQuery(query).getResultList();
     }
 
+    public List<Memoire> rechercherParMotsCles(String motsCles) {
+        Specification<Memoire> spec = MemoireSpecifications.withMotsCles(motsCles);
+        return memoireRepository.findAll(spec);
+    }
 
 }
