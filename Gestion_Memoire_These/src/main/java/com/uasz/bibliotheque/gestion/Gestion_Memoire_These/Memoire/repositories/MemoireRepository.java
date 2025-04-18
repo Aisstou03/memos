@@ -1,5 +1,7 @@
 package com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.repositories;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,8 +24,8 @@ public interface MemoireRepository extends JpaRepository<Memoire, Long>, JpaSpec
     //liste des memoires se trouvant dans la corbeille
     List<Memoire> findByCorbeilleTrue();
 
-    List<Memoire> findByCorbeilleFalseAndType(TypeMemoire type);
-    List<Memoire> findByCorbeilleTrueAndType(TypeMemoire type);
+    Page<Memoire> findByCorbeilleFalseAndType(TypeMemoire type, Pageable pageable);
+    Page<Memoire> findByCorbeilleTrueAndType(TypeMemoire type, Pageable pageable);
 
     @Query("SELECT COUNT(m) FROM Memoire m WHERE m.corbeille = false AND m.type = :type")
     long countNonSupprimeMemosByType(@Param("type") TypeMemoire type);
@@ -37,6 +39,7 @@ public interface MemoireRepository extends JpaRepository<Memoire, Long>, JpaSpec
             "LOWER(m.ufr.nom) LIKE LOWER(CONCAT('%', :motCle, '%')) OR " +
             "LOWER(m.departement.nom) LIKE LOWER(CONCAT('%', :motCle, '%')) OR " +
             "LOWER(m.filiere.nom) LIKE LOWER(CONCAT('%', :motCle, '%'))")
-    List<Memoire> rechercherParTitreUfrDepartementFiliere(@Param("motCle") String motCle);
+    Page<Memoire> rechercherParTitreUfrDepartementFiliere(@Param("motCle") String motCle, Pageable pageable);
+
 
 }

@@ -147,7 +147,7 @@ body { background-color: #f8f9fa; }
 }
 
 /* Responsive Design */
-@media (max-width: 992px) {
+@media (max-width: 55 2px) {
     .card {
         max-width: 100%;
         padding: 15px;
@@ -165,7 +165,7 @@ body { background-color: #f8f9fa; }
 }
 
 /* Ajout d'un style pour éviter que les tables débordent */
-@media (max-width: 768px) {
+@media (max-width: 468px) {
     .table th, .table td {
         padding: 8px;
         font-size: 10px;
@@ -175,3 +175,11 @@ body { background-color: #f8f9fa; }
         font-size: 13px; /* Réduit la taille du texte */
     }
 }
+
+.surlignage-recherche {
+    background-color: #f1f5f9; /* gris clair */
+    color: #000;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+

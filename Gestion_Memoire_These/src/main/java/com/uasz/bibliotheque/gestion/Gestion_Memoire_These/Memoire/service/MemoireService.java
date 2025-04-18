@@ -10,6 +10,8 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.model.*;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.repositories.*;
@@ -106,7 +108,7 @@ public class MemoireService {
 
     // Ajouter une mémoire
     public void ajouterMemoire(String ufrNom, String departementNom, String filiereNom, String type, String titre, int annee,
-                               int exemplaires, String etudiantNom, String encadrantNom, List<String> motsCles) {
+                               int exemplaires, String etudiantNom, String encadrantNom, List<String> motsCles, boolean licencePro) {
         // Obtenir la filière
         Filiere filiere = filiereRepository.findByNom(filiereNom)
                 .orElseThrow(() -> new RuntimeException("Filière introuvable"));
@@ -151,6 +153,7 @@ public class MemoireService {
             motsClesEntities.add(motCle);
         }
         memoire.setMotsCles(motsClesEntities);
+        memoire.setLicencePro(licencePro);
 
         // Générer la cote
         String cote = genererCote(memoire.getType(), filiere, annee, exemplaires);
@@ -352,23 +355,25 @@ public class MemoireService {
     }
 
     // Récupérer les mémoires actifs (hors corbeille) de type LICENCE
-    public List<Memoire> findMemoiresActifs() {
-        return memoireRepository.findByCorbeilleFalseAndType(TypeMemoire.LICENCE);
+    // Mémoires actifs (hors corbeille) de type LICENCE
+    public Page<Memoire> findMemoiresActifs(Pageable pageable) {
+        return memoireRepository.findByCorbeilleFalseAndType(TypeMemoire.LICENCE, pageable);
     }
 
-    // Récupérer les mémoires actifs (hors corbeille) de type MASTER
-    public List<Memoire> getAllMemoiresMaster() {
-        return memoireRepository.findByCorbeilleFalseAndType(TypeMemoire.MASTER);
+    // Mémoires actifs de type MASTER
+    public Page<Memoire> getAllMemoiresMaster(Pageable pageable) {
+        return memoireRepository.findByCorbeilleFalseAndType(TypeMemoire.MASTER, pageable);
     }
 
-    // Récupérer les mémoires supprimés (en corbeille) de type LICENCE
-    public List<Memoire> getMemoiresSupprimesLicence() {
-        return memoireRepository.findByCorbeilleTrueAndType(TypeMemoire.LICENCE);
+
+    // Mémoires supprimés (corbeille) LICENCE
+    public Page<Memoire> getMemoiresSupprimesLicence(Pageable pageable) {
+        return memoireRepository.findByCorbeilleTrueAndType(TypeMemoire.LICENCE, pageable);
     }
 
-    // Récupérer les mémoires supprimés (en corbeille) de type MASTER
-    public List<Memoire> getMemoiresSupprimesMaster() {
-        return memoireRepository.findByCorbeilleTrueAndType(TypeMemoire.MASTER);
+    // Mémoires supprimés (corbeille) MASTER
+    public Page<Memoire> getMemoiresSupprimesMaster(Pageable pageable) {
+        return memoireRepository.findByCorbeilleTrueAndType(TypeMemoire.MASTER, pageable);
     }
 
     //liste de these

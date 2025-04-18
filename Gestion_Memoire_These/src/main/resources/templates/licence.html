@@ -361,11 +361,10 @@
             <br/>
             <!-- liste de toutes les memoires de licences -->
             <div  th:unless="${rechercheEffectuee}">
-                <table  id="table_ListeNormale">
+                <table  id="table_ListeNormale" class="table-bordered table-striped">
                     <thead class="table-dark">
                     <tr>
                         <th>Numero</th>
-                        <th>Cote</th>
                         <th>Titre</th>
                         <th>Étudiant</th>
                         <th>Encadrant</th>
@@ -376,8 +375,7 @@
                     </thead>
                     <tbody>
                     <tr th:each="memoire, iterStat : ${memoires}">
-                        <td th:text="${iterStat.index + 1}"></td>
-                        <td th:text="${memoire.cote}"></td>
+                        <td th:text="${pageMemoires.number * pageMemoires.size + iterStat.index + 1}"></td>
                         <td th:text="${memoire.titre}"></td>
                         <td th:text="${memoire.etudiant.nom}"></td>
                         <td th:text="${memoire.encadrant.nom}"></td>
@@ -428,8 +426,47 @@
                         </div>
                     </div>
                 </table>
-
             </div>
+            <div th:if="${pageMemoires.totalPages > 1}" class="mt-4 d-flex justify-content-center">
+                <nav aria-label="Pagination">
+                    <ul class="pagination bg-light p-3 rounded shadow-sm">
+
+                        <!-- Précédent -->
+                        <li class="page-item" th:classappend="${pageMemoires.first} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/licence(page=${pageMemoires.number - 1}, size=${pageMemoires.size})}">Précédent</a>
+                        </li>
+
+                        <!-- Pages -->
+                        <li class="page-item"
+                            th:each="i : ${#numbers.sequence(0, pageMemoires.totalPages - 1)}"
+                            th:classappend="${i == pageMemoires.number} ? 'active'">
+                            <a class="page-link"
+                               th:href="@{/licence(page=${i}, size=${pageMemoires.size})}"
+                               th:text="${i + 1}">1</a>
+                        </li>
+
+                        <!-- Suivant -->
+                        <li class="page-item" th:classappend="${pageMemoires.last} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/licence(page=${pageMemoires.number + 1}, size=${pageMemoires.size})}">Suivant</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <style>
+            .custom-active .page-link {
+              background-color: #6c757d !important; /* gris sombre Bootstrap */
+              border-color: #6c757d !important;
+              color: white !important;
+            }
+
+            .pagination .page-link:hover {
+              background-color: #6c757d !important; /* même gris sombre au survol */
+              border-color: #6c757d !important;
+              color: white !important;
+            }
+          </style>
         </div>
     </div>
     <br>
@@ -531,12 +568,10 @@
         });
     });
     </script>
-<!-- Inclusion des scripts JavaScript -->
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Popper.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
-<!-- Bootstrap JS -->
 <!-- Script pour initialiser DataTable -->
     <script>
         $(document).ready(function() {

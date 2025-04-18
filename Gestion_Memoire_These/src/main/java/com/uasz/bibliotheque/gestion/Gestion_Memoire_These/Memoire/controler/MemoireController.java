@@ -9,6 +9,9 @@ import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Notification.service.
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.chat.service.MessageService;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -96,6 +99,7 @@ public class MemoireController {
             @RequestParam("etudiantNom") String etudiantNom,
             @RequestParam("encadrantNom") String encadrantNom,
             @RequestParam("motsCles") String motsCles,  // Chaîne de mots-clés séparée par des virgules
+            @RequestParam(name = "licencePro", defaultValue = "false") boolean licencePro, // <-- Ajout ici
             RedirectAttributes redirectAttributes) {
 
         try {
@@ -109,20 +113,18 @@ public class MemoireController {
             }
 
             // Transformation de la chaîne de mots-clés en liste
-            List<String> motsClesList = Arrays.asList(motsCles.split("\\s*,\\s*"));  // Sépare la chaîne sur les virgules et élimine les espaces
+            List<String> motsClesList = Arrays.asList(motsCles.split("\\s*,\\s*"));  // Séparation sur les virgules + nettoyage des espaces
 
-            // Ajout du mémoire
+            // Appel du service
             memoireService.ajouterMemoire(
                     ufrNom, departementNom, filiereNom, type, titre, annee, exemplaires,
-                    etudiantNom, encadrantNom, motsClesList  // Passer la liste des mots-clés
+                    etudiantNom, encadrantNom, motsClesList, licencePro  // <-- Ajout du boolean ici
             );
 
-            // Ajout du message de succès
             redirectAttributes.addFlashAttribute("message", "Mémoire ajouté avec succès !");
-            return "redirect:/memoires/liste"; // Redirection vers la liste après succès
+            return "redirect:/memoires/liste";
 
         } catch (RuntimeException e) {
-            // Gestion des erreurs
             redirectAttributes.addFlashAttribute("error", "Erreur : " + e.getMessage());
             return "redirect:/memoires/ajouter";
         }
@@ -259,17 +261,27 @@ public class MemoireController {
 
     // Affichage de la corbeille
     @GetMapping("/memoires/corbeille")
-    public String corbeille(Model model) {
-        List<Memoire> memoiresLicence = memoireService.getMemoiresSupprimesLicence();
-        List<Memoire> memoiresMaster = memoireService.getMemoiresSupprimesMaster();
+    public String corbeille(Model model,
+                            @RequestParam(defaultValue = "0") int pageLicence,
+                            @RequestParam(defaultValue = "0") int pageMaster,
+                            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageableLicence = PageRequest.of(pageLicence, size);
+        Pageable pageableMaster = PageRequest.of(pageMaster, size);
+
+        Page<Memoire> pageMemoiresLicence = memoireService.getMemoiresSupprimesLicence(pageableLicence);
+        Page<Memoire> pageMemoiresMaster = memoireService.getMemoiresSupprimesMaster(pageableMaster);
         List<These> thesesDansCorbeille = theseRepository.findByEstSupprime(true);
 
+        model.addAttribute("pageMemoiresLicence", pageMemoiresLicence);
+        model.addAttribute("pageMemoiresMaster", pageMemoiresMaster);
+        model.addAttribute("memoiresLicence", pageMemoiresLicence.getContent());
+        model.addAttribute("memoiresMaster", pageMemoiresMaster.getContent());
         model.addAttribute("thesesDansCorbeille", thesesDansCorbeille);
-        model.addAttribute("memoiresLicence", memoiresLicence);
-        model.addAttribute("memoiresMaster", memoiresMaster);
 
         return "Corbeille";
     }
+
 
     @PostMapping("/memoires/restaurer")
     public String restaurerMemoire(@RequestParam Long id, RedirectAttributes redirectAttributes) {
@@ -378,57 +390,59 @@ public class MemoireController {
      * Affiche le formulaire de filtrage des mémoires de Licence.
      */
     @GetMapping("/licence")
-    public String afficherToutesLesMemoires(Model model, Principal principal) {
-        // Récupérer toutes les mémoires de type LICENCE
-        List<Memoire> memoires = memoireService.findMemoiresActifs();
+    public String afficherToutesLesMemoires(Model model, Principal principal,
+                                            @RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Memoire> pageMemoires = memoireService.findMemoiresActifs(pageable);
 
-        // Ajouter les mémoires et les UFR au modèle
-        model.addAttribute("memoires", memoires);
+        model.addAttribute("pageMemoires", pageMemoires);
+        model.addAttribute("memoires", pageMemoires.getContent());
+
         // Gestion de l'utilisateur connecté
         if (principal != null) {
             Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
             if (utilisateur != null) {
-                // Ajouter les informations de l'utilisateur au modèle
                 model.addAttribute("nom", utilisateur.getNom());
                 model.addAttribute("prenom", utilisateur.getPrenom());
 
-                // Extraire les rôles et les ajouter
                 String roles = utilisateur.getRoles().stream()
                         .map(Role::getRole)
                         .reduce((role1, role2) -> role1 + ", " + role2)
                         .orElse("Aucun rôle");
                 model.addAttribute("roles", roles);
             }
+            model.addAttribute("currentUser", principal.getName());
         }
-        model.addAttribute("currentUser", principal.getName()); // Ajouter l'utilisateur actuel
 
         return "licence";
     }
 
-    @GetMapping("/master")
-    public String afficherToutesLesMemoiresMasters(Model model, Principal principal) {
-        // Récupérer toutes les mémoires de type Master
-        List<Memoire> memoires = memoireService.getAllMemoiresMaster();
 
-        // Ajouter les mémoires et les UFR au modèle
-        model.addAttribute("memoires", memoires);
-        // Gestion de l'utilisateur connecté
+    @GetMapping("/master")
+    public String afficherToutesLesMemoiresMasters(Model model, Principal principal,
+                                                   @RequestParam(defaultValue = "0") int page,
+                                                   @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Memoire> pageMemoires = memoireService.getAllMemoiresMaster(pageable);
+
+        model.addAttribute("pageMemoires", pageMemoires);
+        model.addAttribute("memoires", pageMemoires.getContent());
+
         if (principal != null) {
             Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
             if (utilisateur != null) {
-                // Ajouter les informations de l'utilisateur au modèle
                 model.addAttribute("nom", utilisateur.getNom());
                 model.addAttribute("prenom", utilisateur.getPrenom());
 
-                // Extraire les rôles et les ajouter
                 String roles = utilisateur.getRoles().stream()
                         .map(Role::getRole)
                         .reduce((role1, role2) -> role1 + ", " + role2)
                         .orElse("Aucun rôle");
                 model.addAttribute("roles", roles);
             }
+            model.addAttribute("currentUser", principal.getName());
         }
-        model.addAttribute("currentUser", principal.getName()); // Ajouter l'utilisateur actuel
 
         return "master";
     }
@@ -539,10 +553,16 @@ public class MemoireController {
 
     //recherche par mots cles
     @GetMapping("/essaie/rechercheMotsCles")
-    public String rechercherMemoire(@RequestParam(value = "motCle", required = false) String motCle, Model model, Principal principal) {
+    public String rechercherMemoire(@RequestParam(value = "motCle", required = false) String motCle,
+                                    @RequestParam(value = "page", defaultValue = "0") int page,
+                                    @RequestParam(value = "size", defaultValue = "10") int size,
+                                    Model model, Principal principal) {
         if (motCle != null && !motCle.trim().isEmpty()) {
-            List<Memoire> resultats = memoireRepository.rechercherParTitreUfrDepartementFiliere(motCle.toLowerCase());
-            model.addAttribute("RechercheMemoiresParMotsCles", resultats);
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Memoire> pageResultats = memoireRepository.rechercherParTitreUfrDepartementFiliere(motCle.toLowerCase(), pageable);
+
+            model.addAttribute("RechercheMemoiresParMotsCles", pageResultats.getContent());
+            model.addAttribute("pageResultats", pageResultats);
             model.addAttribute("motCleRecherche", motCle);
         }
         // Gestion de l'utilisateur connecté
@@ -576,10 +596,16 @@ public class MemoireController {
     }
 
     @GetMapping("/dash/rechercheMotsCles")
-    public String rechercherMemoireMotCles(@RequestParam(value = "motCle", required = false) String motCle, Model model, Principal principal) {
+    public String rechercherMemoireMotsCle(@RequestParam(value = "motCle", required = false) String motCle,
+                                    @RequestParam(value = "page", defaultValue = "0") int page,
+                                    @RequestParam(value = "size", defaultValue = "10") int size,
+                                    Model model, Principal principal) {
         if (motCle != null && !motCle.trim().isEmpty()) {
-            List<Memoire> resultats = memoireRepository.rechercherParTitreUfrDepartementFiliere(motCle.toLowerCase());
-            model.addAttribute("RechercheMemoiresParMotsCles", resultats);
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Memoire> pageResultats = memoireRepository.rechercherParTitreUfrDepartementFiliere(motCle.toLowerCase(), pageable);
+
+            model.addAttribute("RechercheMemoiresParMotsCles", pageResultats.getContent());
+            model.addAttribute("pageResultats", pageResultats);
             model.addAttribute("motCleRecherche", motCle);
         }
         // Gestion de l'utilisateur connecté
@@ -612,3 +638,5 @@ public class MemoireController {
         return "dashboard";
     }
 }
+
+

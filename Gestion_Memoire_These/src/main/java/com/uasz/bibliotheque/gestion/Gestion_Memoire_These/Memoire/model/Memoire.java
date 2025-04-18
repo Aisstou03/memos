@@ -61,4 +61,11 @@ public class Memoire {
             inverseJoinColumns = @JoinColumn(name = "mot_cle_id")
     )
     private List<MotCle> motsCles = new ArrayList<>();
+
+    @Column(name = "licencePro", nullable = false)
+    private boolean licencePro = false; // Ajout du champ corbeille
+
+    public boolean isLicencePro() {
+        return licencePro;
+    }
 }

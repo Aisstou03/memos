@@ -122,7 +122,7 @@
           <div class="input-group">
             <form th:action="@{/dash/rechercheMotsCles}" method="get" class="d-flex">
               <div class="input-group input-group-outline">
-                <input type="search" class="form-control" name="motCle" placeholder="Rechercher par mot-clé" required>
+                <input type="search" class="form-control" name="motCle" placeholder="Memoire par mot-clé" required>
                 <button type="submit" class="search-button">
                   <i class="fas fa-search"></i> <!-- Icône dans le bouton -->
                 </button>
@@ -440,17 +440,16 @@
       <button onclick="closeAlert('error-alert')" class="btn btn-sm btn-primary">OK</button>
     </div>
     <br>
-    <div class="card p-3 shadow">
-      <div th:if="${motCleRecherche != null}">
-        <div th:if="${#lists.isEmpty(RechercheMemoiresParMotsCles)}">
-          <p>Aucun mémoire trouvé pour "<span th:text="${motCleRecherche}"></span>".</p>
-        </div>
+    <div class="card p-3 shadow" th:if="${motCleRecherche != null}">
+      <div th:if="${#lists.isEmpty(RechercheMemoiresParMotsCles)}">
+        <p>Aucun mémoire trouvé pour "<span th:text="${motCleRecherche}"></span>".</p>
+      </div>
 
-        <div th:if="${!#lists.isEmpty(RechercheMemoiresParMotsCles)}">
-          <table id="table_ListeNormale">
+      <div th:if="${!#lists.isEmpty(RechercheMemoiresParMotsCles)}">
+        <div class="table-responsive">
+          <table class="table-bordered table-striped" id="table_ListeNormale">
             <thead class="table-dark">
             <tr>
-              <th>Cote</th>
               <th>Titre</th>
               <th>Étudiant</th>
               <th>Encadrant</th>
@@ -463,44 +462,91 @@
             </thead>
             <tbody>
             <tr th:each="memoire : ${RechercheMemoiresParMotsCles}">
-              <td th:text="${memoire.cote}">Cote</td>
-
               <td>
-                            <span th:text="${memoire.titre}"
-                                  th:classappend="${#strings.containsIgnoreCase(memoire.titre, motCleRecherche)} ? 'bg-warning px-1' : ''">
-                            </span>
+            <span th:text="${memoire.titre}"
+                  th:classappend="${#strings.containsIgnoreCase(memoire.titre, motCleRecherche)} ? 'surlignage-recherche' : ''">
+            </span>
               </td>
-              <td th:text ="${memoire.etudiant.nom}">Etudiant</td>
-
-              <td th:text ="${memoire.encadrant.nom}">Encadrant</td>
-
+              <td th:text="${memoire.etudiant.nom}">Étudiant</td>
+              <td th:text="${memoire.encadrant.nom}">Encadrant</td>
               <td th:text="${memoire.annee}">Année</td>
-              <td th:text="${memoire.type}">Type</td>
-
               <td>
-                            <span th:text="${memoire.ufr.nom}"
-                                  th:classappend="${#strings.containsIgnoreCase(memoire.ufr.nom, motCleRecherche)} ? 'bg-warning px-1' : ''">
-                            </span>
+            <span th:if="${memoire.type == T(com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.model.TypeMemoire).LICENCE}"
+                  th:classappend="${memoire.licencePro} ? 'badge bg-primary' : 'badge bg-secondary'"
+                  th:text="${memoire.licencePro} ? 'Licence Pro' : 'Licence'">
+            </span>
+                <span th:if="${memoire.type == T(com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.model.TypeMemoire).MASTER}"
+                      class="badge bg-success"
+                      th:text="'Master'">
+            </span>
               </td>
-
               <td>
-                            <span th:text="${memoire.departement.nom}"
-                                  th:classappend="${#strings.containsIgnoreCase(memoire.departement.nom, motCleRecherche)} ? 'bg-warning px-1' : ''">
-                            </span>
+            <span th:text="${memoire.ufr.nom}"
+                  th:classappend="${#strings.containsIgnoreCase(memoire.ufr.nom, motCleRecherche)} ? 'surlignage-recherche' : ''">
+            </span>
               </td>
-
               <td>
-                            <span th:text="${memoire.filiere.nom}"
-                                  th:classappend="${#strings.containsIgnoreCase(memoire.filiere.nom, motCleRecherche)} ? 'bg-warning px-1' : ''">
-                            </span>
+            <span th:text="${memoire.departement.nom}"
+                  th:classappend="${#strings.containsIgnoreCase(memoire.departement.nom, motCleRecherche)} ? 'surlignage-recherche' : ''">
+            </span>
+              </td>
+              <td>
+            <span th:text="${memoire.filiere.nom}"
+                  th:classappend="${#strings.containsIgnoreCase(memoire.filiere.nom, motCleRecherche)} ? 'surlignage-recherche' : ''">
+            </span>
               </td>
             </tr>
             </tbody>
           </table>
         </div>
+        <div th:if="${pageResultats.totalPages > 1}"
+             class="mt-4 d-flex justify-content-center"
+             style="background-color: #f1f1f1; border-radius: 12px;">
+          <nav aria-label="Page navigation">
+            <ul class="pagination">
+              <!-- Bouton précédent -->
+              <li class="page-item" th:classappend="${pageResultats.first} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/essaie/rechercheMotsCles(motCle=${motCleRecherche}, page=${pageResultats.number - 1}, size=${pageResultats.size})}">
+                  Précédent
+                </a>
+              </li>
+
+              <!-- Liens de page -->
+              <li class="page-item"
+                  th:each="i : ${#numbers.sequence(0, pageResultats.totalPages - 1)}"
+                  th:classappend="${i == pageResultats.number} ? 'active custom-active'">
+                <a class="page-link"
+                   th:href="@{/essaie/rechercheMotsCles(motCle=${motCleRecherche}, page=${i}, size=${pageResultats.size})}"
+                   th:text="${i + 1}">1</a>
+              </li>
+
+              <!-- Bouton suivant -->
+              <li class="page-item" th:classappend="${pageResultats.last} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/essaie/rechercheMotsCles(motCle=${motCleRecherche}, page=${pageResultats.number + 1}, size=${pageResultats.size})}">
+                  Suivant
+                </a>
+              </li>
+              <li  class="page-item"> <a href="/memoires/liste">liste</a></li>
+            </ul>
+          </nav>
+        </div>
+        <style>
+            .custom-active .page-link {
+              background-color: #6c757d !important; /* gris sombre Bootstrap */
+              border-color: #6c757d !important;
+              color: white !important;
+            }
+
+            .pagination .page-link:hover {
+              background-color: #6c757d !important; /* même gris sombre au survol */
+              border-color: #6c757d !important;
+              color: white !important;
+            }
+          </style>
       </div>
     </div>
-    <br>
     <script>
           function closeAlert(alertId) {
               document.getElementById(alertId).style.display = "none";
@@ -533,7 +579,7 @@
         margin-left: 10px;
     }
 </style>
-
+    <br>
     <!--LICENCE-->
     <div class="row">
       <!-- Licence -->
