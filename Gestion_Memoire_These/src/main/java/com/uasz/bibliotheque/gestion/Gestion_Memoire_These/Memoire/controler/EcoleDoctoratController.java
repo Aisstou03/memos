@@ -167,12 +167,16 @@ public class EcoleDoctoratController {
     }
 
     @PostMapping("/filtre/these")
-    public String afficherThesesParUFR(@RequestParam String ufrNom, Model model) {
+    public String afficherThesesParUFR(@RequestParam String ufrNom,
+                                       @RequestParam(defaultValue = "0") int page,
+                                       @RequestParam(defaultValue = "10") int size,
+                                       Model model) {
         // Activer le mode filtrage
         model.addAttribute("isFiltered", true);
+        Pageable pageable = PageRequest.of(page, size);
 
         // Filtrer les thèses par UFR
-        List<These> thesesFiltrees = theseRepository.findByEcoleDoctoratUfrNom(ufrNom);
+        Page<These> thesesFiltrees = theseRepository.findByEcoleDoctoratUfrNom(ufrNom, pageable);
 
         // Organiser les thèses par UFR et par École Doctorale
         Map<String, Map<String, List<These>>> thesesParUFRAndEcoleDoctorale = new HashMap<>();
@@ -197,6 +201,10 @@ public class EcoleDoctoratController {
         // Ajouter la liste des thèses groupées par UFR et École Doctorale au modèle
         model.addAttribute("thesesParUFRAndEcole", thesesParUFRAndEcoleDoctorale);
         model.addAttribute("selectedUFR", ufrNom); // Pour vérifier la sélection dans Thymeleaf
+        model.addAttribute("pageTheses", thesesFiltrees);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", thesesFiltrees.getTotalPages());
+        model.addAttribute("pageSize", size);
 
         return "doctorat";  // Vue qui affichera les thèses filtrées
     }

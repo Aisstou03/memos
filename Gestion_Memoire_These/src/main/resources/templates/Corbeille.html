@@ -60,26 +60,28 @@
         table-layout: fixed; /* Empêche l'expansion des colonnes */
     }
 
-    /* Colonnes avec largeur ajustée */
+       /* Colonnes plus étroites */
     th, td {
-        padding: 8px;
-        border: 1px solid white;
-        text-align: center;
-        word-wrap: break-word; /* Permet au texte de passer à la ligne */
+        padding: 4px 6px;
+        font-size: 12px;
+        max-width: 100px; /* Réduit la largeur maximale */
         overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis; /* Ajoute "..." si trop long */
     }
+
 
     /* Boutons */
     .btn {
-        font-size: 12px;
-        padding: 5px 8px;
+        font-size: 8px;
+        padding: 3px 6px;
     }
 
     /* Responsivité pour petits écrans */
-    @media (max-width: 768px) {
+    @media (max-width: 668px) {
         table {
             width: 95%;  /* S'adapte mieux aux petits écrans */
-            font-size: 12px; /* Réduction de la taille de police */
+            font-size: 8px; /* Réduction de la taille de police */
         }
 
         th, td {
@@ -112,9 +114,9 @@
     .btn {
         color: black; /* Texte noir */
         background-color: white; /* Fond blanc */
-        border-radius: 8px;
-        padding: 8px;
-        font-size: 10px;
+        border-radius: 4px;
+        padding: 7px;
+        font-size: 8px;
         font-weight: bold;
         transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
     }
@@ -273,10 +275,10 @@
       <!-- Tab Licence -->
       <div class="tab-pane fade show active" id="licence" role="tabpanel">
         <div th:if="${#lists.isEmpty(memoiresLicence)}" class="alert alert-warning">Aucun mémoire de Licence dans la corbeille.</div>
-        <table th:if="${not #lists.isEmpty(memoiresLicence)}">
+        <table  class="table-bordered table-striped" th:if="${not #lists.isEmpty(memoiresLicence)}">
           <thead class="table-dark">
           <tr>
-            <th>#</th>
+            <th>Numero</th>
             <th>Titre</th>
             <th>Etudiant</th>
             <th>Encadrant</th>
@@ -286,19 +288,23 @@
           </thead>
           <tbody>
           <tr th:each="memoire, iterStat : ${memoiresLicence}">
-            <td th:text="${iterStat.count}"></td>
+            <td th:text="${pageMemoiresLicence.number * pageMemoiresLicence.size + iterStat.index + 1}"></td>
             <td th:text="${memoire.titre}"></td>
             <td th:text="${memoire.etudiant.nom}"></td>
             <td th:text="${memoire.encadrant.nom}"></td>
             <td th:text="${memoire.ufr.nom}"></td>
             <td>
-              <form th:action="@{/memoires/restaurer}" method="post">
-                <input type="hidden" name="id" th:value="${memoire.id}" />
-                <button type="submit" class="btn btn-success">♻ Restaurer</button>
-              </form>
-              <button type="button" class="btn btn-danger" data-bs-toggle="modal" th:data-bs-target="'#form_Supprimer_MemoireLicence_' + ${memoire.id}">
-                ❌ Supprimer
-              </button>
+              <div class="d-flex justify-content-center gap-1">
+                <form th:action="@{/memoires/restaurer}" method="post">
+                  <input type="hidden" name="id" th:value="${memoire.id}" />
+                  <button type="submit" class="btn btn-success">♻ Restaurer</button>
+                </form>
+                <button type="button" class="btn btn-danger"
+                        data-bs-toggle="modal"
+                        th:data-bs-target="'#form_Supprimer_MemoireLicence_' + ${memoire.id}">
+                  ❌ Supprimer
+                </button>
+              </div>
             </td>
           </tr>
           </tbody>
@@ -361,10 +367,10 @@
       <!-- Tab Master -->
       <div class="tab-pane fade" id="master" role="tabpanel">
         <div th:if="${#lists.isEmpty(memoiresMaster)}" class="alert alert-warning">Aucun mémoire de Master dans la corbeille.</div>
-        <table class="table table-striped mt-2" th:if="${not #lists.isEmpty(memoiresMaster)}">
+        <table class="table-bordered table-striped mt-2" th:if="${not #lists.isEmpty(memoiresMaster)}">
           <thead class="table-dark">
           <tr>
-            <th>#</th>
+            <th>Numero</th>
             <th>Titre</th>
             <th>Etudiant</th>
             <th>Encadrant</th>
@@ -374,24 +380,27 @@
           </thead>
           <tbody>
           <tr th:each="memoire, iterStat : ${memoiresMaster}">
-            <td th:text="${iterStat.count}"></td>
+            <td th:text="${pageMemoiresMaster.number * pageMemoiresMaster.size + iterStat.index + 1}"></td>
             <td th:text="${memoire.titre}"></td>
             <td th:text="${memoire.etudiant.nom}"></td>
             <td th:text="${memoire.encadrant.nom}"></td>
             <td th:text="${memoire.ufr.nom}"></td>
             <td>
-              <form th:action="@{/memoires/restaurer}" method="post">
-                <input type="hidden" name="id" th:value="${memoire.id}" />
-                <button type="submit" class="btn btn-success">♻ Restaurer</button>
-              </form>
-              <button type="button" class="btn btn-danger" data-bs-toggle="modal" th:data-bs-target="'#form_Supprimer_Memoire_' + ${memoire.id}">
-                ❌ Supprimer
-              </button>
+              <div class="d-flex justify-content-center gap-1">
+                <form th:action="@{/memoires/restaurer}" method="post">
+                  <input type="hidden" name="id" th:value="${memoire.id}" />
+                  <button type="submit" class="btn btn-success">♻ Restaurer</button>
+                </form>
+                <button type="button" class="btn btn-danger"
+                        data-bs-toggle="modal"
+                        th:data-bs-target="'#form_Supprimer_MemoireLicence_' + ${memoire.id}">
+                  ❌ Supprimer
+                </button>
+              </div>
             </td>
           </tr>
           </tbody>
         </table>
-
         <!-- Modals de suppression (générés dynamiquement) -->
         <div th:each="memoire : ${memoiresMaster}">
           <div class="modal fade" th:id="'form_Supprimer_Memoire_' + ${memoire.id}" tabindex="-1" role="dialog">
@@ -417,6 +426,50 @@
             </div>
           </div>
         </div>
+        <div th:if="${pageMemoiresMaster.totalPages > 1}" class="mt-4 d-flex justify-content-center">
+          <nav aria-label="Pagination">
+            <ul class="pagination bg-light p-3 rounded shadow-sm">
+
+              <!-- Précédent -->
+              <li class="page-item" th:classappend="${pageMemoiresMaster.first} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/memoires/corbeille(
+             pageMaster=${pageMemoiresMaster.number - 1},
+             pageLicence=${pageMemoiresLicence.number},
+             pageThese=${pagesThese.number},
+             size=${pageMemoiresMaster.size})}">
+                  Précédent
+                </a>
+              </li>
+
+              <!-- Numéros de page -->
+              <li class="page-item"
+                  th:each="i : ${#numbers.sequence(0, pageMemoiresMaster.totalPages - 1)}"
+                  th:classappend="${i == pageMemoiresMaster.number} ? 'active'">
+                <a class="page-link"
+                   th:href="@{/memoires/corbeille(
+             pageMaster=${i},
+             pageLicence=${pageMemoiresLicence.number},
+             pageThese=${pagesThese.number},
+             size=${pageMemoiresMaster.size})}"
+                   th:text="${i + 1}">1</a>
+              </li>
+
+              <!-- Suivant -->
+              <li class="page-item" th:classappend="${pageMemoiresMaster.last} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/memoires/corbeille(
+             pageMaster=${pageMemoiresMaster.number + 1},
+             pageLicence=${pageMemoiresLicence.number},
+             pageThese=${pagesThese.number},
+             size=${pageMemoiresMaster.size})}">
+                  Suivant
+                </a>
+              </li>
+
+            </ul>
+          </nav>
+        </div>
       </div>
 
       <!-- Contenu de l'onglet Thèses -->
@@ -424,10 +477,10 @@
         <div th:if="${#lists.isEmpty(thesesDansCorbeille)}" class="alert alert-warning">
           Aucune thèse dans la corbeille.
         </div>
-        <table class="table table-striped mt-2" th:if="${not #lists.isEmpty(thesesDansCorbeille)}">
+        <table class="table-bordered table-striped mt-2" th:if="${not #lists.isEmpty(thesesDansCorbeille)}">
           <thead class="table-dark">
           <tr>
-            <th>#</th>
+            <th>Numero</th>
             <th>Titre</th>
             <th>Étudiant</th>
             <th>Encadrant</th>
@@ -437,19 +490,21 @@
           </thead>
           <tbody>
             <tr th:each="these, iterStat : ${thesesDansCorbeille}"></td>
-              <td th:text="${iterStat.count}"></td>
+              <td th:text="${(pagesThese.number * pagesThese.size) + iterStat.index + 1}"></td>
               <td th:text="${these.titre}"></td>
               <td th:text="${these.etudiant.nom}"></td>
               <td></td>
               <td th:text="${these.ecoleDoctorat.ufr.nom}"></td>
               <td>
-                <form th:action="@{/theses/restaurer}" method="post">
-                  <input type="hidden" name="theseId" th:value="${these.id}" />
-                  <button type="submit" class="btn btn-success">♻ Restaurer</button>
-                </form>
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" th:data-bs-target="'#form_Supprimer_These_' + ${these.id}">
-                  ❌ Supprimer
-                </button>
+                <div class="d-flex justify-content-center gap-1">
+                  <form th:action="@{/theses/restaurer}" method="post">
+                    <input type="hidden" name="theseId" th:value="${these.id}" />
+                    <button type="submit" class="btn btn-success">♻ Restaurer</button>
+                  </form>
+                  <button type="button" class="btn btn-danger" data-bs-toggle="modal" th:data-bs-target="'#form_Supprimer_These_' + ${these.id}">
+                    ❌ Supprimer
+                  </button>
+                </div>
               </td>
           </tr>
           </tbody>
@@ -479,34 +534,65 @@
             </div>
           </div>
         </div>
-      </div>
-      <div th:if="${pageMemoiresMaster.totalPages > 1}" class="mt-4 p-3 bg-light rounded shadow-sm d-flex justify-content-center">
-        <nav>
-          <ul class="pagination">
-            <li class="page-item" th:classappend="${pageMemoiresMaster.first} ? 'disabled'">
-              <a class="page-link"
-                 th:href="@{/memoires/corbeille(pageMaster=${pageMemoiresMaster.number - 1}, pageLicence=${pageMemoiresLicence.number}, size=${pageMemoiresMaster.size})}">
-                Précédent
-              </a>
-            </li>
+        <div th:if="${pagesThese.totalPages > 1}" class="mt-4 d-flex justify-content-center">
+          <nav aria-label="Pagination">
+            <ul class="pagination bg-light p-3 rounded shadow-sm">
 
-            <li class="page-item"
-                th:each="i : ${#numbers.sequence(0, pageMemoiresMaster.totalPages - 1)}"
-                th:classappend="${i == pageMemoiresMaster.number} ? 'active'">
-              <a class="page-link"
-                 th:href="@{/memoires/corbeille(pageMaster=${i}, pageLicence=${pageMemoiresLicence.number}, size=${pageMemoiresMaster.size})}"
-                 th:text="${i + 1}">1</a>
-            </li>
+              <!-- Précédent -->
+              <li class="page-item" th:classappend="${pagesThese.first} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/memoires/corbeille(
+       pageThese=${pagesThese.number - 1},
+       pageMaster=${pageMemoiresMaster.number},
+       pageLicence=${pageMemoiresLicence.number},
+       size=${pagesThese.size})}">
+                  Précédent
+                </a>
+              </li>
 
-            <li class="page-item" th:classappend="${pageMemoiresMaster.last} ? 'disabled'">
-              <a class="page-link"
-                 th:href="@{/memoires/corbeille(pageMaster=${pageMemoiresMaster.number + 1}, pageLicence=${pageMemoiresLicence.number}, size=${pageMemoiresMaster.size})}">
-                Suivant
-              </a>
-            </li>
-          </ul>
-        </nav>
+              <li class="page-item"
+                  th:each="i : ${#numbers.sequence(0, pagesThese.totalPages - 1)}"
+                  th:classappend="${i == pagesThese.number} ? 'active'">
+                <a class="page-link"
+                   th:href="@{/memoires/corbeille(
+       pageThese=${i},
+       pageMaster=${pageMemoiresMaster.number},
+       pageLicence=${pageMemoiresLicence.number},
+       size=${pagesThese.size})}"
+                   th:text="${i + 1}">1
+                </a>
+              </li>
+
+              <li class="page-item" th:classappend="${pagesThese.last} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/memoires/corbeille(
+       pageThese=${pagesThese.number + 1},
+       pageMaster=${pageMemoiresMaster.number},
+       pageLicence=${pageMemoiresLicence.number},
+       size=${pagesThese.size})}">
+                  Suivant
+                </a>
+              </li>
+
+
+            </ul>
+          </nav>
+        </div>
+
       </div>
+      <style>
+            .custom-active .page-link {
+              background-color: #6c757d !important; /* gris sombre Bootstrap */
+              border-color: #6c757d !important;
+              color: white !important;
+            }
+
+            .pagination .page-link:hover {
+              background-color: #6c757d !important; /* même gris sombre au survol */
+              border-color: #6c757d !important;
+              color: white !important;
+            }
+          </style>
 
     </div>
 

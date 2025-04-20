@@ -345,14 +345,14 @@ public class MemoireService {
     /**
      * Récupère uniquement les mémoires de masters selon les filtres (UFR, Département, Filière).
      */
-    public List<Memoire> getMemoiresMastersFiltres(String ufrNom, String departementNom, String filiereNom) {
+    public Page<Memoire> getMemoiresMastersFiltres(String ufrNom, String departementNom, String filiereNom, Pageable pageable) {
         Specification<Memoire> spec = Specification
                 .where(MemoireSpecifications.withType(TypeMemoire.MASTER))
                 .and(MemoireSpecifications.withUFR(ufrNom))
                 .and(MemoireSpecifications.withDepartement(departementNom))
                 .and(MemoireSpecifications.withFiliere(filiereNom));
 
-        return memoireRepository.findAll(spec);
+        return memoireRepository.findAll(spec, pageable);
     }
 
     // Récupérer les mémoires actifs (hors corbeille) de type LICENCE

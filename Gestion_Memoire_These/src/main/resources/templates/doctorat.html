@@ -405,12 +405,43 @@
                         </div>
                     </table>
                 </div>
-            </div>
+                <div class="text-center mt-3">
+                    <a th:href="@{/memoires/doctorats}" class="btn btn-secondary">Voir tous les mémoires</a>
+                </div>
+                <!-- Pagination -->
+                <div th:if="${totalPages > 1}"class="text-center mt-4">
+                    <nav>
+                        <ul class="pagination justify-content-center">
 
+                            <!-- Lien vers la page précédente -->
+                            <li class="page-item" th:classappend="${currentPage == 0} ? ' disabled'">
+                                <a class="page-link" th:href="@{/filtre/these(
+                            ufrNom=${selectedUFR},
+                            page=${currentPage - 1},
+                            size=${pageSize})}">Précédent</a>
+                            </li>
 
-            <!-- Bouton pour voir tous les these -->
-            <div class="text-center mt-4">
-                <a th:href="@{/memoires/doctorats}" class="btn btn-secondary">Voir tous les theses</a>
+                            <!-- Liens vers les pages -->
+                            <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                th:classappend="${i == currentPage} ? ' active'">
+                                <a class="page-link" th:href="@{/filtre/these(
+                            ufrNom=${selectedUFR},
+                            page=${i},
+                            size=${pageSize})}"
+                                   th:text="${i + 1}">1</a>
+                            </li>
+
+                            <!-- Lien vers la page suivante -->
+                            <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? ' disabled'">
+                                <a class="page-link" th:href="@{/filtre/these(
+                            ufrNom=${selectedUFR},
+                            page=${currentPage + 1},
+                            size=${pageSize})}">Suivant</a>
+                            </li>
+
+                        </ul>
+                    </nav>
+                </div>
             </div>
         </div>
 
@@ -484,7 +515,6 @@
                 </div>
             </table>
         </div>
-        <!-- Pagination -->
         <!-- Pagination -->
         <div th:if="${theses.totalPages > 1}" class="mt-4 p-3 bg-light rounded shadow-sm d-flex justify-content-center">
             <nav aria-label="Pagination des Thèses">

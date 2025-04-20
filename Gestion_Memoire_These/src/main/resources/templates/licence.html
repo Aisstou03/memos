@@ -387,89 +387,80 @@
                                     </a>
                                 </td>
                             </tr>
-
-                            <!-- Modale de confirmation de suppression (chaque mémoire a son propre modal) -->
-                            <tr th:each="memoire : ${departementEntry.value}">
-                                <td colspan="8"> <!-- Ajouté pour éviter le problème d'affichage -->
-                                    <div class="modal fade" th:id="'form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}" tabindex="-1" role="dialog">
-                                        <div class="modal-dialog" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">Supprimer Mémoire</h5>
-                                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                                <form th:action="@{/memoires/supprimer}" method="post">
-                                                    <div class="modal-body">
-                                                        <input type="hidden" name="id" th:value="${memoire.id}" />
-                                                        <p>Voulez-vous vraiment supprimer ce mémoire ?</p>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="submit" class="btn btn-danger">Supprimer</button>
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
                             </tbody>
                         </table>
-                        <div th:if="${totalPages > 1}" class="pagination">
-                            <ul class="pagination-list">
-                                <!-- Précédent -->
-                                <li th:if="${currentPage > 0}">
-                                    <form method="post" th:action="@{/filtre/licence}" style="display:inline;">
-                                        <input type="hidden" name="ufrNom" th:value="${selection.ufr}" />
-                                        <input type="hidden" name="departementNom" th:value="${selection.departement}" />
-                                        <input type="hidden" name="filiereNom" th:value="${selection.filiere}" />
-                                        <input type="hidden" name="page" th:value="${currentPage - 1}" />
-                                        <button class="page-link" type="submit">Précédent</button>
-                                    </form>
-                                </li>
-
-                                <!-- Pages -->
-                                <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                                    th:classappend="${i == currentPage} ? 'active'">
-                                    <form method="post" th:action="@{/filtre/licence}" style="display:inline;">
-                                        <input type="hidden" name="ufrNom" th:value="${selection.ufr}" />
-                                        <input type="hidden" name="departementNom" th:value="${selection.departement}" />
-                                        <input type="hidden" name="filiereNom" th:value="${selection.filiere}" />
-                                        <input type="hidden" name="page" th:value="${i}" />
-                                        <button class="page-link" type="submit" th:text="${i + 1}"></button>
-                                    </form>
-                                </li>
-
-                                <!-- Suivant -->
-                                <li th:if="${currentPage + 1 < totalPages}">
-                                    <form method="post" th:action="@{/filtre/licence}" style="display:inline;">
-                                        <input type="hidden" name="ufrNom" th:value="${selection.ufr}" />
-                                        <input type="hidden" name="departementNom" th:value="${selection.departement}" />
-                                        <input type="hidden" name="filiereNom" th:value="${selection.filiere}" />
-                                        <input type="hidden" name="page" th:value="${currentPage + 1}" />
-                                        <button class="page-link" type="submit">Suivant</button>
-                                    </form>
-                                </li>
-                            </ul>
+                        <div th:each="memoire : ${departementEntry.value}">
+                            <div class="modal fade" th:id="'form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}" tabindex="-1" role="dialog">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Supprimer Mémoire</h5>
+                                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <form th:action="@{/memoires/supprimer}" method="post">
+                                            <div class="modal-body">
+                                                <input type="hidden" name="id" th:value="${memoire.id}" />
+                                                <p>Voulez-vous vraiment supprimer ce mémoire ?</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" class="btn btn-danger">Supprimer</button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <style>
-                        .custom-active .page-link {
-                          background-color: #6c757d !important; /* gris sombre Bootstrap */
-                          border-color: #6c757d !important;
-                          color: white !important;
-                        }
+                        <!-- Lien pour revenir à la liste complète des mémoires -->
+                        <div class="text-center mt-3">
+                            <a th:href="@{/licence}" class="btn btn-secondary">Voir tous les mémoires</a>
+                        </div>
 
-                        .pagination .page-link:hover {
-                          background-color: #6c757d !important; /* même gris sombre au survol */
-                          border-color: #6c757d !important;
-                          color: white !important;
-                        }
-                      </style>
+                        <div th:if="${totalPages > 1}" class="text-center mt-4">
+                            <nav>
+                                <ul class="pagination justify-content-center">
+
+                                    <!-- Précédent -->
+                                    <li class="page-item" th:if="${currentPage > 0}">
+                                        <form method="post" th:action="@{/filtre/licence}" style="display:inline;">
+                                            <input type="hidden" name="ufrNom" th:value="${selection.ufr}" />
+                                            <input type="hidden" name="departementNom" th:value="${selection.departement}" />
+                                            <input type="hidden" name="filiereNom" th:value="${selection.filiere}" />
+                                            <input type="hidden" name="page" th:value="${currentPage - 1}" />
+                                            <button class="page-link" type="submit">Précédent</button>
+                                        </form>
+                                    </li>
+
+                                    <!-- Pages -->
+                                    <li class="page-item"  th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                        th:classappend="${i == currentPage} ? 'active'">
+                                        <form method="post" th:action="@{/filtre/licence}" style="display:inline;">
+                                            <input type="hidden" name="ufrNom" th:value="${selection.ufr}" />
+                                            <input type="hidden" name="departementNom" th:value="${selection.departement}" />
+                                            <input type="hidden" name="filiereNom" th:value="${selection.filiere}" />
+                                            <input type="hidden" name="page" th:value="${i}" />
+                                            <button class="page-link" type="submit" th:text="${i + 1}"></button>
+                                        </form>
+                                    </li>
+
+                                    <!-- Suivant -->
+                                    <li class="page-item" th:if="${currentPage + 1 < totalPages}">
+                                        <form method="post" th:action="@{/filtre/licence}" style="display:inline;">
+                                            <input type="hidden" name="ufrNom" th:value="${selection.ufr}" />
+                                            <input type="hidden" name="departementNom" th:value="${selection.departement}" />
+                                            <input type="hidden" name="filiereNom" th:value="${selection.filiere}" />
+                                            <input type="hidden" name="page" th:value="${currentPage + 1}" />
+                                            <button class="page-link" type="submit">Suivant</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+
                     </div>
                 </div>
-                <a href="/master" >liste</a>
             </div>
 
             <br/>

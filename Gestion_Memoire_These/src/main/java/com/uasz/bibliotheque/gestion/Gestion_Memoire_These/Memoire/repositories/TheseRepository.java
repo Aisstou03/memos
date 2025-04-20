@@ -18,7 +18,7 @@ public interface TheseRepository extends JpaRepository<These, Long>, JpaSpecific
     long countTheses();
 
     // Rechercher les thèses par nom de l'UFR de l'école doctorale
-    List<These> findByEcoleDoctoratUfrNom(String ufrNom);
+    Page<These> findByEcoleDoctoratUfrNom(String ufrNom, Pageable pageable);
     // Trouver toutes les thèses marquées comme supprimées (dans la corbeille)
     Page<These> findByEstSupprime(Boolean estSupprime, Pageable pageable);
 

@@ -95,28 +95,29 @@ body { background-color: #f8f9fa; }
 .search-button:hover {
     background-color: #0056b3;
 }
-.btn-custom {
-    border: 2px solid #343a40; /* Bordure foncée */
-    background: linear-gradient(45deg, #343a40, #5a6268); /* Dégradé gris foncé */
-    color: white; /* Texte blanc */
-    padding: 6px 20px; /* Taille ajustée */
-    font-size: 16px; /* Réduction de la taille du texte */
-    border-radius: 5px; /* Coins arrondis */
-    transition: all 0.3s ease-in-out; /* Effet de transition fluide */
-    height: 38px; /* Ajuste la hauteur pour correspondre aux selects */
-    display: flex; /* Assure un bon alignement */
-    align-items: center; /* Centre le texte verticalement */
-    justify-content: center; /* Centre le texte horizontalement */
-    margin-top: -15px; /* Remonte légèrement le bouton */
-    margin-bottom: 17px;
+/* Forcer l'application du style */
+ .btn-custom {
+     border: 2px solid #343a40 !important; /* Bordure foncée */
+     background: linear-gradient(45deg, #343a40, #5a6268) !important; /* Dégradé gris foncé */
+     color: white !important; /* Texte blanc */
+     padding: 16px 40px !important; /* Augmentation de la taille du bouton */
+     font-size: 14px !important; /* Réduction de la taille du texte */
+     border-radius: 8px !important; /* Coins arrondis */
+     transition: all 0.3s ease-in-out !important; /* Effet de transition fluide */
+     height: 43px !important; /* Augmente la hauteur */
+     display: flex !important; /* Assure un bon alignement */
+     align-items: center !important; /* Centre le texte verticalement */
+     justify-content: center !important; /* Centre le texte horizontalement */
+     cursor: pointer !important; /* Curseur pointeur */
+     font-weight: bold !important; /* Texte plus visible */
+ }
 
-}
-
-.btn-custom:hover {
-    background: #5a6268; /* Changement de couleur au survol */
-    border-color: #5a6268;
-    transform: scale(1.05); /* Légère augmentation au survol */
-}
+ /* Effet hover */
+ .btn-custom:hover {
+     background: linear-gradient(45deg, #5a6268, #343a40) !important;
+     color: white !important;
+     border-color: #5a6268 !important;
+ }
 
 /* Réduction de la taille du tableau */
 #table_ListeNormale {
