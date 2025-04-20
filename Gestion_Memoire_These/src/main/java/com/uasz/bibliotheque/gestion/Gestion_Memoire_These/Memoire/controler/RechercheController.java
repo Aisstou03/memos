@@ -8,6 +8,10 @@ import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.service.These
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.utils.MemoireSpecifications;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.utils.TheseSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,7 +34,7 @@ public class RechercheController {
     }
 
     // recherche de mémoires de Licence
-    @RequestMapping(value = "/licences/recherche", method = RequestMethod.POST)
+    @RequestMapping(value = "/licences/recherche", method = {RequestMethod.POST, RequestMethod.GET})
     public String afficherMemoiresLicence(
             @RequestParam(required = false) String cote,
             @RequestParam(required = false) String titre,
@@ -38,12 +42,11 @@ public class RechercheController {
             @RequestParam(required = false) String encadrant,
             @RequestParam(required = false) String filiere,
             @RequestParam(required = false) Integer annee,
+            @RequestParam(defaultValue = "0") int page, // pagination
+            @RequestParam(defaultValue = "10") int size, // taille de page par défaut
             Model model
     ) {
-        // Définir une spécification de base pour les mémoires de type Licence
         Specification<Memoire> spec = Specification.where(MemoireSpecifications.withType(TypeMemoire.LICENCE));
-
-        // Vérifier si des critères de recherche ont été fournis
         boolean hasSearchParams = false;
 
         if (cote != null && !cote.isEmpty()) {
@@ -71,13 +74,18 @@ public class RechercheController {
             hasSearchParams = true;
         }
 
-        // Si la recherche est effectuée, récupérer les résultats
         if (hasSearchParams) {
-            List<Memoire> memoiresTrouves = memoireService.searchMemos(spec);
-            model.addAttribute("memoires", memoiresTrouves);
-            model.addAttribute("nombreMemoiresTrouves", memoiresTrouves.size());
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Memoire> pageMemoires = memoireService.searchMemos(spec, pageable);
 
-            if (memoiresTrouves.isEmpty()) {
+            model.addAttribute("pageMemoires", pageMemoires);
+            model.addAttribute("memoires", pageMemoires.getContent());
+            model.addAttribute("nombreMemoiresTrouves", pageMemoires.getTotalElements());
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalPages", pageMemoires.getTotalPages());
+            model.addAttribute("pageSize", size); // <= AJOUTE CETTE LIGNE
+
+            if (pageMemoires.isEmpty()) {
                 model.addAttribute("message", "Aucun mémoire trouvé pour les critères spécifiés.");
             }
 
@@ -87,14 +95,12 @@ public class RechercheController {
         }
 
         model.addAttribute("typeMemoire", "Licence");
-        return "licence"; // Vue dédiée
+        return "licence";
     }
-
-    //recherche de licence par mots cles
 
 
     // recherche de mémoires de Master
-    @RequestMapping(value = "/masters/recherche", method = RequestMethod.POST)
+    @RequestMapping(value = "/masters/recherche", method = {RequestMethod.POST, RequestMethod.GET})
     public String afficherMemoiresMaster(
             @RequestParam(required = false) String cote,
             @RequestParam(required = false) String titre,
@@ -102,12 +108,11 @@ public class RechercheController {
             @RequestParam(required = false) String encadrant,
             @RequestParam(required = false) String filiere,
             @RequestParam(required = false) Integer annee,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             Model model
     ) {
-        // Définir une spécification de base pour les mémoires de type Licence
         Specification<Memoire> spec = Specification.where(MemoireSpecifications.withType(TypeMemoire.MASTER));
-
-        // Vérifier si des critères de recherche ont été fournis
         boolean hasSearchParams = false;
 
         if (cote != null && !cote.isEmpty()) {
@@ -135,27 +140,25 @@ public class RechercheController {
             hasSearchParams = true;
         }
 
-        // Si la recherche est effectuée, récupérer les résultats
-        if (hasSearchParams) {
-            List<Memoire> memoiresTrouves = memoireService.searchMemos(spec);
-            model.addAttribute("memoires", memoiresTrouves);
-            model.addAttribute("nombreMemoiresTrouves", memoiresTrouves.size());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<Memoire> pageMemoires = memoireService.searchMemos(spec, pageable);
 
-            if (memoiresTrouves.isEmpty()) {
-                model.addAttribute("message", "Aucun mémoire trouvé pour les critères spécifiés.");
-            }
+        model.addAttribute("pageMemoires", pageMemoires);
+        model.addAttribute("memoires", pageMemoires.getContent());
 
-            model.addAttribute("rechercheEffectuee", true);
-        } else {
-            model.addAttribute("rechercheEffectuee", false);
-        }
-
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", pageMemoires.getTotalPages());
+        model.addAttribute("totalElements", pageMemoires.getTotalElements());
+        model.addAttribute("pageSize", size);
+        model.addAttribute("nombreMemoiresTrouves", pageMemoires.getTotalElements());
+        model.addAttribute("rechercheEffectuee", hasSearchParams);
         model.addAttribute("typeMemoire", "Master");
-        return "master"; // Vue dédiée
+
+        return "master";
     }
 
 
-    @RequestMapping(value = "/theses/recherche", method = RequestMethod.POST)
+    @RequestMapping(value = "/theses/recherche", method = {RequestMethod.POST, RequestMethod.GET})
     public String rechercherTheses(
             @RequestParam(required = false) String cote,
             @RequestParam(required = false) String titre,
@@ -164,6 +167,8 @@ public class RechercheController {
             @RequestParam(required = false) Integer annee,
             @RequestParam(required = false) String ecoleDoctoraleNom,
             @RequestParam(required = false) String ufrNom,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "2") int size,
             Model model
     ) {
         Specification<These> spec = Specification.where(null);
@@ -199,12 +204,19 @@ public class RechercheController {
         }
 
         if (hasSearchParams) {
-            List<These> thesesTrouvees = theseService.searchMemos(spec);
-            model.addAttribute("thesesTrouvees", thesesTrouvees);
-            model.addAttribute("nombreThesesTrouvees", thesesTrouvees.size());
+            Pageable pageable = PageRequest.of(page, size);
+            Page<These> pageTheses = theseService.searchMemos(spec, pageable); // <-- PAGE
+
+            model.addAttribute("pageTheses", pageTheses);
+            model.addAttribute("thesesTrouvees", pageTheses.getContent());
+            model.addAttribute("nombreThesesTrouvees", pageTheses.getTotalElements());
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalPages", pageTheses.getTotalPages());
+            model.addAttribute("pageSize", size);
+
             model.addAttribute("rechercheEffectuee", true);
 
-            if (thesesTrouvees.isEmpty()) {
+            if (pageTheses.isEmpty()) {
                 model.addAttribute("message", "Aucune thèse trouvée pour les critères spécifiés.");
             }
         } else {
@@ -213,8 +225,6 @@ public class RechercheController {
 
         model.addAttribute("typeThese", "Doctorat");
 
-        return "doctorat"; // Vue correcte
+        return "doctorat";
     }
-
-
 }

@@ -1,18 +1,21 @@
 package com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.controler;
 
+import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.modele.Role;
+import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.modele.Utilisateur;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.model.*;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.repositories.*;
-import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.service.EncadrantService;
-import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.service.EtudiantService;
-import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.service.TheseService;
-import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.service.UfrService;
+import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.service.*;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Notification.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,6 +34,9 @@ public class EcoleDoctoratController {
 
     @Autowired
     EncadrantService encadrantService;
+
+    @Autowired
+    private MemoireService memoireService;
 
     @Autowired
     private TheseService theseService;
@@ -128,11 +134,35 @@ public class EcoleDoctoratController {
         }
     }
 
+    //liste
     @GetMapping("/memoires/doctorats")
-    public String afficherToutesLesTheses(Model model) {
-        List<These> theses = theseService.getAllThese();
+    public String afficherToutesLesTheses(Model model, Principal principal,
+                                            @RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        // Récupérer toutes les mémoires de type These
+        Page<These> theses = theseService.getAllThese(pageable);
         model.addAttribute("theses", theses);
         model.addAttribute("rechercheEffectuee", false); // Ajouté pour bien différencier les cas
+
+        // Gestion de l'utilisateur connecté
+        if (principal != null) {
+            Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
+            if (utilisateur != null) {
+                // Ajouter les informations de l'utilisateur au modèle
+                model.addAttribute("nom", utilisateur.getNom());
+                model.addAttribute("prenom", utilisateur.getPrenom());
+
+                // Extraire les rôles et les ajouter
+                String roles = utilisateur.getRoles().stream()
+                        .map(Role::getRole)
+                        .reduce((role1, role2) -> role1 + ", " + role2)
+                        .orElse("Aucun rôle");
+                model.addAttribute("roles", roles);
+            }
+        }
+        model.addAttribute("currentUser", principal.getName()); // Ajouter l'utilisateur actuel
+
         return "doctorat";
     }
 

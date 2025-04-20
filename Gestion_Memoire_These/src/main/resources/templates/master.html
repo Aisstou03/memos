@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
@@ -50,7 +51,7 @@
     <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link active bg-gradient-dark text-white" href="../pages/dashboard.html">
+                <a class="nav-link active bg-gradient-dark text-white" href="/memoires/liste">
                     <i class="material-symbols-rounded opacity-5">dashboard</i>
                     <span class="nav-link-text ms-1">Tableau de bord</span>
                 </a>
@@ -65,6 +66,18 @@
                 <a class="nav-link text-dark" href="/ajoutMemoire">
                     <i class="material-symbols-rounded opacity-5">receipt_long</i>
                     <span class="nav-link-text ms-1">Ajout mémoires</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" href="/licence">
+                    <i class="fa fa-book" aria-hidden="true"></i>
+                    <span class="nav-link-text ms-1">Mémoires de Licences</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" href="/memoires/doctorats">
+                    <i class="fa fa-university" aria-hidden="true"></i>
+                    <span class="nav-link-text ms-1">Thèses</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -140,238 +153,29 @@
     </div>
     <!-- Conteneur principal -->
     <div class="container">
-    <h2 class="text-center mb-4"><b>Liste des mémoires pour le Master <span th:text="${nombreMemoires}"></span></b></h2>
-    <!-- Formulaire de recherche -->
-    <form id="searchForm" class="search-form" action="/masters/recherche" method="post">
-        <div class="search-container">
-            <input type="text" id="searchCote" name="cote" placeholder="Côte (Ex. LAF13/2)">
-            <input type="text" id="searchTitre" name="titre" placeholder="Titre du mémoire">
-            <input type="text" id="searchEtudiant" name="etudiant" placeholder="Nom de l'étudiant">
-            <input type="text" id="searchEncadrant" name="encadrant" placeholder="Nom de l'encadrant">
-            <input type="text" id="searchFiliere" name="filiere" placeholder="Filière (Ex. Physique)">
-            <input type="number" id="searchAnnee" name="annee" placeholder="Année (Ex. 2024)">
-            <button type="submit" class="search-button">
-                <i class="fas fa-search"></i>
-            </button>
-        </div>
-    </form>
-
-    <!-- Affichage des résultats uniquement si la recherche a été effectuée -->
-    <div th:if="${rechercheEffectuee}">
-        <h4>
-            Résultats de la recherche : <span th:text="${nombreMemoiresTrouves}"></span> mémoire(s) trouvé(s)
-        </h4>
-        <table class="table table-bordered table-hover" id="table_ListeNormale">
-            <thead class="table-dark">
-            <tr>
-                <th>Numero</th>
-                <th>Côte</th>
-                <th>Titre</th>
-                <th>Étudiant</th>
-                <th>Encadrant</th>
-                <th>Filière</th>
-                <th>Année</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="memoire, iterStat : ${memoires}">
-                <td th:text="${iterStat.index + 1}"></td>
-                <td th:text="${memoire.cote}"></td>
-                <td th:text="${memoire.titre}"></td>
-                <td th:text="${memoire.etudiant.nom}"></td>
-                <td th:text="${memoire.encadrant.nom}"></td>
-                <td th:text="${memoire.filiere.nom}"></td>
-                <td th:text="${memoire.annee}"></td>
-                <td>
-                    <div class="action-container">
-                        <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
-                        <div class="dropdown-content">
-                            <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
-                                Modifier
-                            </a>
-                            <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
-                                Supprimer
-                            </a>
-                        </div>
-                    </div>
-                    <a th:href="@{/memoires/genererAttestation/{id}(id=${memoire.id})}"
-                       style="margin-left: 17px; color: black; text-decoration: none;">
-                        <i class="bi bi-cloud-arrow-down-fill"
-                           style="cursor: pointer; font-size: 1.2rem;"></i>
-                    </a>
-                </td>
-            </tr>
-            </tbody>
-            <!-- MODALES (placées en dehors du tableau) -->
-            <div th:each="memoire : ${memoires}">
-                <div class="modal fade" th:id="'form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}" tabindex="-1" role="dialog">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Supprimer Mémoire</h5>
-                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <form th:action="@{/memoires/supprimer}" method="post">
-                                <div class="modal-body">
-                                    <input type="hidden" name="id" th:value="${memoire.id}" />
-                                    <p>Voulez-vous vraiment supprimer ce mémoire ?</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="submit" class="btn btn-danger">Supprimer</button>
-                                    <button type="button" class="btn btn-default" data-bs-dismiss="modal">Annuler</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </table>
-        <!-- Lien pour revenir à la liste complète des mémoires -->
-        <div class="text-center mt-3">
-            <a th:href="@{/master}" class="btn btn-secondary">Voir tous les mémoires</a>
-        </div>
-    </div>
-
-    <div class="card p-4 shadow">
-        <h4 class="text-center mb-4">Filtrer les Mémoires de Master</h4>
-        <!-- Formulaire de filtrage -->
-        <form id="licenceForm" th:action="@{/filtre/master}" method="post">
-            <!-- Champs de sélection et bouton sur la même ligne -->
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="mb-3">
-                        <label for="ufrNom" class="form-label">UFR</label>
-                        <select id="ufrNom" name="ufrNom" class="form-select" onchange="updateDepartements()" required>
-                            <option value="">-- Sélectionner un UFR --</option>
-                            <option value="UFR Sciences et Techniques (ST)">UFR Sciences et Techniques (ST)</option>
-                            <option value="UFR Lettres, Art, Sciences Humaines (LASHU)">UFR Lettres, Art, Sciences Humaines (LASHU)</option>
-                            <option value="UFR Sciences Economiques et Sociales (SES)">UFR Sciences Economiques et Sociales (SES)</option>
-                            <option value="UFR Sciences Santé (SS)">UFR Sciences Santé (SS)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="mb-3">
-                        <label for="departementNom" class="form-label">Département</label>
-                        <select id="departementNom" name="departementNom" class="form-select" onchange="updateFilieres()" required>
-                            <option value="">-- Sélectionner un département --</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="mb-3">
-                        <label for="filiereNom" class="form-label">Filière</label>
-                        <select id="filiereNom" name="filiereNom" class="form-select" required>
-                            <option value="">-- Sélectionner une filière --</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Bouton Afficher dans la même ligne -->
-                <div class="col-md-1 d-flex align-items-end">
-                    <button type="submit" class="btn btn-custom">Afficher</button>
-                </div>
+        <h2 class="text-center mb-4"><b>Liste des mémoires pour le Master <span th:text="${nombreMemoires}"></span></b></h2>
+        <!-- Formulaire de recherche -->
+        <form id="searchForm" class="search-form" action="/masters/recherche" method="post">
+            <div class="search-container">
+                <input type="text" id="searchCote" name="cote" placeholder="Côte (Ex. LAF13/2)">
+                <input type="text" id="searchTitre" name="titre" placeholder="Titre du mémoire">
+                <input type="text" id="searchEtudiant" name="etudiant" placeholder="Nom de l'étudiant">
+                <input type="text" id="searchEncadrant" name="encadrant" placeholder="Nom de l'encadrant">
+                <input type="text" id="searchFiliere" name="filiere" placeholder="Filière (Ex. Physique)">
+                <input type="number" id="searchAnnee" name="annee" placeholder="Année (Ex. 2024)">
+                <button type="submit" class="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
         </form>
 
-        <!-- Résultats de filtrage -->
-        <div th:if="${memoiresGroupes != null and not #maps.isEmpty(memoiresGroupes)}">
-            <div th:each="ufrEntry : ${memoiresGroupes}">
-                <h3 th:text="${ufrEntry.key}">Nom de l'UFR</h3>
-
-                <div th:each="departementEntry : ${ufrEntry.value}">
-                    <h4 th:text="${departementEntry.key}">Nom du Département</h4>
-                    <table class="table table-striped" id="table_ListeNormale">
-                        <thead class="table-dark">
-                        <tr>
-                            <th>#</th>
-                            <th>Cote</th>
-                            <th>Titre</th>
-                            <th>Étudiant</th>
-                            <th>Encadrant</th>
-                            <th>Filière</th>
-                            <th>Année</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="memoire, iterStat : ${departementEntry.value}">
-                            <td th:text="${iterStat.index + 1}"></td>
-                            <td th:text="${memoire.cote}"></td>
-                            <td th:text="${memoire.titre}"></td>
-                            <td th:text="${memoire.etudiant.nom}"></td>
-                            <td th:text="${memoire.encadrant.nom}"></td>
-                            <td th:text="${memoire.filiere.nom}"></td>
-                            <td th:text="${memoire.annee}"></td>
-                            <td>
-                                <div class="action-container">
-                                    <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
-                                    <div class="dropdown-content">
-                                        <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
-                                            Modifier
-                                        </a>
-                                        <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
-                                            Supprimer
-                                        </a>
-                                    </div>
-                                </div>
-                                <a th:href="@{/memoires/genererAttestation/{id}(id=${memoire.id})}"
-                                   style="margin-left: 17px; color: black; text-decoration: none;">
-                                    <i class="bi bi-cloud-arrow-down-fill"
-                                       style="cursor: pointer; font-size: 1.2rem;"></i>
-                                </a>
-                            </td>
-                        </tr>
-
-                        <!-- Modale de confirmation de suppression (chaque mémoire a son propre modal) -->
-                        <tr th:each="memoire : ${departementEntry.value}">
-                            <td colspan="8"> <!-- Ajouté pour éviter le problème d'affichage -->
-                                <div class="modal fade" th:id="'form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}" tabindex="-1" role="dialog">
-                                    <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Supprimer Mémoire</h5>
-                                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
-                                            <form th:action="@{/memoires/supprimer}" method="post">
-                                                <div class="modal-body">
-                                                    <input type="hidden" name="id" th:value="${memoire.id}" />
-                                                    <p>Voulez-vous vraiment supprimer ce mémoire ?</p>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="submit" class="btn btn-danger">Supprimer</button>
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <a href="/master" >liste</a>
-        </div>
-
-        <!-- Message d'erreur uniquement si une recherche a été effectuée -->
-        <div th:if="${(rechercheEffectuees ?: false) and (memoiresGroupes == null or #maps.isEmpty(memoiresGroupes))}">
-            <p class="text-center text-muted">
-                Aucun mémoire de licence trouvé pour ce filtrage.
-                <a href="/master" >liste</a>
-            </p>
-        </div>
-        <br/>
-        <!-- liste de toutes les memoires de master -->
-        <div th:unless="${rechercheEffectuee}">
+        <!-- Affichage des résultats uniquement si la recherche a été effectuée -->
+        <div th:if="${rechercheEffectuee}">
+            <h4>
+                Résultats de la recherche : <span th:text="${nombreMemoiresTrouves}"></span> mémoire(s) trouvé(s)
+            </h4>
             <table class="table-bordered table-striped" id="table_ListeNormale">
-                <thead class="table-dark" >
+                <thead class="table-dark">
                 <tr>
                     <th>Numero</th>
                     <th>Titre</th>
@@ -384,7 +188,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="memoire, iterStat : ${memoires}">
-                    <td th:text="${pageMemoires.number * pageMemoires.size + iterStat.index + 1}"></td>
+                    <td th:text="${currentPage * pageSize + iterStat.index + 1}"></td>
                     <td th:text="${memoire.titre}"></td>
                     <td th:text="${memoire.etudiant.nom}"></td>
                     <td th:text="${memoire.encadrant.nom}"></td>
@@ -394,7 +198,9 @@
                         <div class="action-container">
                             <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
                             <div class="dropdown-content">
-                                <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}">Modifier</a>
+                                <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
+                                    Modifier
+                                </a>
                                 <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
                                     Supprimer
                                 </a>
@@ -434,34 +240,286 @@
                     </div>
                 </div>
             </table>
-            <div th:if="${pageMemoires.totalPages > 1}" class="mt-4 p-3 bg-light rounded shadow-sm d-flex justify-content-center">
-                <nav aria-label="Pagination des mémoires MASTER">
-                    <ul class="pagination">
-
-                        <!-- Bouton Précédent -->
-                        <li class="page-item" th:classappend="${pageMemoires.first} ? 'disabled'">
+            <!-- Lien pour revenir à la liste complète des mémoires -->
+            <div class="text-center mt-3">
+                <a th:href="@{/master}" class="btn btn-secondary">Voir tous les mémoires</a>
+            </div>
+            <div th:if="${totalPages > 1}" class="text-center mt-4">
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        <li th:classappend="${currentPage == 0} ? 'disabled'" class="page-item">
                             <a class="page-link"
-                               th:href="@{/master(page=${pageMemoires.number - 1}, size=${pageMemoires.size})}">Précédent</a>
+                               th:href="@{/masters/recherche(
+                                page=${currentPage - 1},
+                                size=${pageSize},
+                                cote=${param.cote},
+                                titre=${param.titre},
+                                etudiant=${param.etudiant},
+                                encadrant=${param.encadrant},
+                                filiere=${param.filiere},
+                                annee=${param.annee}
+                            )}">Précédent</a>
                         </li>
-
-                        <!-- Pages -->
-                        <li class="page-item"
-                            th:each="i : ${#numbers.sequence(0, pageMemoires.totalPages - 1)}"
-                            th:classappend="${i == pageMemoires.number} ? 'active'">
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                            th:classappend="${i == currentPage} ? 'active'">
                             <a class="page-link"
-                               th:href="@{/master(page=${i}, size=${pageMemoires.size})}"
+                               th:href="@{/masters/recherche(
+                                page=${i},
+                                size=${pageSize},
+                                cote=${param.cote},
+                                titre=${param.titre},
+                                etudiant=${param.etudiant},
+                                encadrant=${param.encadrant},
+                                filiere=${param.filiere},
+                                annee=${param.annee}
+                            )}"
                                th:text="${i + 1}">1</a>
                         </li>
-
-                        <!-- Bouton Suivant -->
-                        <li class="page-item" th:classappend="${pageMemoires.last} ? 'disabled'">
+                        <li th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'" class="page-item">
                             <a class="page-link"
-                               th:href="@{/master(page=${pageMemoires.number + 1}, size=${pageMemoires.size})}">Suivant</a>
+                               th:href="@{/masters/recherche(
+                                page=${currentPage + 1},
+                                size=${pageSize},
+                                cote=${param.cote},
+                                titre=${param.titre},
+                                etudiant=${param.etudiant},
+                                encadrant=${param.encadrant},
+                                filiere=${param.filiere},
+                                annee=${param.annee}
+                            )}">Suivant</a>
                         </li>
                     </ul>
                 </nav>
             </div>
-            <style>
+        </div>
+
+        <div class="card p-4 shadow">
+            <h4 class="text-center mb-4">Filtrer les Mémoires de Master</h4>
+            <!-- Formulaire de filtrage -->
+            <form id="licenceForm" th:action="@{/filtre/master}" method="post">
+                <!-- Champs de sélection et bouton sur la même ligne -->
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label for="ufrNom" class="form-label">UFR</label>
+                            <select id="ufrNom" name="ufrNom" class="form-select" onchange="updateDepartements()" required>
+                                <option value="">-- Sélectionner un UFR --</option>
+                                <option value="UFR Sciences et Techniques (ST)">UFR Sciences et Techniques (ST)</option>
+                                <option value="UFR Lettres, Art, Sciences Humaines (LASHU)">UFR Lettres, Art, Sciences Humaines (LASHU)</option>
+                                <option value="UFR Sciences Economiques et Sociales (SES)">UFR Sciences Economiques et Sociales (SES)</option>
+                                <option value="UFR Sciences Santé (SS)">UFR Sciences Santé (SS)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label for="departementNom" class="form-label">Département</label>
+                            <select id="departementNom" name="departementNom" class="form-select" onchange="updateFilieres()" required>
+                                <option value="">-- Sélectionner un département --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label for="filiereNom" class="form-label">Filière</label>
+                            <select id="filiereNom" name="filiereNom" class="form-select" required>
+                                <option value="">-- Sélectionner une filière --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Bouton Afficher dans la même ligne -->
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="submit" class="btn btn-custom">Afficher</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Résultats de filtrage -->
+            <div th:if="${memoiresGroupes != null and not #maps.isEmpty(memoiresGroupes)}">
+                <div th:each="ufrEntry : ${memoiresGroupes}">
+                    <h3 th:text="${ufrEntry.key}">Nom de l'UFR</h3>
+
+                    <div th:each="departementEntry : ${ufrEntry.value}">
+                        <h4 th:text="${departementEntry.key}">Nom du Département</h4>
+                        <table class="table table-striped" id="table_ListeNormale">
+                            <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Cote</th>
+                                <th>Titre</th>
+                                <th>Étudiant</th>
+                                <th>Encadrant</th>
+                                <th>Filière</th>
+                                <th>Année</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="memoire, iterStat : ${departementEntry.value}">
+                                <td th:text="${iterStat.index + 1}"></td>
+                                <td th:text="${memoire.cote}"></td>
+                                <td th:text="${memoire.titre}"></td>
+                                <td th:text="${memoire.etudiant.nom}"></td>
+                                <td th:text="${memoire.encadrant.nom}"></td>
+                                <td th:text="${memoire.filiere.nom}"></td>
+                                <td th:text="${memoire.annee}"></td>
+                                <td>
+                                    <div class="action-container">
+                                        <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
+                                        <div class="dropdown-content">
+                                            <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
+                                                Modifier
+                                            </a>
+                                            <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
+                                                Supprimer
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <a th:href="@{/memoires/genererAttestation/{id}(id=${memoire.id})}"
+                                       style="margin-left: 17px; color: black; text-decoration: none;">
+                                        <i class="bi bi-cloud-arrow-down-fill"
+                                           style="cursor: pointer; font-size: 1.2rem;"></i>
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <!-- Modale de confirmation de suppression (chaque mémoire a son propre modal) -->
+                            <tr th:each="memoire : ${departementEntry.value}">
+                                <td colspan="8"> <!-- Ajouté pour éviter le problème d'affichage -->
+                                    <div class="modal fade" th:id="'form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}" tabindex="-1" role="dialog">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Supprimer Mémoire</h5>
+                                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <form th:action="@{/memoires/supprimer}" method="post">
+                                                    <div class="modal-body">
+                                                        <input type="hidden" name="id" th:value="${memoire.id}" />
+                                                        <p>Voulez-vous vraiment supprimer ce mémoire ?</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <a href="/master" >liste</a>
+            </div>
+
+            <!-- Message d'erreur uniquement si une recherche a été effectuée -->
+            <div th:if="${(rechercheEffectuees ?: false) and (memoiresGroupes == null or #maps.isEmpty(memoiresGroupes))}">
+                <p class="text-center text-muted">
+                    Aucun mémoire de licence trouvé pour ce filtrage.
+                    <a href="/master" >liste</a>
+                </p>
+            </div>
+            <br/>
+            <!-- liste de toutes les memoires de master -->
+            <div th:unless="${rechercheEffectuee}">
+                <table class="table-bordered table-striped" id="table_ListeNormale">
+                    <thead class="table-dark" >
+                    <tr>
+                        <th>Numero</th>
+                        <th>Titre</th>
+                        <th>Étudiant</th>
+                        <th>Encadrant</th>
+                        <th>Filière</th>
+                        <th>Année</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="memoire, iterStat : ${memoires}">
+                        <td th:text="${pageMemoires.number * pageMemoires.size + iterStat.index + 1}"></td>
+                        <td th:text="${memoire.titre}"></td>
+                        <td th:text="${memoire.etudiant.nom}"></td>
+                        <td th:text="${memoire.encadrant.nom}"></td>
+                        <td th:text="${memoire.filiere.nom}"></td>
+                        <td th:text="${memoire.annee}"></td>
+                        <td>
+                            <div class="action-container">
+                                <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
+                                <div class="dropdown-content">
+                                    <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}">Modifier</a>
+                                    <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
+                                        Supprimer
+                                    </a>
+                                </div>
+                            </div>
+                            <a th:href="@{/memoires/genererAttestation/{id}(id=${memoire.id})}"
+                               style="margin-left: 17px; color: black; text-decoration: none;">
+                                <i class="bi bi-cloud-arrow-down-fill"
+                                   style="cursor: pointer; font-size: 1.2rem;"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <!-- MODALES (placées en dehors du tableau) -->
+                    <div th:each="memoire : ${memoires}">
+                        <div class="modal fade" th:id="'form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}" tabindex="-1" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Supprimer Mémoire</h5>
+                                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <form th:action="@{/memoires/supprimer}" method="post">
+                                        <div class="modal-body">
+                                            <input type="hidden" name="id" th:value="${memoire.id}" />
+                                            <p>Voulez-vous vraiment supprimer ce mémoire ?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                                            <button type="button" class="btn btn-default" data-bs-dismiss="modal">Annuler</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </table>
+                <div th:if="${pageMemoires.totalPages > 1}" class="mt-4 p-3 bg-light rounded shadow-sm d-flex justify-content-center">
+                    <nav aria-label="Pagination des mémoires MASTER">
+                        <ul class="pagination">
+
+                            <!-- Bouton Précédent -->
+                            <li class="page-item" th:classappend="${pageMemoires.first} ? 'disabled'">
+                                <a class="page-link"
+                                   th:href="@{/master(page=${pageMemoires.number - 1}, size=${pageMemoires.size})}">Précédent</a>
+                            </li>
+
+                            <!-- Pages -->
+                            <li class="page-item"
+                                th:each="i : ${#numbers.sequence(0, pageMemoires.totalPages - 1)}"
+                                th:classappend="${i == pageMemoires.number} ? 'active'">
+                                <a class="page-link"
+                                   th:href="@{/master(page=${i}, size=${pageMemoires.size})}"
+                                   th:text="${i + 1}">1</a>
+                            </li>
+
+                            <!-- Bouton Suivant -->
+                            <li class="page-item" th:classappend="${pageMemoires.last} ? 'disabled'">
+                                <a class="page-link"
+                                   th:href="@{/master(page=${pageMemoires.number + 1}, size=${pageMemoires.size})}">Suivant</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                <style>
             .custom-active .page-link {
               background-color: #6c757d !important; /* gris sombre Bootstrap */
               border-color: #6c757d !important;
@@ -474,9 +532,9 @@
               color: white !important;
             }
           </style>
+            </div>
         </div>
     </div>
-</div>
 </main>
 
 <!-- jQuery -->
@@ -484,8 +542,8 @@
 <!-- Popper.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
 
-    <!-- Script AJAX pour charger les départements et filières dynamiquement -->
-    <script>
+<!-- Script AJAX pour charger les départements et filières dynamiquement -->
+<script>
         const data = {
           "UFR Sciences et Techniques (ST)": {
            "Géographie": ["Aménagement du territoire", "Environnement"],
@@ -549,14 +607,14 @@
           }
         }
     </script>
-    <!-- Script pour initialiser DataTable -->
-    <script>
+<!-- Script pour initialiser DataTable -->
+<script>
         $(document).ready(function() {
             $('#table_ListeNormale').DataTable();
         });
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".menu-icon").forEach(icon => {
             icon.addEventListener("click", function (event) {
@@ -586,10 +644,10 @@
         });
     });
     </script>
-    <!--   Core JS Files   -->
-    <script src="../assets/js/core/popper.min.js"></script>
-    <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
-    <script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
+<!--   Core JS Files   -->
+<script src="../assets/js/core/popper.min.js"></script>
+<script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
+<script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
 
 </body>
 

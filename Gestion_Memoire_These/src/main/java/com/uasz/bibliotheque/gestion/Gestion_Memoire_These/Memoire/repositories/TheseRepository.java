@@ -2,6 +2,8 @@ package com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.repositories
 
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.model.Memoire;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.model.These;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -18,7 +20,7 @@ public interface TheseRepository extends JpaRepository<These, Long>, JpaSpecific
     // Rechercher les thèses par nom de l'UFR de l'école doctorale
     List<These> findByEcoleDoctoratUfrNom(String ufrNom);
     // Trouver toutes les thèses marquées comme supprimées (dans la corbeille)
-    List<These> findByEstSupprime(Boolean estSupprime);
+    Page<These> findByEstSupprime(Boolean estSupprime, Pageable pageable);
 
     // Trouver une thèse par son ID (pratique pour les actions de restauration et suppression)
     Optional<These> findById(Long id);
@@ -29,6 +31,8 @@ public interface TheseRepository extends JpaRepository<These, Long>, JpaSpecific
     @Query("SELECT COUNT(t) FROM These t WHERE t.estSupprime = false")
     long countNonSupprimeTheses();
 
+    @Query("SELECT t FROM These t WHERE t.estSupprime = false")
+    Page<These> findAllNotDeleted(Pageable pageable);
     @Query("SELECT t FROM These t WHERE t.estSupprime = false")
     List<These> findAllNotDeleted();
 

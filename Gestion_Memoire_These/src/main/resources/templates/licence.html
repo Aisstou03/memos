@@ -48,7 +48,7 @@
     <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link active bg-gradient-dark text-white" href="../pages/dashboard.html">
+                <a class="nav-link active bg-gradient-dark text-white" href="/memoires/liste">
                     <i class="material-symbols-rounded opacity-5">dashboard</i>
                     <span class="nav-link-text ms-1">Tableau de bord</span>
                 </a>
@@ -63,6 +63,18 @@
                 <a class="nav-link text-dark" href="/ajoutMemoire">
                     <i class="material-symbols-rounded opacity-5">receipt_long</i>
                     <span class="nav-link-text ms-1">Ajout mémoires</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" href="/master">
+                    <i class="fa fa-graduation-cap" aria-hidden="true"></i>
+                    <span class="nav-link-text ms-1">Mémoires de Master</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" href="/memoires/doctorats">
+                    <i class="fa fa-university" aria-hidden="true"></i>
+                    <span class="nav-link-text ms-1">Thèses</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -160,7 +172,7 @@
             <h4>
                 Résultats de la recherche : <span th:text="${nombreMemoiresTrouves}"></span> mémoire(s) trouvé(s)
             </h4>
-            <table  id="table_ListeNormale" >
+            <table  id="table_ListeNormale" class="table-bordered table-striped" >
                 <thead class="table-dark">
                 <tr>
                     <th>Numéro</th>
@@ -174,7 +186,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="memoire, iterStat : ${memoires}">
-                    <td th:text="${iterStat.index + 1}"></td>
+                    <td th:text="${currentPage * pageSize + iterStat.index + 1}"></td>
                     <td th:text="${memoire.titre}"></td>
                     <td th:text="${memoire.etudiant.nom}"></td>
                     <td th:text="${memoire.encadrant.nom}"></td>
@@ -230,6 +242,60 @@
             <div class="text-center mt-3">
                 <a th:href="@{/licence}" class="btn btn-secondary">Voir tous les mémoires</a>
             </div>
+            <div th:if="${totalPages > 1}" class="text-center mt-4">
+                <nav>
+                    <ul class="pagination justify-content-center">
+
+                        <!-- Précédent -->
+                        <li th:classappend="${currentPage == 0} ? 'disabled'" class="page-item">
+                            <a class="page-link"
+                               th:href="@{/licences/recherche(
+                        page=${currentPage - 1},
+                        size=${pageSize},
+                        cote=${param.cote},
+                        titre=${param.titre},
+                        etudiant=${param.etudiant},
+                        encadrant=${param.encadrant},
+                        filiere=${param.filiere},
+                        annee=${param.annee}
+                   )}">Précédent</a>
+                        </li>
+
+                        <!-- Numéros de page -->
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                            th:classappend="${i == currentPage} ? 'active'">
+                            <a class="page-link"
+                               th:href="@{/licences/recherche(
+                        page=${i},
+                        size=${pageSize},
+                        cote=${param.cote},
+                        titre=${param.titre},
+                        etudiant=${param.etudiant},
+                        encadrant=${param.encadrant},
+                        filiere=${param.filiere},
+                        annee=${param.annee}
+                   )}"
+                               th:text="${i + 1}">1</a>
+                        </li>
+
+                        <!-- Suivant -->
+                        <li th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'" class="page-item">
+                            <a class="page-link"
+                               th:href="@{/licences/recherche(
+                        page=${currentPage + 1},
+                        size=${pageSize},
+                        cote=${param.cote},
+                        titre=${param.titre},
+                        etudiant=${param.etudiant},
+                        encadrant=${param.encadrant},
+                        filiere=${param.filiere},
+                        annee=${param.annee}
+                   )}">Suivant</a>
+                        </li>
+
+                    </ul>
+                </nav>
+            </div>
         </div>
 
         <div class="card p-4 shadow">
@@ -282,11 +348,10 @@
                     <div th:each="departementEntry : ${ufrEntry.value}">
                         <h4 th:text="${departementEntry.key}">Nom du Département</h4>
 
-                        <table  id="table_ListeNormale">
+                        <table  class="table-bordered table-striped" id="table_ListeNormale">
                             <thead class="table-dark">
                             <tr>
-                                <th>#</th>
-                                <th>Cote</th>
+                                <th>Numero</th>
                                 <th>Titre</th>
                                 <th>Étudiant</th>
                                 <th>Encadrant</th>
@@ -297,8 +362,7 @@
                             </thead>
                             <tbody>
                             <tr th:each="memoire, iterStat : ${departementEntry.value}">
-                                <td th:text="${iterStat.index + 1}"></td>
-                                <td th:text="${memoire.cote}"></td>
+                                <td th:text="${currentPage * pageSize + iterStat.index + 1}"></td>
                                 <td th:text="${memoire.titre}"></td>
                                 <td th:text="${memoire.etudiant.nom}"></td>
                                 <td th:text="${memoire.encadrant.nom}"></td>
@@ -353,6 +417,56 @@
                             </tr>
                             </tbody>
                         </table>
+                        <div th:if="${totalPages > 1}" class="pagination">
+                            <ul class="pagination-list">
+                                <!-- Précédent -->
+                                <li th:if="${currentPage > 0}">
+                                    <form method="post" th:action="@{/filtre/licence}" style="display:inline;">
+                                        <input type="hidden" name="ufrNom" th:value="${selection.ufr}" />
+                                        <input type="hidden" name="departementNom" th:value="${selection.departement}" />
+                                        <input type="hidden" name="filiereNom" th:value="${selection.filiere}" />
+                                        <input type="hidden" name="page" th:value="${currentPage - 1}" />
+                                        <button class="page-link" type="submit">Précédent</button>
+                                    </form>
+                                </li>
+
+                                <!-- Pages -->
+                                <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                    th:classappend="${i == currentPage} ? 'active'">
+                                    <form method="post" th:action="@{/filtre/licence}" style="display:inline;">
+                                        <input type="hidden" name="ufrNom" th:value="${selection.ufr}" />
+                                        <input type="hidden" name="departementNom" th:value="${selection.departement}" />
+                                        <input type="hidden" name="filiereNom" th:value="${selection.filiere}" />
+                                        <input type="hidden" name="page" th:value="${i}" />
+                                        <button class="page-link" type="submit" th:text="${i + 1}"></button>
+                                    </form>
+                                </li>
+
+                                <!-- Suivant -->
+                                <li th:if="${currentPage + 1 < totalPages}">
+                                    <form method="post" th:action="@{/filtre/licence}" style="display:inline;">
+                                        <input type="hidden" name="ufrNom" th:value="${selection.ufr}" />
+                                        <input type="hidden" name="departementNom" th:value="${selection.departement}" />
+                                        <input type="hidden" name="filiereNom" th:value="${selection.filiere}" />
+                                        <input type="hidden" name="page" th:value="${currentPage + 1}" />
+                                        <button class="page-link" type="submit">Suivant</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                        <style>
+                        .custom-active .page-link {
+                          background-color: #6c757d !important; /* gris sombre Bootstrap */
+                          border-color: #6c757d !important;
+                          color: white !important;
+                        }
+
+                        .pagination .page-link:hover {
+                          background-color: #6c757d !important; /* même gris sombre au survol */
+                          border-color: #6c757d !important;
+                          color: white !important;
+                        }
+                      </style>
                     </div>
                 </div>
                 <a href="/master" >liste</a>

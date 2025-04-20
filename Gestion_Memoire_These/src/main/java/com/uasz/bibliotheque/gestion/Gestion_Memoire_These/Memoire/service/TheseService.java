@@ -8,6 +8,8 @@ import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Notification.service.
 import jakarta.transaction.Transactional;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -97,13 +99,13 @@ public class TheseService {
     }
 
 
-    public List<These> getAllThese() {
-        return theseRepository.findAllNotDeleted(); // Ne récupère que les thèses non supprimées
+    public Page<These> getAllThese(Pageable pageable) {
+        return theseRepository.findAllNotDeleted(pageable); // Ne récupère que les thèses non supprimées
     }
 
 
-    public List<These> searchMemos(Specification<These> spec) {
-        return theseRepository.findAll(spec);
+    public Page<These> searchMemos(Specification<These> spec, Pageable pageable) {
+        return theseRepository.findAll(spec, pageable);
     }
 
 

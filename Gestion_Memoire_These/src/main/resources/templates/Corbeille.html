@@ -138,7 +138,7 @@
           <i class="material-symbols-rounded opacity-5">dashboard</i>
           <span class="nav-link-text ms-1">Tableau de bord</span>
         </a>
-      </li> <br/>  <br/>
+      </li> <br/>
 
       <li class="nav-item">
         <a class="nav-link text-dark" href="/listeResponsables">
@@ -152,7 +152,14 @@
           <span class="nav-link-text ms-1">Ajout de mémoires et Thèses</span>
         </a>
       </li>
-
+      <li class="nav-item">
+        <a class="nav-link text-dark" href="#" id="notificationBtn">
+          <i class="material-symbols-rounded opacity-5">notifications</i>
+          <span class="nav-link-text ms-1">Notifications</span>
+          <span class="notification-count" th:text="${notifications != null && !notifications.isEmpty() ? notifications.size() : '0'}"
+                th:style="${notifications == null || notifications.isEmpty() ? 'display: none;' : ''}">0</span>
+        </a>
+      </li>
       <li class="nav-item">
         <a class="nav-link text-dark" href="/licence">
           <i class="fa fa-book" aria-hidden="true"></i>
@@ -171,16 +178,42 @@
           <span class="nav-link-text ms-1">Thèses</span>
         </a>
       </li>
+      <li class="nav-item mt-3">
+        <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">Informations</h6>
+      </li>
+
+      <!-- Modifiez votre bouton de chat dans la navigation pour inclure le badge -->
+      <li class="nav-item">
+        <a class="nav-link text-dark" href="#" id="openChatBtn">
+          <i class="material-symbols-rounded opacity-5">person</i>
+          <span class="nav-link-text ms-1">Chat</span>
+          <span class="message-badge" id="unreadCount" style="display: none;">0</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link text-dark" href="/profil">
+          <i class="material-symbols-rounded opacity-5">person</i>
+          <span class="nav-link-text ms-1">Profil</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-dark" href="/logout">
+          <i class="material-symbols-rounded opacity-5">login</i>
+          <span class="nav-link-text ms-1">Se Déconnecter</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div class="sidenav-footer position-absolute w-100 bottom-0 ">
+    <div class="mx-1">
+      <a href="/profil" class="nav-link text-muted" target="_blank" th:text="|${nom} ${prenom}|"></a>
+    </div>
+  </div>
     </ul>
   </div>
 
-  <!-- Bouton de déconnexion en bas -->
-  <div class="sidenav-footer position-absolute w-100 bottom-0 px-3 py-2">
-    <a href="/logout" class="btn btn-danger w-100 text-white">
-      <i class="material-symbols-rounded">logout</i>
-      Se déconnecter
-    </a>
-  </div>
+
 </aside>
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
   <!-- Navbar -->
@@ -295,6 +328,34 @@
             </div>
           </div>
         </div>
+        <div th:if="${pageMemoiresLicence.totalPages > 1}" class="mt-4 p-3 bg-light rounded shadow-sm d-flex justify-content-center">
+          <nav>
+            <ul class="pagination">
+              <li class="page-item" th:classappend="${pageMemoiresLicence.first} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/memoires/corbeille(pageLicence=${pageMemoiresLicence.number - 1}, pageMaster=${pageMemoiresMaster.number}, size=${pageMemoiresLicence.size})}">
+                  Précédent
+                </a>
+              </li>
+
+              <li class="page-item"
+                  th:each="i : ${#numbers.sequence(0, pageMemoiresLicence.totalPages - 1)}"
+                  th:classappend="${i == pageMemoiresLicence.number} ? 'active'">
+                <a class="page-link"
+                   th:href="@{/memoires/corbeille(pageLicence=${i}, pageMaster=${pageMemoiresMaster.number}, size=${pageMemoiresLicence.size})}"
+                   th:text="${i + 1}">1</a>
+              </li>
+
+              <li class="page-item" th:classappend="${pageMemoiresLicence.last} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/memoires/corbeille(pageLicence=${pageMemoiresLicence.number + 1}, pageMaster=${pageMemoiresMaster.number}, size=${pageMemoiresLicence.size})}">
+                  Suivant
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
       </div>
 
       <!-- Tab Master -->
@@ -419,6 +480,34 @@
           </div>
         </div>
       </div>
+      <div th:if="${pageMemoiresMaster.totalPages > 1}" class="mt-4 p-3 bg-light rounded shadow-sm d-flex justify-content-center">
+        <nav>
+          <ul class="pagination">
+            <li class="page-item" th:classappend="${pageMemoiresMaster.first} ? 'disabled'">
+              <a class="page-link"
+                 th:href="@{/memoires/corbeille(pageMaster=${pageMemoiresMaster.number - 1}, pageLicence=${pageMemoiresLicence.number}, size=${pageMemoiresMaster.size})}">
+                Précédent
+              </a>
+            </li>
+
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(0, pageMemoiresMaster.totalPages - 1)}"
+                th:classappend="${i == pageMemoiresMaster.number} ? 'active'">
+              <a class="page-link"
+                 th:href="@{/memoires/corbeille(pageMaster=${i}, pageLicence=${pageMemoiresLicence.number}, size=${pageMemoiresMaster.size})}"
+                 th:text="${i + 1}">1</a>
+            </li>
+
+            <li class="page-item" th:classappend="${pageMemoiresMaster.last} ? 'disabled'">
+              <a class="page-link"
+                 th:href="@{/memoires/corbeille(pageMaster=${pageMemoiresMaster.number + 1}, pageLicence=${pageMemoiresLicence.number}, size=${pageMemoiresMaster.size})}">
+                Suivant
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
     </div>
 
     <a href="/memoires/liste" class="btn btn-primary">Retour au tableau de bord</a>

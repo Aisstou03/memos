@@ -294,9 +294,10 @@ public class MemoireService {
         return groupedMemoires;
     }
 
-    public List<Memoire> searchMemos(Specification<Memoire> spec) {
-        return memoireRepository.findAll(spec);
+    public Page<Memoire> searchMemos(Specification<Memoire> spec, Pageable pageable) {
+        return memoireRepository.findAll(spec, pageable);
     }
+
 
     public long countMemosByTypeNonSupprime(TypeMemoire type) {
         return memoireRepository.countNonSupprimeMemosByType(type);
@@ -330,14 +331,14 @@ public class MemoireService {
     /**
      * Récupère uniquement les mémoires de Licence selon les filtres (UFR, Département, Filière).
      */
-    public List<Memoire> getMemoiresLicenceFiltres(String ufrNom, String departementNom, String filiereNom) {
+    public Page<Memoire> getMemoiresLicenceFiltres(String ufrNom, String departementNom, String filiereNom, Pageable pageable) {
         Specification<Memoire> spec = Specification
                 .where(MemoireSpecifications.withType(TypeMemoire.LICENCE))
                 .and(MemoireSpecifications.withUFR(ufrNom))
                 .and(MemoireSpecifications.withDepartement(departementNom))
                 .and(MemoireSpecifications.withFiliere(filiereNom));
 
-        return memoireRepository.findAll(spec);
+        return memoireRepository.findAll(spec, pageable);
     }
 
     //liste de memoires filtres

@@ -261,7 +261,7 @@ public class MemoireController {
 
     // Affichage de la corbeille
     @GetMapping("/memoires/corbeille")
-    public String corbeille(Model model,
+    public String corbeille(Model model, Principal principal,
                             @RequestParam(defaultValue = "0") int pageLicence,
                             @RequestParam(defaultValue = "0") int pageMaster,
                             @RequestParam(defaultValue = "10") int size) {
@@ -271,13 +271,28 @@ public class MemoireController {
 
         Page<Memoire> pageMemoiresLicence = memoireService.getMemoiresSupprimesLicence(pageableLicence);
         Page<Memoire> pageMemoiresMaster = memoireService.getMemoiresSupprimesMaster(pageableMaster);
-        List<These> thesesDansCorbeille = theseRepository.findByEstSupprime(true);
+        Page<These> thesesDansCorbeille = theseRepository.findByEstSupprime(true, pageableMaster);
 
         model.addAttribute("pageMemoiresLicence", pageMemoiresLicence);
         model.addAttribute("pageMemoiresMaster", pageMemoiresMaster);
         model.addAttribute("memoiresLicence", pageMemoiresLicence.getContent());
         model.addAttribute("memoiresMaster", pageMemoiresMaster.getContent());
         model.addAttribute("thesesDansCorbeille", thesesDansCorbeille);
+        // Gestion de l'utilisateur connecté
+        if (principal != null) {
+            Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
+            if (utilisateur != null) {
+                model.addAttribute("nom", utilisateur.getNom());
+                model.addAttribute("prenom", utilisateur.getPrenom());
+
+                String roles = utilisateur.getRoles().stream()
+                        .map(Role::getRole)
+                        .reduce((role1, role2) -> role1 + ", " + role2)
+                        .orElse("Aucun rôle");
+                model.addAttribute("roles", roles);
+            }
+            model.addAttribute("currentUser", principal.getName());
+        }
 
         return "Corbeille";
     }
@@ -424,36 +439,12 @@ public class MemoireController {
                                                    @RequestParam(defaultValue = "0") int page,
                                                    @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Memoire> pageMemoires = memoireService.getAllMemoiresMaster(pageable);
+        // Récupérer toutes les mémoires de type Master
+        Page<Memoire> memoires = memoireService.getAllMemoiresMaster(pageable);
 
-        model.addAttribute("pageMemoires", pageMemoires);
-        model.addAttribute("memoires", pageMemoires.getContent());
-
-        if (principal != null) {
-            Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
-            if (utilisateur != null) {
-                model.addAttribute("nom", utilisateur.getNom());
-                model.addAttribute("prenom", utilisateur.getPrenom());
-
-                String roles = utilisateur.getRoles().stream()
-                        .map(Role::getRole)
-                        .reduce((role1, role2) -> role1 + ", " + role2)
-                        .orElse("Aucun rôle");
-                model.addAttribute("roles", roles);
-            }
-            model.addAttribute("currentUser", principal.getName());
-        }
-
-        return "master";
-    }
-
-    @GetMapping("/doctorat")
-    public String afficherToutesLesMemoiresTheses(Model model, Principal principal) {
-        // Récupérer toutes les mémoires de type These
-        List<These> memoires = theseService.getAllThese();
-
-        // Ajouter les mémoires au modèle
-        model.addAttribute("memoires", memoires);
+        // Ajouter les mémoires et les UFR au modèle
+        model.addAttribute("pageMemoires", memoires); // pour la pagination
+        model.addAttribute("memoires", memoires.getContent()); // pour le tableau
         // Gestion de l'utilisateur connecté
         if (principal != null) {
             Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
@@ -472,41 +463,48 @@ public class MemoireController {
         }
         model.addAttribute("currentUser", principal.getName()); // Ajouter l'utilisateur actuel
 
-        return "doctorat"; // Assure-toi que "doctorat" est le nom du fichier Thymeleaf
+        return "master";
     }
 
-    /**
+   /**
      * Filtre et affiche uniquement les mémoires de Licence.
      */
-    @PostMapping("/filtre/licence")
-    public String filtrerMemoires(
-            @RequestParam String ufrNom,
-            @RequestParam String departementNom,
-            @RequestParam String filiereNom,
-            Model model) {
+   @PostMapping("/filtre/licence")
+   public String filtrerMemoires(
+           @RequestParam String ufrNom,
+           @RequestParam String departementNom,
+           @RequestParam String filiereNom,
+           @RequestParam(defaultValue = "0") int page,
+           @RequestParam(defaultValue = "2") int size,
+           Model model) {
 
-        // Récupérer uniquement les mémoires de type LICENCE
-        List<Memoire> memoires = memoireService.getMemoiresLicenceFiltres(ufrNom, departementNom, filiereNom);
+       Pageable pageable = PageRequest.of(page, size);
+       Page<Memoire> pageMemoires = memoireService.getMemoiresLicenceFiltres(ufrNom, departementNom, filiereNom, pageable);
 
-        // Grouper les mémoires par UFR > Département
-        Map<String, Map<String, List<Memoire>>> memoiresGroupes = memoires.stream()
-                .collect(Collectors.groupingBy(
-                        m -> m.getFiliere().getDepartement().getUfr().getNom(),
-                        Collectors.groupingBy(m -> m.getFiliere().getDepartement().getNom())
-                ));
+       // Regrouper les mémoires paginés
+       Map<String, Map<String, List<Memoire>>> memoiresGroupes = pageMemoires.getContent().stream()
+               .collect(Collectors.groupingBy(
+                       m -> m.getFiliere().getDepartement().getUfr().getNom(),
+                       Collectors.groupingBy(m -> m.getFiliere().getDepartement().getNom())
+               ));
 
-        // Ajouter les données au modèle
-        model.addAttribute("ufrs", ufrService.findAllUfrs());
-        model.addAttribute("memoiresGroupes", memoiresGroupes);
-        model.addAttribute("selection", Map.of(
-                "ufr", ufrNom,
-                "departement", departementNom,
-                "filiere", filiereNom
-        ));
-        model.addAttribute("rechercheEffectuees", true); // Ajoute un indicateur de recherche
+       model.addAttribute("ufrs", ufrService.findAllUfrs());
+       model.addAttribute("memoiresGroupes", memoiresGroupes);
+       model.addAttribute("pageMemoires", pageMemoires); // Pour pagination
+       model.addAttribute("currentPage", page);
+       model.addAttribute("totalPages", pageMemoires.getTotalPages());
+       model.addAttribute("pageSize", size);
 
-        return "licence";
-    }
+       model.addAttribute("selection", Map.of(
+               "ufr", ufrNom,
+               "departement", departementNom,
+               "filiere", filiereNom
+       ));
+       model.addAttribute("rechercheEffectuees", true);
+
+       return "licence";
+   }
+
 
     /**
      * Filtre et affiche uniquement les mémoires de Master.
