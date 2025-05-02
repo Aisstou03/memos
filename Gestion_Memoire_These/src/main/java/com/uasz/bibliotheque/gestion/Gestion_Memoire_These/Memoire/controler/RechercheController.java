@@ -1,5 +1,7 @@
 package com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.controler;
 
+import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.modele.Role;
+import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.modele.Utilisateur;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.model.Memoire;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.model.These;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.model.TypeMemoire;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +47,7 @@ public class RechercheController {
             @RequestParam(required = false) Integer annee,
             @RequestParam(defaultValue = "0") int page, // pagination
             @RequestParam(defaultValue = "10") int size, // taille de page par défaut
-            Model model
+            Model model, Principal principal
     ) {
         Specification<Memoire> spec = Specification.where(MemoireSpecifications.withType(TypeMemoire.LICENCE));
         boolean hasSearchParams = false;
@@ -95,6 +98,21 @@ public class RechercheController {
         }
 
         model.addAttribute("typeMemoire", "Licence");
+        // Gestion de l'utilisateur connecté
+        if (principal != null) {
+            Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
+            if (utilisateur != null) {
+                model.addAttribute("nom", utilisateur.getNom());
+                model.addAttribute("prenom", utilisateur.getPrenom());
+
+                String roles = utilisateur.getRoles().stream()
+                        .map(Role::getRole)
+                        .reduce((role1, role2) -> role1 + ", " + role2)
+                        .orElse("Aucun rôle");
+                model.addAttribute("roles", roles);
+            }
+            model.addAttribute("currentUser", principal.getName());
+        }
         return "licence";
     }
 
@@ -110,7 +128,7 @@ public class RechercheController {
             @RequestParam(required = false) Integer annee,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            Model model
+            Model model, Principal principal
     ) {
         Specification<Memoire> spec = Specification.where(MemoireSpecifications.withType(TypeMemoire.MASTER));
         boolean hasSearchParams = false;
@@ -151,15 +169,29 @@ public class RechercheController {
         model.addAttribute("totalElements", pageMemoires.getTotalElements());
         model.addAttribute("pageSize", size);
         model.addAttribute("nombreMemoiresTrouves", pageMemoires.getTotalElements());
-        model.addAttribute("rechercheEffectuee", hasSearchParams);
+        model.addAttribute("rechercheEffectuee", hasSearchParams); // au lieu de "recherche"
         model.addAttribute("typeMemoire", "Master");
+        // Gestion de l'utilisateur connecté
+        if (principal != null) {
+            Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
+            if (utilisateur != null) {
+                model.addAttribute("nom", utilisateur.getNom());
+                model.addAttribute("prenom", utilisateur.getPrenom());
 
+                String roles = utilisateur.getRoles().stream()
+                        .map(Role::getRole)
+                        .reduce((role1, role2) -> role1 + ", " + role2)
+                        .orElse("Aucun rôle");
+                model.addAttribute("roles", roles);
+            }
+            model.addAttribute("currentUser", principal.getName());
+        }
         return "master";
     }
 
 
     @RequestMapping(value = "/theses/recherche", method = {RequestMethod.POST, RequestMethod.GET})
-    public String rechercherTheses(
+    public String rechercherThesesSansPagination(
             @RequestParam(required = false) String cote,
             @RequestParam(required = false) String titre,
             @RequestParam(required = false) String etudiant,
@@ -167,9 +199,7 @@ public class RechercheController {
             @RequestParam(required = false) Integer annee,
             @RequestParam(required = false) String ecoleDoctoraleNom,
             @RequestParam(required = false) String ufrNom,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "2") int size,
-            Model model
+            Model model, Principal principal
     ) {
         Specification<These> spec = Specification.where(null);
         boolean hasSearchParams = false;
@@ -204,19 +234,11 @@ public class RechercheController {
         }
 
         if (hasSearchParams) {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<These> pageTheses = theseService.searchMemos(spec, pageable); // <-- PAGE
-
-            model.addAttribute("pageTheses", pageTheses);
-            model.addAttribute("thesesTrouvees", pageTheses.getContent());
-            model.addAttribute("nombreThesesTrouvees", pageTheses.getTotalElements());
-            model.addAttribute("currentPage", page);
-            model.addAttribute("totalPages", pageTheses.getTotalPages());
-            model.addAttribute("pageSize", size);
-
+            List<These> thesesListe = theseService.searchMemos(spec);
+            model.addAttribute("thesesListe", thesesListe);
             model.addAttribute("rechercheEffectuee", true);
 
-            if (pageTheses.isEmpty()) {
+            if (thesesListe.isEmpty()) {
                 model.addAttribute("message", "Aucune thèse trouvée pour les critères spécifiés.");
             }
         } else {
@@ -224,7 +246,24 @@ public class RechercheController {
         }
 
         model.addAttribute("typeThese", "Doctorat");
+        // Gestion de l'utilisateur connecté
+        if (principal != null) {
+            Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
+            if (utilisateur != null) {
+                model.addAttribute("nom", utilisateur.getNom());
+                model.addAttribute("prenom", utilisateur.getPrenom());
+
+                String roles = utilisateur.getRoles().stream()
+                        .map(Role::getRole)
+                        .reduce((role1, role2) -> role1 + ", " + role2)
+                        .orElse("Aucun rôle");
+                model.addAttribute("roles", roles);
+            }
+            model.addAttribute("currentUser", principal.getName());
+        }
 
         return "doctorat";
     }
+
+
 }

@@ -33,6 +33,9 @@ public class EcoleDoctoratController {
     EtudiantService etudiantService;
 
     @Autowired
+    MotCleRepository motCleRepository;
+
+    @Autowired
     EncadrantService encadrantService;
 
     @Autowired
@@ -71,20 +74,23 @@ public class EcoleDoctoratController {
 
 
     @PostMapping("/theses/ajouter")
-    public String addThesis(@RequestParam String titre,
-                            @RequestParam String etudiantNom,
-                            @RequestParam String encadrantNom,
-                            @RequestParam int annee,
-                            @RequestParam int exemplaires,
-                            @RequestParam("motsCles") String motsCles,
-                            @RequestParam String ecoleDoctorale,
+    public String addThesis(   @RequestParam("titre") String titre,
+                               @RequestParam("annee") int annee,
+                               @RequestParam("exemplaires") int exemplaires,
+                               @RequestParam("etudiantNom") String etudiantNom,
+                               @RequestParam("encadrantNom") String encadrantNom,
+                               @RequestParam("motsCles") String motsCles,  // Chaîne de mots-clés séparée par des virgules
+                             @RequestParam String ecoleDoctorale,
                             Model model) {
         try {
             // Vérification des champs vides
             if (titre.isBlank() || etudiantNom.isBlank() || encadrantNom.isBlank()) {
                 model.addAttribute("error", "Tous les champs doivent être remplis !");
-                return "ajouterThese";
+                return "ajoutThese";
             }
+
+            // Transformation de la chaîne de mots-clés en liste
+            List<String> motsClesList = Arrays.asList(motsCles.split("\\s*,\\s*"));  // Séparation sur les virgules + nettoyage des espaces
 
             // Gestion de l'étudiant
             Etudiant etudiant = etudiantRepository.findByNom(etudiantNom)
@@ -102,7 +108,7 @@ public class EcoleDoctoratController {
             Optional<EcoleDoctorat> ecoleDoctoraleOpt = ecoleDoctoraleRepository.findByNom(ecoleDoctorale);
             if (ecoleDoctoraleOpt.isEmpty()) {
                 model.addAttribute("error", "L'école doctorale sélectionnée est invalide.");
-                return "ajouterThese";
+                return "ajoutThese";
             }
 
             // Récupération de l'école doctorale
@@ -123,14 +129,22 @@ public class EcoleDoctoratController {
             these.setAnnee(annee);
             these.setExemplaires(exemplaires);
             these.setEcoleDoctorat(ecoleDoctoratEntity);
-            these.setMotsCles(motsCles);
+            List<MotCle> motsClesEntities = new ArrayList<>();
+            for (String mot : motsClesList) {
+                String motNettoye = mot.trim().toLowerCase();
+                MotCle motCle = motCleRepository.findByValeur(motNettoye)
+                        .orElseGet(() -> motCleRepository.save(new MotCle(motNettoye)));
+                motsClesEntities.add(motCle);
+            }
+
+            these.setMotsCles(motsClesEntities);
 
             theseRepository.save(these);
 
             return "redirect:/memoires/doctorats";
         } catch (Exception e) {
             model.addAttribute("error", "Erreur lors de l'ajout de la thèse : " + e.getMessage());
-            return "ajouterThese";
+            return "ajoutThese";
         }
     }
 

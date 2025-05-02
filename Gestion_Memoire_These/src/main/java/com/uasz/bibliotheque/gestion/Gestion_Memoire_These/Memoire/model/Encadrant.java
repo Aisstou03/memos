@@ -20,5 +20,10 @@ public class Encadrant {
     @ManyToOne
     @JoinColumn(name = "filiere_id")
     private Filiere filiere;  // Ajout de la relation avec Filiere
+    public Encadrant(Long id, String nom) {
+        this.id = id;
+        this.nom = nom;
+    }
+
 
 }

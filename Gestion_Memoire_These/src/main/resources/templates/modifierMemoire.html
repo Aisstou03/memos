@@ -21,14 +21,18 @@
     </style>
 </head>
 <body>
-    <!-- Bouton de retour -->
-    <div class="container">
-      <a href="#" class="back-button">
-        <span class="back-icon">⬅</span> Retour
-      </a>
-    </div>
+<!-- Bouton de retour dynamique -->
+<div class="container">
+    <a th:if="${typeMemoire == 'LICENCE'}" th:href="@{/licence}" class="back-button">
+        <span class="back-icon">⬅</span> Retour à la liste de Memoires de Licence
+    </a>
+    <a th:if="${typeMemoire == 'MASTER'}" th:href="@{/master}" class="back-button">
+        <span class="back-icon">⬅</span> Retour à la liste de Memoires de Master
+    </a>
+</div>
 
-    <div class="container">
+
+<div class="container">
         <h2>Modification</h2>
         <!-- Formulaire de recherche -->
         <form th:action="@{/memoires/modifier/recherche}" method="get">

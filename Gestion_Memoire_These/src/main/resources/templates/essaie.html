@@ -203,261 +203,250 @@
     <!-- End Navbar -->
     <div class="container-fluid py-2">
       <div class="row">
-        <div class="ms-3">
-          <h3 id="dashboard-title" class="mb-0 h4 font-weight-bolder">Tableau de bord</h3>
+          <div class="ms-3">
+            <h3 id="dashboard-title" class="mb-0 h4 font-weight-bolder">Tableau de bord</h3>
 
-          <!-- Bloc Thymeleaf avec texte défilant -->
-          <div id="dashboard-container" class="conteneur-defilement">
-            <p id="dashboard-text" class="texte-defilant">
-              Bienvenue dans votre page de gestion des mémoires et thèses de l'Université Assane SECK de Ziguinchor.
-            </p>
+            <!-- Bloc Thymeleaf avec texte défilant -->
+            <div id="dashboard-container" class="conteneur-defilement">
+              <p id="dashboard-text" class="texte-defilant">
+                Bienvenue dans votre page de gestion des mémoires et thèses de l'Université Assane SECK de Ziguinchor.
+              </p>
+            </div>
           </div>
-        </div>
-
-        <style>
-  /* Animation d'écriture */
-  @keyframes typing {
-    from {
-      width: 0;
+          <style>
+    /* Animation d'écriture */
+    @keyframes typing {
+      from {
+        width: 0;
+      }
+      to {
+        width: 100%;
+      }
     }
-    to {
+
+    /* Conteneur principal */
+    .conteneur-defilement {
       width: 100%;
+      text-align: center;
+      overflow: hidden;
+      padding: 10px 0;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
-  }
 
-  /* Conteneur principal */
-  .conteneur-defilement {
-    width: 100%;
-    text-align: center;
-    overflow: hidden;
-    padding: 10px 0;
-    background-color: #f8f9fa; /* Par défaut : fond clair */
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
+    /* Texte avec effet d'écriture */
+     .texte-defilant {
+      display: inline-block;
+      border-right: 3px solid #333; /* clair par défaut */
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 0;
+      animation: typing 9s steps(100, end) forwards, blink 0.8s step-start infinite;
+      transition: color 0.3s ease, border-right-color 0.3s ease;
+    }
 
-  /* Texte avec effet d'écriture */
-  .texte-defilant {
-    display: inline-block;
-    border-right: 3px solid #333;
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
-    white-space: nowrap;
-    overflow: hidden;
-    width: 0;
-    animation: typing 9s steps(100, end) forwards, blink 0.8s step-start infinite;
-  }
+    body.dark-version .texte-defilant {
+      color: #fff; /* texte blanc en mode sombre */
+      border-right: 3px solid #fff;
+    }
 
-  /* Thèmes */
-  .dark-theme {
-    background-color: #1e1e2f !important;
-    color: white !important;
-  }
 
-  .transparent-theme {
-    background-color: transparent !important;
-    color: #333 !important;
-  }
+  </style>
+          <!-- Message de succès -->
+          <div th:if="${message}" id="success-alert" class="custom-alert alert-success">
+            <strong>Succès!</strong> <span th:text="${message}"></span>
+            <button onclick="closeAlert('success-alert')" class="btn btn-sm btn-primary">OK</button>
+          </div>
 
-  .white-theme {
-    background-color: #f8f9fa !important;
-    color: #333 !important;
-  }
-</style>
+          <!-- Message d'erreur -->
+          <div th:if="${error}" id="error-alert" class="custom-alert alert-danger">
+            <strong>Erreur!</strong> <span th:text="${error}"></span>
+            <button onclick="closeAlert('error-alert')" class="btn btn-sm btn-primary">OK</button>
+          </div>
 
-        <!-- Message de succès -->
-        <div th:if="${message}" id="success-alert" class="custom-alert alert-success">
-          <strong>Succès!</strong> <span th:text="${message}"></span>
-          <button onclick="closeAlert('success-alert')" class="btn btn-sm btn-primary">OK</button>
-        </div>
+          <script>
+            function closeAlert(alertId) {
+                document.getElementById(alertId).style.display = "none";
+            }
+        </script>
+          <style>
+            .custom-alert {
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 15px;
+                border-radius: 8px;
+                color: white;
+                backdrop-filter: blur(10px);
+                background: rgba(0, 0, 0, 0.4);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                z-index: 1000;
+                text-align: center;
+                min-width: 300px;
+            }
 
-        <!-- Message d'erreur -->
-        <div th:if="${error}" id="error-alert" class="custom-alert alert-danger">
-          <strong>Erreur!</strong> <span th:text="${error}"></span>
-          <button onclick="closeAlert('error-alert')" class="btn btn-sm btn-primary">OK</button>
-        </div>
+            .alert-success {
+                border: none;
+            }
 
-        <script>
-          function closeAlert(alertId) {
-              document.getElementById(alertId).style.display = "none";
-          }
-      </script>
-        <style>
-          .custom-alert {
-              position: fixed;
-              top: 20px;
-              left: 50%;
-              transform: translateX(-50%);
-              padding: 15px;
-              border-radius: 8px;
-              color: white;
-              backdrop-filter: blur(10px);
-              background: rgba(0, 0, 0, 0.4);
-              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-              z-index: 1000;
-              text-align: center;
-              min-width: 300px;
-          }
+            .alert-danger {
+                border: 2px solid #dc3545;
+            }
 
-          .alert-success {
-              border: none;
-          }
+            .custom-alert button {
+                margin-left: 10px;
+            }
+        </style>
 
-          .alert-danger {
-              border: 2px solid #dc3545;
-          }
-
-          .custom-alert button {
-              margin-left: 10px;
-          }
-      </style>
-
-        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div class="card">
-            <div class="card-header p-2 ps-3">
-              <div class="d-flex justify-content-between">
-                <div>
-                  <p class="text-sm mb-0 text-capitalize">Memoires de Licence</p>
-                  <h4 class="mb-0" th:text="${licenceCount}"></h4>
-                </div>
-                <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
-                  <i class="fa fa-book" aria-hidden="true"></i>
+          <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+            <div class="card">
+              <div class="card-header p-2 ps-3">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <p class="text-sm mb-0 text-capitalize">Memoires de Licence</p>
+                    <h4 class="mb-0" th:text="${licenceCount}"></h4>
+                  </div>
+                  <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                    <i class="fa fa-book" aria-hidden="true"></i>
+                  </div>
                 </div>
               </div>
-            </div>
-            <hr class="dark horizontal my-0">
-            <div class="card-footer p-2 ps-3">
-              <style>
-                  .btn-rechercher {
-                      background-color: rgb(34, 34, 37);
-                      color: white;
-                      padding: 6px 8px;
-                      border: none;
-                      cursor: pointer;
-                      border-radius: 18px;
-                      transition: background-color 0.3s ease;
-                  }
+              <hr class="dark horizontal my-0">
+              <div class="card-footer p-2 ps-3">
+                <style>
+                    .btn-rechercher {
+                        background-color: rgb(34, 34, 37);
+                        color: white;
+                        padding: 6px 8px;
+                        border: none;
+                        cursor: pointer;
+                        border-radius: 18px;
+                        transition: background-color 0.3s ease;
+                    }
 
-                  .btn-rechercher:hover {
-                      background-color: rgb(54, 54, 57);
-                  }
-              </style>
-              <a href="/licence" class="btn-rechercher">Voir plus</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div class="card">
-            <div class="card-header p-2 ps-3">
-              <div class="d-flex justify-content-between">
-                <div>
-                  <p class="text-sm mb-0 text-capitalize">Memoires de Master</p>
-                  <h4 class="mb-0" th:text="${masterCount}"></h4>
-                  <!-- NOMBRE DE MASTER-->
-                </div>
-                <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
-                  <i class="fa fa-graduation-cap" aria-hidden="true"></i>
-                </div>
+                    .btn-rechercher:hover {
+                        background-color: rgb(54, 54, 57);
+                    }
+                </style>
+                <a href="/licence" class="btn-rechercher">Voir plus</a>
               </div>
             </div>
-            <hr class="dark horizontal my-0">
-            <div class="card-footer p-2 ps-3">
-               <style>
-                  .btn-rechercher {
-                      background-color: rgb(34, 34, 37);
-                      color: white;
-                      padding: 6px 8px;
-                      border: none;
-                      cursor: pointer;
-                      border-radius: 18px;
-                      transition: background-color 0.3s ease;
-                  }
-
-                  .btn-rechercher:hover {
-                      background-color: rgb(54, 54, 57);
-                  }
-              </style>
-              <a href="/master" class="btn-rechercher">Voir plus</a>
-            </div>
           </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div class="card">
-            <div class="card-header p-2 ps-3">
-              <div class="d-flex justify-content-between">
-                <div>
-                  <p class="text-sm mb-0 text-capitalize">Thèses</p>
-                  <h4 class="mb-0" th:text="${doctoratCount}"></h4>
-                  <!--Affichage nombre totale DOCTORAT -->
-                </div>
-                <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
-                  <i class="fa fa-university" aria-hidden="true"></i>
+          <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+            <div class="card">
+              <div class="card-header p-2 ps-3">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <p class="text-sm mb-0 text-capitalize">Memoires de Master</p>
+                    <h4 class="mb-0" th:text="${masterCount}"></h4>
+                    <!-- NOMBRE DE MASTER-->
+                  </div>
+                  <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                    <i class="fa fa-graduation-cap" aria-hidden="true"></i>
+                  </div>
                 </div>
               </div>
-            </div>
-            <hr class="dark horizontal my-0">
-            <div class="card-footer p-2 ps-3">
-               <style>
-                  .btn-rechercher {
-                      background-color: rgb(34, 34, 37);
-                      color: white;
-                      padding: 6px 8px;
-                      border: none;
-                      cursor: pointer;
-                      border-radius: 18px;
-                      transition: background-color 0.3s ease;
-                  }
+              <hr class="dark horizontal my-0">
+              <div class="card-footer p-2 ps-3">
+                 <style>
+                    .btn-rechercher {
+                        background-color: rgb(34, 34, 37);
+                        color: white;
+                        padding: 6px 8px;
+                        border: none;
+                        cursor: pointer;
+                        border-radius: 18px;
+                        transition: background-color 0.3s ease;
+                    }
 
-                  .btn-rechercher:hover {
-                      background-color: rgb(54, 54, 57);
-                  }
-              </style>
-
-              <form th:action="@{/ }" method="get">
-                <a href="/memoires/doctorats" class="btn-rechercher">Voir plus</a>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div class="card">
-            <div class="card-header p-2 ps-3">
-              <div class="d-flex justify-content-between">
-                <div>
-                  <p class="text-sm mb-0 text-capitalize">Utilisateurs</p>
-                  <h4 class="mb-0" th:text="${nombreUtilisateurs}"></h4>
-                  <!--Affichage nombre totale utilisateurs -->
-                </div>
-                <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
-                  <i class="bi bi-person"></i>
-                </div>
+                    .btn-rechercher:hover {
+                        background-color: rgb(54, 54, 57);
+                    }
+                </style>
+                <a href="/master" class="btn-rechercher">Voir plus</a>
               </div>
             </div>
-            <hr class="dark horizontal my-0">
-            <div class="card-footer p-2 ps-3">
-              <style>
-                  .btn-rechercher {
-                      background-color: rgb(34, 34, 37);
-                      color: white;
-                      padding: 6px 8px;
-                      border: none;
-                      cursor: pointer;
-                      border-radius: 18px;
-                      transition: background-color 0.3s ease;
-                  }
+          </div>
+          <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+            <div class="card">
+              <div class="card-header p-2 ps-3">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <p class="text-sm mb-0 text-capitalize">Thèses</p>
+                    <h4 class="mb-0" th:text="${doctoratCount}"></h4>
+                    <!--Affichage nombre totale DOCTORAT -->
+                  </div>
+                  <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                    <i class="fa fa-university" aria-hidden="true"></i>
+                  </div>
+                </div>
+              </div>
+              <hr class="dark horizontal my-0">
+              <div class="card-footer p-2 ps-3">
+                 <style>
+                    .btn-rechercher {
+                        background-color: rgb(34, 34, 37);
+                        color: white;
+                        padding: 6px 8px;
+                        border: none;
+                        cursor: pointer;
+                        border-radius: 18px;
+                        transition: background-color 0.3s ease;
+                    }
 
-                  .btn-rechercher:hover {
-                      background-color: rgb(54, 54, 57);
-                  }
-              </style>
+                    .btn-rechercher:hover {
+                        background-color: rgb(54, 54, 57);
+                    }
+                </style>
 
-              <form th:action="@{/ }" method="get">
-                <a href="/listeResponsables" class="btn-rechercher">Voir plus</a>
-              </form>
+                <form th:action="@{/ }" method="get">
+                  <a href="/memoires/doctorats" class="btn-rechercher">Voir plus</a>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
+
+          <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+            <div class="card">
+              <div class="card-header p-2 ps-3">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <p class="text-sm mb-0 text-capitalize">Utilisateurs</p>
+                    <h4 class="mb-0" th:text="${nombreUtilisateurs}"></h4>
+                    <!--Affichage nombre totale utilisateurs -->
+                  </div>
+                  <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                    <i class="bi bi-person"></i>
+                  </div>
+                </div>
+              </div>
+              <hr class="dark horizontal my-0">
+              <div class="card-footer p-2 ps-3">
+                <style>
+                    .btn-rechercher {
+                        background-color: rgb(34, 34, 37);
+                        color: white;
+                        padding: 6px 8px;
+                        border: none;
+                        cursor: pointer;
+                        border-radius: 18px;
+                        transition: background-color 0.3s ease;
+                    }
+
+                    .btn-rechercher:hover {
+                        background-color: rgb(54, 54, 57);
+                    }
+                </style>
+
+                <form th:action="@{/ }" method="get">
+                  <a href="/listeResponsables" class="btn-rechercher">Voir plus</a>
+                </form>
+              </div>
+            </div>
+          </div>
       </div>
       <div th:if="${successMessage}" id="success-alert" class="custom-alert alert-success">
         <strong>Succès!</strong> <span th:text="${successMessage}"></span>
@@ -473,12 +462,13 @@
         <div th:if="${#lists.isEmpty(RechercheMemoiresParMotsCles)}">
           <p>Aucun mémoire trouvé pour "<span th:text="${motCleRecherche}"></span>".</p>
         </div>
-
+        <!--Recherche par mot cle-->
         <div th:if="${!#lists.isEmpty(RechercheMemoiresParMotsCles)}">
           <div class="table-responsive">
             <table class="table-bordered table-striped" id="table_ListeNormale">
               <thead class="table-dark">
               <tr>
+                <th>Numero</th>
                 <th>Titre</th>
                 <th>Étudiant</th>
                 <th>Encadrant</th>
@@ -490,7 +480,8 @@
               </tr>
               </thead>
               <tbody>
-              <tr th:each="memoire : ${RechercheMemoiresParMotsCles}">
+              <tr th:each="memoire, stat : ${RechercheMemoiresParMotsCles}">
+                <td th:text="${pageResultats.number * pageResultats.size + stat.index + 1}">1</td>
                 <td>
             <span th:text="${memoire.titre}"
                   th:classappend="${#strings.containsIgnoreCase(memoire.titre, motCleRecherche)} ? 'surlignage-recherche' : ''">
@@ -557,7 +548,7 @@
                     Suivant
                   </a>
                 </li>
-                <li  class="page-item"> <a href="/memoires/liste">liste</a></li>
+                <li  class="page-item"> <a href="/memoires/liste">retour</a></li>
               </ul>
             </nav>
           </div>
@@ -935,8 +926,6 @@
     }
   </style>
 
-
-
   <!-- Ajoutez ceci dans votre <head> existant -->
   <style>
       /* Style pour le popup de chat */
@@ -1089,7 +1078,6 @@
       <button type="submit">Envoyer</button>
     </form>
   </div>
-
 
   <!-- Ajoutez ceci à la fin de votre body, juste avant la fermeture </body> -->
   <script>
@@ -1246,8 +1234,6 @@
         checkNewMessages();
       });
     </script>
-
-
 
 </body>
 

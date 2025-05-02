@@ -33,7 +33,7 @@
     <link href="../assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="../assets/css/nucleo-svg.css" rel="stylesheet" />
     <link rel="stylesheet" href="../static/css/style.css" th:href="@{/css/style.css}"/>
-    <script src="../static/js/charts.js" th:src="@{/js/charts.js}"></script>
+    <script src="../static/js/script.js" th:src="@{/js/script.js}"></script>
 
     <!-- Font Awesome Icons -->
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
@@ -189,20 +189,21 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="these, iterStat : ${thesesTrouvees}">
-                <td th:text="${currentPage * pageSize + iterStat.index + 1}"></td>
+            <tr th:each="these, stat : ${thesesListe}">
+                <td th:text="${stat.index + 1}">1</td>
                 <td th:text="${these.titre}"></td>
                 <td th:text="${these.etudiant != null ? these.etudiant.nom : 'Non spécifié'}"></td>
-                <td th:text="${these.encadrant != null ? these.encadrant.nom : 'Non spécifié'}"></td>
+                <td></td>
                 <td th:text="${these.annee}"></td>
+                <td th:text="${these.exemplaires}"></td>
                 <td>
-                    <div class="action-container">
-                        <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
-                        <div class="dropdown-content">
-                            <a th:href="@{/theses/modifier/{id}(id=${these.id})}" onclick="editThese(${these.id})">
+                    <div class="action-container" style="position: relative; display: inline-block;">
+                        <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;" onclick="toggleDropdown(this, event)"></i>
+                        <div class="dropdown-content" style="display: none; position: absolute; background: white; box-shadow: 0 0 5px rgba(0,0,0,0.2); z-index: 1000;">
+                        <a th:href="@{/theses/modifier/{id}(id=${these.id})}" onclick="editMemoire(${these.id})">
                                 Modifier
                             </a>
-                            <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleThese_' + ${these.id}">
+                            <a href="#" data-bs-toggle="modal" th:data-bs-target="'#form_Supprimer_ListeNormaleThese_' + ${these.id}">
                                 Supprimer
                             </a>
                         </div>
@@ -214,7 +215,7 @@
                     </a>
                 </td>
             </tr>
-            <div th:each="these : ${thesesTrouvees}">
+            <div th:each="these : ${thesesListe}">
                 <div class="modal fade" th:id="'form_Supprimer_ListeNormaleThese_' + ${these.id}" tabindex="-1" role="dialog">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
@@ -243,54 +244,7 @@
         <div class="text-center mt-3">
             <a th:href="@{/memoires/doctorats}" class="btn btn-secondary">Voir tous les mémoires</a>
         </div>
-        <div th:if="${totalPages > 1}" class="pagination">
-            <ul class="pagination-list">
-                <li th:if="${currentPage > 0}">
-                    <a th:href="@{/theses/recherche(
-                        page=${currentPage - 1},
-                        size=${pageSize},
-                        cote=${cote},
-                        titre=${titre},
-                        etudiant=${etudiant},
-                        encadrant=${encadrant},
-                        annee=${annee},
-                        ecoleDoctoraleNom=${ecoleDoctoraleNom},
-                        ufrNom=${ufrNom}
-                    )}">Précédent</a>
-                </li>
-
-                <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                    th:classappend="${i == currentPage} ? 'active'">
-                <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                    th:classappend="${i == currentPage} ? 'active'">
-                    <a th:href="@{/theses/recherche(
-                        page=${i},
-                        size=${pageSize},
-                        cote=${cote},
-                        titre=${titre},
-                        etudiant=${etudiant},
-                        encadrant=${encadrant},
-                        annee=${annee},
-                        ecoleDoctoraleNom=${ecoleDoctoraleNom},
-                        ufrNom=${ufrNom}
-                    )}" th:text="${i + 1}"></a>
-                </li>
-
-                <li th:if="${currentPage + 1 < totalPages}">
-                    <a th:href="@{/theses/recherche(
-                        page=${currentPage + 1},
-                        size=${pageSize},
-                        cote=${cote},
-                        titre=${titre},
-                        etudiant=${etudiant},
-                        encadrant=${encadrant},
-                        annee=${annee},
-                        ecoleDoctoraleNom=${ecoleDoctoraleNom},
-                        ufrNom=${ufrNom}
-                    )}">Suivant</a>
-                </li>
-            </ul>
-        </div>
+        <!-- PAGINATION -->
     </div>
     <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
         <p th:text="${errorMessage}"></p>
@@ -358,10 +312,10 @@
                             <td th:text="${these.annee}"></td>
                             <td th:text="${these.exemplaires}"></td>
                             <td>
-                                <div class="action-container">
-                                    <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
-                                    <div class="dropdown-content">
-                                        <a th:href="@{/theses/modifier/{id}(id=${these.id})}" onclick="editMemoire(${these.id})">
+                                <div class="action-container" style="position: relative; display: inline-block;">
+                                    <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;" onclick="toggleDropdown(this, event)"></i>
+                                    <div class="dropdown-content" style="display: none; position: absolute; background: white; box-shadow: 0 0 5px rgba(0,0,0,0.2); z-index: 1000;">
+                                    <a th:href="@{/theses/modifier/{id}(id=${these.id})}" onclick="editMemoire(${these.id})">
                                             Modifier
                                         </a>
                                         <a href="#" data-bs-toggle="modal" th:data-bs-target="'#form_Supprimer_ListeNormaleThese_' + ${these.id}">
@@ -470,10 +424,10 @@
                     <td th:text="${these.annee}"></td>
                     <td th:text="${these.exemplaires}"></td>
                     <td>
-                        <div class="action-container">
-                            <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
-                            <div class="dropdown-content">
-                                <a th:href="@{/theses/modifier/{id}(id=${these.id})}" onclick="editMemoire(${these.id})">
+                        <div class="action-container" style="position: relative; display: inline-block;">
+                            <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;" onclick="toggleDropdown(this)"></i>
+                            <div class="dropdown-content" style="display: none; position: absolute; background: white; box-shadow: 0 0 5px rgba(0,0,0,0.2); z-index: 1000;">
+                                <a th:href="@{/theses/modifier/{id}(id=${these.id})}">
                                     Modifier
                                 </a>
                                 <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleThese_' + ${these.id}">
@@ -481,6 +435,27 @@
                                 </a>
                             </div>
                         </div>
+                        <script>
+  function toggleDropdown(icon) {
+    // Fermer tous les autres dropdowns d'abord
+    document.querySelectorAll('.dropdown-content').forEach(el => el.style.display = 'none');
+
+    // Trouver le dropdown correspondant à l'icône cliquée
+    const dropdown = icon.nextElementSibling;
+
+    // Afficher ou masquer ce dropdown
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+
+    // Empêcher la fermeture immédiate
+    event.stopPropagation();
+  }
+
+  // Fermer le menu si on clique ailleurs
+  document.addEventListener('click', function () {
+    document.querySelectorAll('.dropdown-content').forEach(el => el.style.display = 'none');
+  });
+</script>
+
                         <a th:href="@{/theses/genererAttestation/{id}(id=${these.id})}"
                            style="margin-left: 17px; color: black; text-decoration: none;">
                             <i class="bi bi-cloud-arrow-down-fill"
@@ -563,43 +538,11 @@
     <br>
 </main>
 </body>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        document.querySelectorAll(".menu-icon").forEach(icon => {
-            icon.addEventListener("click", function (event) {
-                event.stopPropagation();
-                let dropdown = this.nextElementSibling;
-                document.querySelectorAll(".dropdown-content").forEach(menu => {
-                    if (menu !== dropdown) {
-                        menu.classList.remove("show");
-                    }
-                });
-                dropdown.classList.toggle("show");
-            });
-        });
-
-        // Fermer le menu quand on clique ailleurs
-        document.addEventListener("click", function () {
-            document.querySelectorAll(".dropdown-content").forEach(menu => {
-                menu.classList.remove("show");
-            });
-        });
-
-        // Empêcher la fermeture si on clique sur les options du menu
-        document.querySelectorAll(".dropdown-content").forEach(menu => {
-            menu.addEventListener("click", function (event) {
-                event.stopPropagation();
-            });
-        });
-    });
-    </script>
-<!-- Inclusion des scripts JavaScript -->
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Popper.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
 <!-- Bootstrap JS -->
-<!-- Script pour initialiser DataTable -->
 <script>
         $(document).ready(function() {
             $('#table_ListeNormale').DataTable();

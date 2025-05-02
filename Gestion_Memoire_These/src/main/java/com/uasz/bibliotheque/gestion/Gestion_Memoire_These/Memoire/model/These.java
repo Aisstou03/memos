@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -39,6 +42,13 @@ public class These {
 
     @Column(name = "est_supprime")
     private Boolean estSupprime = false;  // Champ pour indiquer si la thèse est dans la corbeille
-    private String  motsCles ;// ajout par mots clés
+
+    @ManyToMany
+    @JoinTable(
+            name = "memoire_mots_cles",
+            joinColumns = @JoinColumn(name = "these_id"),
+            inverseJoinColumns = @JoinColumn(name = "mot_cle_id")
+    )
+    private List<MotCle> motsCles = new ArrayList<>();
 
 }

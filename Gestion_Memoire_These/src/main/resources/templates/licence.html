@@ -25,7 +25,7 @@
     <link href="../assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="../assets/css/nucleo-svg.css" rel="stylesheet" />
     <link rel="stylesheet" href="../static/css/style.css" th:href="@{/css/style.css}"/>
-    <script src="../static/js/charts.js" th:src="@{/js/charts.js}"></script>
+    <script src="../static/js/script.js" th:src="@{/js/script.js}"></script>
 
     <!-- Font Awesome Icons -->
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
@@ -166,10 +166,15 @@
                 </button>
             </div>
         </form>
-
+        <!-- Message si aucun mémoire trouvé -->
+        <div th:if="${rechercheEffectuee and nombreMemoiresTrouves == 0}">
+            <div class="alert alert-warning text-center">
+                Aucun mémoire trouvé pour les critères spécifiés.
+            </div>
+        </div>
         <!-- Affichage des résultats uniquement si la recherche a été effectuée -->
-        <div th:if="${rechercheEffectuee}">
-            <h4>
+        <div th:if="${rechercheEffectuee and nombreMemoiresTrouves > 0}">
+        <h4>
                 Résultats de la recherche : <span th:text="${nombreMemoiresTrouves}"></span> mémoire(s) trouvé(s)
             </h4>
             <table  id="table_ListeNormale" class="table-bordered table-striped" >
@@ -193,10 +198,10 @@
                     <td th:text="${memoire.filiere.nom}"></td>
                     <td th:text="${memoire.annee}"></td>
                     <td>
-                        <div class="action-container">
-                            <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
-                            <div class="dropdown-content">
-                                <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
+                        <div class="action-container" style="position: relative; display: inline-block;">
+                            <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;" onclick="toggleDropdown(this, event)"></i>
+                            <div class="dropdown-content" style="display: none; position: absolute; background: white; box-shadow: 0 0 5px rgba(0,0,0,0.2); z-index: 1000;">
+                            <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
                                     Modifier
                                 </a>
                                 <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
@@ -369,10 +374,10 @@
                                 <td th:text="${memoire.filiere.nom}"></td>
                                 <td th:text="${memoire.annee}"></td>
                                 <td>
-                                    <div class="action-container">
-                                        <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
-                                        <div class="dropdown-content">
-                                            <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
+                                    <div class="action-container" style="position: relative; display: inline-block;">
+                                        <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;" onclick="toggleDropdown(this, event)"></i>
+                                        <div class="dropdown-content" style="display: none; position: absolute; background: white; box-shadow: 0 0 5px rgba(0,0,0,0.2); z-index: 1000;">
+                                        <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
                                                 Modifier
                                             </a>
                                             <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
@@ -487,14 +492,34 @@
                         <td th:text="${memoire.filiere.nom}"></td>
                         <td th:text="${memoire.annee}"></td>
                         <td>
-                            <div class="action-container">
-                                <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"></i>
-                                <div class="dropdown-content">
-                                    <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}">Modifier</a>
+                            <div class="action-container" style="position: relative; display: inline-block;">
+                                <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;" onclick="toggleDropdown(this, event)"></i>
+                                <div class="dropdown-content" style="display: none; position: absolute; background: white; box-shadow: 0 0 5px rgba(0,0,0,0.2); z-index: 1000;">
+                                <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}">Modifier</a>
                                     <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
                                         Supprimer
                                     </a>
                                 </div>
+                                <script>
+  function toggleDropdown(icon) {
+    // Fermer tous les autres dropdowns d'abord
+    document.querySelectorAll('.dropdown-content').forEach(el => el.style.display = 'none');
+
+    // Trouver le dropdown correspondant à l'icône cliquée
+    const dropdown = icon.nextElementSibling;
+
+    // Afficher ou masquer ce dropdown
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+
+    // Empêcher la fermeture immédiate
+    event.stopPropagation();
+  }
+
+  // Fermer le menu si on clique ailleurs
+  document.addEventListener('click', function () {
+    document.querySelectorAll('.dropdown-content').forEach(el => el.style.display = 'none');
+  });
+</script>
                             </div>
                             <a th:href="@{/memoires/genererAttestation/{id}(id=${memoire.id})}"
                                style="margin-left: 17px; color: black; text-decoration: none;">
@@ -643,36 +668,6 @@
           }
         }
     </script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        document.querySelectorAll(".menu-icon").forEach(icon => {
-            icon.addEventListener("click", function (event) {
-                event.stopPropagation();
-                let dropdown = this.nextElementSibling;
-                document.querySelectorAll(".dropdown-content").forEach(menu => {
-                    if (menu !== dropdown) {
-                        menu.classList.remove("show");
-                    }
-                });
-                dropdown.classList.toggle("show");
-            });
-        });
-
-        // Fermer le menu quand on clique ailleurs
-        document.addEventListener("click", function () {
-            document.querySelectorAll(".dropdown-content").forEach(menu => {
-                menu.classList.remove("show");
-            });
-        });
-
-        // Empêcher la fermeture si on clique sur les options du menu
-        document.querySelectorAll(".dropdown-content").forEach(menu => {
-            menu.addEventListener("click", function (event) {
-                event.stopPropagation();
-            });
-        });
-    });
-    </script>
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Popper.js -->
@@ -688,6 +683,26 @@
 <script src="../assets/js/core/popper.min.js"></script>
 <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
 <script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
+<script>
+  function toggleDropdown(icon) {
+    // Fermer tous les autres dropdowns d'abord
+    document.querySelectorAll('.dropdown-content').forEach(el => el.style.display = 'none');
+
+    // Trouver le dropdown correspondant à l'icône cliquée
+    const dropdown = icon.nextElementSibling;
+
+    // Afficher ou masquer ce dropdown
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+
+    // Empêcher la fermeture immédiate
+    event.stopPropagation();
+  }
+
+  // Fermer le menu si on clique ailleurs
+  document.addEventListener('click', function () {
+    document.querySelectorAll('.dropdown-content').forEach(el => el.style.display = 'none');
+  });
+</script>
 
 </body>
 </html>

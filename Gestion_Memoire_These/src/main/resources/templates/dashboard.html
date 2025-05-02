@@ -46,35 +46,35 @@
   <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
     <ul class="navbar-nav">
       <li class="nav-item">
-        <a class="nav-link active bg-gradient-dark text-white" href="../pages/dashboard.html">
+        <a class="nav-link active bg-gradient-dark text-white" href="/memoires/liste">
           <i class="material-symbols-rounded opacity-5">dashboard</i>
           <span class="nav-link-text ms-1">Tableau de bord</span>
         </a>
+      </li> <br/>
+      <li class="nav-item">
+        <a class="nav-link text-dark" href="/listeResponsables">
+          <i class="fa fa-users" aria-hidden="true"></i>
+          <span class="nav-link-text ms-1">Utilisateurs</span>
+        </a>
       </li>
-      <br/>
-
       <li class="nav-item">
         <a class="nav-link text-dark" href="/ajoutMemoire">
           <i class="material-symbols-rounded opacity-5">receipt_long</i>
           <span class="nav-link-text ms-1">Ajout mémoires</span>
         </a>
       </li>
-
-
-      <li class="nav-item">
-        <a class="nav-link text-dark" href="#" data-bs-toggle="modal" data-bs-target="#rechercheModal">
-          <i class="material-symbols-rounded opacity-5">download</i>
-          <span class="nav-link-text ms-1">Télécharger</span>
-        </a>
-      </li>
-
-
       <li class="nav-item">
         <a class="nav-link text-dark" href="#" id="notificationBtn">
           <i class="material-symbols-rounded opacity-5">notifications</i>
           <span class="nav-link-text ms-1">Notifications</span>
           <span class="notification-count" th:text="${notifications != null && !notifications.isEmpty() ? notifications.size() : '0'}"
                 th:style="${notifications == null || notifications.isEmpty() ? 'display: none;' : ''}">0</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-dark" href="/memoires/corbeille">
+          <i class="material-symbols-rounded opacity-5">delete</i>
+          <span class="nav-link-text ms-1">Corbeille</span>
         </a>
       </li><br/>
 
@@ -91,14 +91,18 @@
         </a>
       </li>
 
-
+      <li class="nav-item">
+        <a class="nav-link text-dark" href="/profil">
+          <i class="material-symbols-rounded opacity-5">person</i>
+          <span class="nav-link-text ms-1">Profil</span>
+        </a>
+      </li>
       <li class="nav-item">
         <a class="nav-link text-dark" href="/logout">
           <i class="material-symbols-rounded opacity-5">login</i>
           <span class="nav-link-text ms-1">Se Déconnecter</span>
         </a>
       </li>
-
     </ul>
   </div>
   <div class="sidenav-footer position-absolute w-100 bottom-0 ">
@@ -194,41 +198,49 @@
       <div class="ms-3">
         <h3 class="mb-0 h4 font-weight-bolder">Tableau de bord</h3>
         <style>
-          /* Animation d'écriture */
-          @keyframes typing {
-            from {
-              width: 0;
-            }
-            to {
-              width: 100%;
-            }
-          }
+    /* Animation d'écriture */
+    @keyframes typing {
+      from {
+        width: 0;
+      }
+      to {
+        width: 100%;
+      }
+    }
 
-          /* Conteneur principal */
-          .conteneur-defilement {
-            width: 100%;
-            text-align: center;
-            overflow: hidden;
-            padding: 10px 0;
-            background-color: #f8f9fa; /* Couleur de fond légère */
-          }
+    /* Conteneur principal */
+    .conteneur-defilement {
+      width: 100%;
+      text-align: center;
+      overflow: hidden;
+      padding: 10px 0;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
 
-          /* Texte avec effet d'écriture */
-          .texte-defilant {
-            display: inline-block;
-            border-right: 3px solid #333; /* Curseur */
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-            white-space: nowrap; /* Empêche le retour à la ligne */
-            overflow: hidden; /* Cache le texte non écrit */
-            width: 0; /* Point de départ */
-            animation: typing 9s steps(100, end) forwards, blink 0.8s step-start infinite;
-          }
-        </style>
+    /* Texte avec effet d'écriture */
+     .texte-defilant {
+      display: inline-block;
+      border-right: 3px solid #333; /* clair par défaut */
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 0;
+      animation: typing 9s steps(100, end) forwards, blink 0.8s step-start infinite;
+      transition: color 0.3s ease, border-right-color 0.3s ease;
+    }
+
+    body.dark-version .texte-defilant {
+      color: #fff; /* texte blanc en mode sombre */
+      border-right: 3px solid #fff;
+    }
+
+
+  </style>
         <!-- Bloc Thymeleaf avec texte défilant -->
-        <div class="conteneur-defilement">
-          <p class="texte-defilant">
+        <div id="dashboard-container" class="conteneur-defilement">
+          <p id="dashboard-text" class="texte-defilant">
             Bienvenue dans votre page de gestion des mémoires et thèses de l'Université Assane SECK de Ziguinchor.
           </p>
         </div>
@@ -445,11 +457,13 @@
         <p>Aucun mémoire trouvé pour "<span th:text="${motCleRecherche}"></span>".</p>
       </div>
 
+      <!--Recherche par mot cle-->
       <div th:if="${!#lists.isEmpty(RechercheMemoiresParMotsCles)}">
         <div class="table-responsive">
           <table class="table-bordered table-striped" id="table_ListeNormale">
             <thead class="table-dark">
             <tr>
+              <th>Numero</th>
               <th>Titre</th>
               <th>Étudiant</th>
               <th>Encadrant</th>
@@ -461,7 +475,8 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="memoire : ${RechercheMemoiresParMotsCles}">
+            <tr th:each="memoire, stat : ${RechercheMemoiresParMotsCles}">
+              <td th:text="${pageResultats.number * pageResultats.size + stat.index + 1}">1</td>
               <td>
             <span th:text="${memoire.titre}"
                   th:classappend="${#strings.containsIgnoreCase(memoire.titre, motCleRecherche)} ? 'surlignage-recherche' : ''">
@@ -528,7 +543,7 @@
                   Suivant
                 </a>
               </li>
-              <li  class="page-item"> <a href="/memoires/liste">liste</a></li>
+              <li  class="page-item"> <a href="/memoires/liste">retour</a></li>
             </ul>
           </nav>
         </div>

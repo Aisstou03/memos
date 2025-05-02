@@ -23,43 +23,15 @@
 <body>
     <!-- Bouton de retour -->
     <div class="container">
-      <a href="#" class="back-button">
+      <a href="/memoires/doctorats" class="back-button">
         <span class="back-icon">⬅</span> Retour
       </a>
     </div>
 
     <div class="container">
       <h2>Modification de Thèse</h2>
-      <!-- Formulaire de recherche -->
-      <form th:action="@{/theses/modifier/recherche}" method="get">
-        <div class="search-container">
-          <input type="text" class="form-control" name="cote" placeholder="Cote" />
-          <input type="text" class="form-control" name="titre" placeholder="Titre" />
-          <input type="text" class="form-control" name="etudiant" placeholder="Etudiant" />
-          <input type="text" class="form-control" name="encadrant" placeholder="Encadrant" />
-          <input type="number" class="form-control" name="annee" placeholder="Année" />
-          <input type="text" class="form-control" name="filiere" placeholder="Filière" />
-          <button type="submit" class="search-button">
-            <i class="fas fa-search"></i>
-          </button>
-        </div>
-      </form>
-      <br/>
-
-      <!-- Message d'erreur ou d'information  <div th:if="${message}" class="alert alert-info">
-        <span th:text="${message}"></span>
-      </div> -->
 
       <div class="card p-4 shadow">
-        <!-- Liste des mémoires trouvés <div th:if="${these != null}">
-          <h3>Liste des thèses trouvés</h3>
-          <ul>
-            <li th:each="memoire : ${memoires}">
-              <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" th:text="${these.titre}"></a>
-            </li>
-          </ul>
-        </div> -->
-
 
         <!-- Formulaire de modification du mémoire -->
         <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
@@ -80,30 +52,42 @@
               <input type="text" th:field="*{titre}" class="form-control" />
             </div>
 
-            <div class="form-group">
-              <label for="etudiant">Étudiant</label>
-              <select th:field="*{etudiant.id}" class="form-control">
-                <option th:each="etudiant : ${etudiants}" th:value="${etudiant.id}" th:text="${etudiant.nom}"></option>
-              </select>
+            <div class="form-group mb-3">
+              <div class="row"> <!-- Ajout de la classe row -->
+                <div class="col-md-6">
+                  <label for="etudiant" class="form-label">Étudiant</label>
+                  <input type="text" id="etudiant"  th:field="*{etudiant.nom}"
+                         class="form-control" list="etudiant-list" placeholder="Saisissez ou choisissez un étudiant" />
+                  <datalist id="etudiant-list">
+                    <option th:each="etd : ${etudiants}" th:value="${etd.nom}" th:data-id="${etd.id}" />
+                  </datalist>
+                  <input type="hidden" id="etudiantId" th:field="*{etudiant.id}" />
+                </div>
+
+                <div class="col-md-6">
+                  <label for="encadrant" class="form-label">Encadrant</label>
+                  <input type="text" id="encadrant" th:field="*{encadrant.nom}" class="form-control"
+                         list="encadrant-list" placeholder="Saisissez ou choisissez un encadrant" />
+                  <datalist id="encadrant-list">
+                    <option th:each="enc : ${encadrants}" th:value="${enc.nom}" />
+                  </datalist>
+                  <input type="hidden" id="encadrantId" th:field="*{encadrant.id}" />
+                </div>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label for="encadrant">Encadrant</label>
-              <select th:field="*{encadrant.id}" class="form-control">
-                <option th:each="encadrant : ${encadrants}" th:value="${encadrant.id}" th:text="${encadrant.nom}"></option>
-              </select>
+            <div class="form-group mb-3">
+              <div class="row">
+                <div class="col-md-6">
+                  <label for="annee">Année</label>
+                  <input type="number" th:field="*{annee}" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                  <label for="exemplaires">Nombre d'exemplaires</label>
+                  <input type="number" th:field="*{exemplaires}" class="form-control" />
+                </div>
+              </div>
             </div>
-
-            <div class="form-group">
-              <label for="annee">Année</label>
-              <input type="number" th:field="*{annee}" class="form-control" />
-            </div>
-
-            <div class="form-group">
-              <label for="exemplaires">Nombre d'exemplaires</label>
-              <input type="number" th:field="*{exemplaires}" class="form-control" />
-            </div>
-
             <button type="submit" class="btn btn-primary">Modifier</button>
           </form>
         </div>

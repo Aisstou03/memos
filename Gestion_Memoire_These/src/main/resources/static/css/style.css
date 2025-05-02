@@ -184,3 +184,29 @@ body { background-color: #f8f9fa; }
     border-radius: 4px;
 }
 
+/* Mode sombre appliqué sur le footer */
+body.dark-version footer.footer {
+  background-color: #1e1e1e; /* ou #121212 si tu veux plus sombre */
+  color: #fff;
+}
+
+/* Les liens dans le footer en mode sombre */
+body.dark-version footer.footer a {
+  color: #ccc; /* ou #fff si tu veux plus visible */
+}
+
+body.dark-version footer.footer a:hover {
+  color: #fff;
+}
+footer.footer {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+footer.footer a {
+  transition: color 0.3s ease;
+}
+
+
+  body.dark-version .texte-defilant {
+    color: #fff; /* texte blanc en mode sombre */
+    border-right: 3px solid #fff;
+  }

@@ -277,5 +277,35 @@ new Chart(pieChartCtx, {
         }
     });
 }
+//fonction pour les trois points
+function toggleDropdown(icon, event) {
+  event.stopPropagation(); // ✅ maintenant ça fonctionne
+
+  // Fermer tous les autres dropdowns d'abord
+  document.querySelectorAll('.dropdown-content').forEach(el => el.style.display = 'none');
+
+  // Trouver le dropdown correspondant à l'icône cliquée
+  const dropdown = icon.nextElementSibling;
+
+  // Afficher ou masquer ce dropdown
+  dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+}
+document.querySelectorAll('.dropdown-content').forEach(menu => {
+  menu.addEventListener('click', function (e) {
+    e.stopPropagation();
+  });
+});
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll('.dropdown-content').forEach(menu => {
+    menu.addEventListener('click', function (e) {
+      e.stopPropagation();
+    });
+  });
+
+  // Fermer les menus si on clique ailleurs
+  document.addEventListener('click', function () {
+    document.querySelectorAll('.dropdown-content').forEach(el => el.style.display = 'none');
+  });
+});
 
 

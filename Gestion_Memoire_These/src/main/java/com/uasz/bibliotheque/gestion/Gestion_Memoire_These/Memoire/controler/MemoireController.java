@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
@@ -197,8 +198,12 @@ public class MemoireController {
         model.addAttribute("etudiants", etudiantService.findAll());
         model.addAttribute("encadrants", encadrantService.findAll());
         model.addAttribute("filieres", filiereService.findAll());
+
+        // Ajout du type pour retour conditionnel
+        model.addAttribute("typeMemoire", memoire.getType().name()); // "LICENCE", "MASTER" ou "DOCTORAT"
         return "modifierMemoire";
     }
+
 
     /**
      * Recherche des mémoires en fonction des critères fournis.
@@ -453,6 +458,8 @@ public class MemoireController {
         // Ajouter les mémoires et les UFR au modèle
         model.addAttribute("pageMemoires", memoires); // pour la pagination
         model.addAttribute("memoires", memoires.getContent()); // pour le tableau
+        model.addAttribute("rechercheEffectuee", false);
+
         // Gestion de l'utilisateur connecté
         if (principal != null) {
             Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
@@ -484,12 +491,10 @@ public class MemoireController {
            @RequestParam String filiereNom,
            @RequestParam(defaultValue = "0") int page,
            @RequestParam(defaultValue = "10") int size,
-           Model model) {
+           Model model, Principal principal) {
 
        Pageable pageable = PageRequest.of(page, size);
        Page<Memoire> pageMemoires = memoireService.getMemoiresLicenceFiltres(ufrNom, departementNom, filiereNom, pageable);
-        // Variable pour indiquer que ce n'est pas une recherche
-       model.addAttribute("rechercheEffectuee", false);
        // Regrouper les mémoires paginés
        Map<String, Map<String, List<Memoire>>> memoiresGroupes = pageMemoires.getContent().stream()
                .collect(Collectors.groupingBy(
@@ -510,7 +515,21 @@ public class MemoireController {
                "filiere", filiereNom
        ));
        model.addAttribute("rechercheEffectuee", true);
+       // Gestion de l'utilisateur connecté
+       if (principal != null) {
+           Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
+           if (utilisateur != null) {
+               model.addAttribute("nom", utilisateur.getNom());
+               model.addAttribute("prenom", utilisateur.getPrenom());
 
+               String roles = utilisateur.getRoles().stream()
+                       .map(Role::getRole)
+                       .reduce((role1, role2) -> role1 + ", " + role2)
+                       .orElse("Aucun rôle");
+               model.addAttribute("roles", roles);
+           }
+           model.addAttribute("currentUser", principal.getName());
+       }
        return "licence";
    }
 
@@ -524,8 +543,8 @@ public class MemoireController {
             @RequestParam String departementNom,
             @RequestParam String filiereNom,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "1") int size,
-            Model model) {
+            @RequestParam(defaultValue = "10") int size,
+            Model model, Principal principal) {
 
         Pageable pageable = PageRequest.of(page, size);
 
@@ -554,7 +573,21 @@ public class MemoireController {
                 "filiere", filiereNom
         ));
         model.addAttribute("rechercheEffectuees", true);
+        // Gestion de l'utilisateur connecté
+        if (principal != null) {
+            Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
+            if (utilisateur != null) {
+                model.addAttribute("nom", utilisateur.getNom());
+                model.addAttribute("prenom", utilisateur.getPrenom());
 
+                String roles = utilisateur.getRoles().stream()
+                        .map(Role::getRole)
+                        .reduce((role1, role2) -> role1 + ", " + role2)
+                        .orElse("Aucun rôle");
+                model.addAttribute("roles", roles);
+            }
+            model.addAttribute("currentUser", principal.getName());
+        }
         return "master";
     }
 
@@ -654,6 +687,7 @@ public class MemoireController {
 
         return "dashboard";
     }
+
 
 }
 

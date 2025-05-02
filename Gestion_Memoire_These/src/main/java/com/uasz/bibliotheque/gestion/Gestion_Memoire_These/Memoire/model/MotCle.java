@@ -21,6 +21,9 @@ public class MotCle {
 
     @ManyToMany(mappedBy = "motsCles")
     private List<Memoire> memoires = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "motsCles")
+    private List<These> theses = new ArrayList<>();
     // Constructeur personnalisé
     public MotCle(String valeur) {
         this.valeur = valeur;
