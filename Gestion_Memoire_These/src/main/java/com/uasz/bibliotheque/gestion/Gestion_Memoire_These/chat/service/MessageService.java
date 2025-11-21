@@ -3,6 +3,7 @@ package com.uasz.bibliotheque.gestion.Gestion_Memoire_These.chat.service;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.chat.model.Message;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.chat.repository.MessageRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date; // Modifier cet import
@@ -11,8 +12,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class MessageService {
-
-    private final MessageRepository messageRepository;
+    @Autowired
+    private  MessageRepository messageRepository;
 
     public List<Message> getMessages() {
         return messageRepository.findAllByOrderByDateEnvoiAsc();

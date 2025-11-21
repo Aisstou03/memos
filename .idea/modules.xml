@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Gestion_Memoire_These/Gestion_Memoire_These.iml" filepath="$PROJECT_DIR$/Gestion_Memoire_These/Gestion_Memoire_These.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/memos.iml" filepath="$PROJECT_DIR$/.idea/memos.iml" />
     </modules>
   </component>

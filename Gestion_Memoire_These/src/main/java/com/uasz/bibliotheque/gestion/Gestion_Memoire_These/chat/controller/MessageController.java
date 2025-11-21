@@ -19,8 +19,8 @@ import java.util.Map;
 @Controller
 @RequiredArgsConstructor
 public class MessageController {
-
-    private final MessageService messageService;
+    @Autowired
+    private  MessageService messageService;
 
     @Autowired
     private UtilisateurRepository utilisateurRepository;

@@ -63,7 +63,8 @@ public class MemoireController {
 
     @Autowired
     private DepartementService departementService;
-    private final StatistiquesService statistiquesService;
+    @Autowired
+    private StatistiquesService statistiquesService;
 
     //formulaire d'ajout Licence
     @RequestMapping(value = "/ajoutMemoire", method = RequestMethod.GET)
@@ -89,7 +90,7 @@ public class MemoireController {
     }
 
 
-    @RequestMapping(value = "/memoires/ajouter", method = RequestMethod.POST)
+    @PostMapping("/memoires/ajouter")
     public String ajouterMemoire(
             @RequestParam("ufrNom") String ufrNom,
             @RequestParam("departementNom") String departementNom,
@@ -98,10 +99,10 @@ public class MemoireController {
             @RequestParam("titre") String titre,
             @RequestParam("annee") int annee,
             @RequestParam("exemplaires") int exemplaires,
-            @RequestParam("etudiantNom") String etudiantNom,
-            @RequestParam("encadrantNom") String encadrantNom,
-            @RequestParam("motsCles") String motsCles,  // Chaîne de mots-clés séparée par des virgules
-            @RequestParam(name = "licencePro", defaultValue = "false") boolean licencePro, // <-- Ajout ici
+            @RequestParam("etudiantNom") String etudiantNom,        // Uniquement le nom
+            @RequestParam("encadrantNom") String encadrantNom,      // Uniquement le nom
+            @RequestParam("motsCles") String motsCles,
+            @RequestParam(name = "licencePro", defaultValue = "false") boolean licencePro,
             RedirectAttributes redirectAttributes) {
 
         try {
@@ -111,16 +112,16 @@ public class MemoireController {
                     etudiantNom.isEmpty() || encadrantNom.isEmpty()) {
 
                 redirectAttributes.addFlashAttribute("error", "Tous les champs sont requis !");
-                return "redirect:/memoires/ajouter";
+                return "redirect:/ajoutMemoire";  // Redirige vers le formulaire
             }
 
             // Transformation de la chaîne de mots-clés en liste
-            List<String> motsClesList = Arrays.asList(motsCles.split("\\s*,\\s*"));  // Séparation sur les virgules + nettoyage des espaces
+            List<String> motsClesList = Arrays.asList(motsCles.split("\\s*,\\s*"));
 
-            // Appel du service
+            // Appel du service - ADAPTEZ CETTE LIGNE À VOTRE SERVICE
             memoireService.ajouterMemoire(
                     ufrNom, departementNom, filiereNom, type, titre, annee, exemplaires,
-                    etudiantNom, encadrantNom, motsClesList, licencePro  // <-- Ajout du boolean ici
+                    etudiantNom, encadrantNom, motsClesList, licencePro
             );
 
             redirectAttributes.addFlashAttribute("message", "Mémoire ajouté avec succès !");
@@ -128,7 +129,7 @@ public class MemoireController {
 
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", "Erreur : " + e.getMessage());
-            return "redirect:/memoires/ajouter";
+            return "redirect:/ajoutMemoire";  // Redirige vers le formulaire en cas d'erreur
         }
     }
 

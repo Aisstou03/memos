@@ -1,101 +1,151 @@
 package com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.controller;
 
-
-
-import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.modele.Utilisateur;
-import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.repository.PasswordResetTokenRepository;
-import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.repository.UtilisateurRepository;
-import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.service.EmailService;
-import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.service.UtilisateurService;
+import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.modele.PasswordResetToken;
+import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.service.PasswordResetService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.Optional;
 
 @Controller
 public class PasswordResetController {
 
-    @Autowired
-    private UtilisateurRepository userRepository;
+    private static final Logger logger = LoggerFactory.getLogger(PasswordResetController.class);
 
     @Autowired
-    private PasswordResetTokenRepository tokenRepository;
+    private PasswordResetService passwordResetService;
 
-    @Autowired
-    private EmailService emailService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private UtilisateurService userService;
-
-    // Afficher la page de demande de réinitialisation
+    /**
+     * Affiche la page de demande de réinitialisation
+     */
     @GetMapping("/reset-password")
-    public String showResetPasswordForm() {
-        return "reset-password"; // Page pour saisir l'email
+    public String showResetPasswordForm(Model model) {
+        logger.info("📄 Affichage de la page de demande de réinitialisation");
+        return "reset-password";
     }
 
-    // Traiter la demande de réinitialisation
-    // Traiter la réinitialisation du mot de passe
+    /**
+     * Traite la demande de réinitialisation du mot de passe
+     */
     @PostMapping("/reset-password")
-    public String processResetRequest(@RequestParam("email") String email, Model model, RedirectAttributes redirectAttributes) {
-        // Chercher l'utilisateur par email
-        Utilisateur user = userRepository.findByUsername(email);
+    public String processResetRequest(@RequestParam("email") String email,
+                                      RedirectAttributes redirectAttributes) {
+        logger.info("📨 Demande de réinitialisation reçue pour l'email : {}", email);
 
-        if (user != null) {
-            // Générer un token unique
-            String token = UUID.randomUUID().toString();
+        try {
+            // Créer le token et envoyer l'email
+            boolean success = passwordResetService.createPasswordResetToken(email);
 
-            // Créer un token de réinitialisation valide pendant 24 heures
-            PasswordResetToken resetToken = new PasswordResetToken();
-            resetToken.setToken(token);
-            resetToken.setUser(user);
-            resetToken.setExpiryDate(LocalDateTime.now().plusHours(24));
+            if (success) {
+                logger.info("✅ Token créé et email envoyé avec succès pour : {}", email);
+            } else {
+                logger.warn("⚠️ Aucun utilisateur trouvé pour l'email : {}", email);
+            }
 
-            // Sauvegarder le token dans la base de données
-            tokenRepository.save(resetToken);
-
-            // Construire le lien de réinitialisation
-            String resetUrl = "http://localhost:8080/reset-confirm?token=" + token;
-
-            // Envoyer l'email
-            String emailBody = "Bonjour " + user.getNom() + ",\n\n" +
-                    "Vous avez demandé la réinitialisation de votre mot de passe pour accéder à la bibliothèque numérique de l'UASZ. " +
-                    "Veuillez cliquer sur le lien ci-dessous pour définir un nouveau mot de passe :\n\n" +
-                    resetUrl + "\n\n" +
-                    "Ce lien est valable pendant 24 heures. Après ce délai, vous devrez faire une nouvelle demande.\n\n" +
-                    "Si vous n'avez pas demandé cette réinitialisation, veuillez ignorer cet email.\n\n" +
-                    "Cordialement,\n" +
-                    "L'équipe de la bibliothèque numérique de l'UASZ";
-
-            emailService.sendEmaile(user.getUsername(), "Réinitialisation de mot de passe - Bibliothèque UASZ", emailBody);
+        } catch (Exception e) {
+            logger.error("❌ Erreur lors du traitement de la demande pour {} : {}", email, e.getMessage(), e);
         }
 
-        // Toujours afficher un message de succès, même si l'email n'existe pas (sécurité)
-        redirectAttributes.addFlashAttribute("message", "Si l'adresse email existe dans notre système, vous recevrez un lien de réinitialisation.");
-        return "redirect:/messages";
+        // Message générique pour des raisons de sécurité (ne pas révéler si l'email existe)
+        redirectAttributes.addFlashAttribute("message",
+                "Si l'adresse email existe dans notre système, vous recevrez un lien de réinitialisation.");
+        redirectAttributes.addFlashAttribute("messageType", "info");
+
+        return "redirect:/mess";
     }
 
-
-    // Afficher la page de confirmation avec le formulaire pour le nouveau mot de passe
+    /**
+     * Affiche la page de confirmation avec le formulaire pour le nouveau mot de passe
+     */
     @GetMapping("/reset-confirm")
     public String showResetConfirmForm(@RequestParam("token") String token, Model model) {
-        // Vérifier si le token existe et est valide
-        PasswordResetToken resetToken = tokenRepository.findByToken(token);
+        logger.info("🔍 Tentative de validation du token : {}", token);
 
-        if (resetToken == null || resetToken.isExpired()) {
-            model.addAttribute("error", "Le lien de réinitialisation est invalide ou a expiré.");
+        try {
+            // Valider le token
+            Optional<PasswordResetToken> resetToken = passwordResetService.validateToken(token);
+
+            if (resetToken.isEmpty()) {
+                logger.warn("❌ Token invalide ou expiré : {}", token);
+                model.addAttribute("error", "Le lien de réinitialisation est invalide ou a expiré.");
+                model.addAttribute("errorType", "token_invalid");
+                return "error";
+            }
+
+            // Token valide, afficher le formulaire
+            model.addAttribute("token", token);
+            model.addAttribute("email", resetToken.get().getUser().getUsername());
+            logger.info("✅ Token valide, affichage du formulaire de réinitialisation");
+
+            return "reset-confirm";
+
+        } catch (Exception e) {
+            logger.error("❌ Erreur lors de la validation du token : {}", e.getMessage(), e);
+            model.addAttribute("error", "Une erreur s'est produite. Veuillez réessayer.");
             return "error";
         }
-
-        model.addAttribute("token", token);
-        return "reset-confirm"; // Page pour saisir le nouveau mot de passe
     }
 
-  }
+    /**
+     * Traite la soumission du nouveau mot de passe
+     */
+    @PostMapping("/reset-confirm")
+    public String processPasswordReset(@RequestParam("token") String token,
+                                       @RequestParam("password") String password,
+                                       @RequestParam("confirmPassword") String confirmPassword,
+                                       RedirectAttributes redirectAttributes,
+                                       Model model) {
+        logger.info("🔄 Traitement de la réinitialisation du mot de passe");
+
+        try {
+            // Vérifier que les mots de passe correspondent
+            if (!password.equals(confirmPassword)) {
+                logger.warn("⚠️ Les mots de passe ne correspondent pas");
+                model.addAttribute("token", token);
+                model.addAttribute("error", "Les mots de passe ne correspondent pas.");
+                return "reset-confirm";
+            }
+
+            // Vérifier la longueur minimale du mot de passe
+            if (password.length() < 6) {
+                logger.warn("⚠️ Mot de passe trop court");
+                model.addAttribute("token", token);
+                model.addAttribute("error", "Le mot de passe doit contenir au moins 6 caractères.");
+                return "reset-confirm";
+            }
+
+            // Réinitialiser le mot de passe
+            boolean success = passwordResetService.resetPassword(token, password);
+
+            if (success) {
+                logger.info("✅ Mot de passe réinitialisé avec succès");
+                redirectAttributes.addFlashAttribute("message",
+                        "Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter.");
+                redirectAttributes.addFlashAttribute("messageType", "success");
+                return "redirect:/login";
+            } else {
+                logger.error("❌ Échec de la réinitialisation du mot de passe");
+                model.addAttribute("error", "Le lien de réinitialisation est invalide ou a expiré.");
+                return "error";
+            }
+
+        } catch (Exception e) {
+            logger.error("❌ Erreur lors de la réinitialisation : {}", e.getMessage(), e);
+            model.addAttribute("error", "Une erreur s'est produite lors de la réinitialisation. Veuillez réessayer.");
+            return "error";
+        }
+    }
+
+    /**
+     * Page d'affichage des messages (info, succès, erreur)
+     */
+    @GetMapping("/mess")
+    public String showMessages() {
+        return "mess";
+    }
+}

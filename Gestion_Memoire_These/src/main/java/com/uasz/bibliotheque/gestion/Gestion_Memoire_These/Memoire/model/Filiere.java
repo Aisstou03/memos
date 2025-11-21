@@ -29,4 +29,36 @@ public class Filiere {
         this.nom = nom;
         this.departement = departement;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public Departement getDepartement() {
+        return departement;
+    }
+
+    public void setDepartement(Departement departement) {
+        this.departement = departement;
+    }
+
+    public List<Memoire> getMemoires() {
+        return memoires;
+    }
+
+    public void setMemoires(List<Memoire> memoires) {
+        this.memoires = memoires;
+    }
 }

@@ -3,6 +3,7 @@ package com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.ser
 
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.modele.Utilisateur;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.repository.UtilisateurRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UtilisateurDetailService implements UserDetailsService {
+    @Autowired
     private UtilisateurRepository utilisateurRepository;
 
     public UtilisateurDetailService(UtilisateurRepository utilisateurRepository){

@@ -178,7 +178,7 @@
                 <div class="card card-plain">
                     <h3><b>Ajouter Thèse</b></h3>
                     <div class="card-body">
-                        <form id="theseForm" th:action="@{/theses/ajouter}" method="post">
+                        <form id="theseForm" th:action="@{/theses/ajouter}" method="post" th:object="${these}">
                             <input type="hidden" name="type" value="DOCTORAT">
                             <div class="input-group input-group-outline mb-3">
                                 <label for="titreTHESE" class="form-label"> Titre</label>
@@ -214,9 +214,10 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- CORRIGEZ l'ID et le name -->
                             <div class="input-group input-group-outline mb-3">
-                                <label for="motsClesLICENCE" class="form-label">Mots clés</label>
-                                <input type="text" class="form-control" id="motsClesLICENCE" name="motsCles" placeholder="ex: IA, cloud, éducation" required>
+                                <label for="motsClesTHESE" class="form-label">Mots clés</label>
+                                <input type="text" class="form-control" id="motsClesTHESE" name="motsCles" placeholder="ex: IA, cloud, éducation" required>
                             </div>
                             <!-- Ajout du champ de sélection -->
                             <div class="mb-3">

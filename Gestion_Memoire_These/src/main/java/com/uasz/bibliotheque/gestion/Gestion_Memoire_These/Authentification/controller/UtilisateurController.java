@@ -57,17 +57,12 @@ public class UtilisateurController {
             Utilisateur utilisateur = utilisateurService.recherche_Utilisateur(principal.getName());
             if (utilisateur != null && utilisateur.getRoles() != null && !utilisateur.getRoles().isEmpty()) {
                 String role = utilisateur.getRoles().get(0).getRole();
-                switch (role) {
-                    case "Responsable":
-                        return "redirect:/memoires/liste";
-                    case "Stager":
-                        return "redirect:/dashbord/stager";
-                    case "Admin":
-                        return "redirect:/dashbord/Admin";
-
-                    default:
-                        return "redirect:/login?error=role_inconnu";
-                }
+                return switch (role) {
+                    case "Responsable" -> "redirect:/memoires/liste";
+                    case "Stager" -> "redirect:/dashbord/stager";
+                    case "Admin" -> "redirect:/dashbord/Admin";
+                    default -> "redirect:/login?error=role_inconnu";
+                };
             }
         }
         return "redirect:/login";

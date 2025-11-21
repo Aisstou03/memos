@@ -24,5 +24,30 @@ public class Ufr {
     // Constructeur avec paramètre nom (ajouté manuellement)
     public Ufr(String nom) {
         this.nom = nom;
-    }}
+    }
+
+    public Set<Departement> getDepartements() {
+        return departements;
+    }
+
+    public void setDepartements(Set<Departement> departements) {
+        this.departements = departements;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+}
 

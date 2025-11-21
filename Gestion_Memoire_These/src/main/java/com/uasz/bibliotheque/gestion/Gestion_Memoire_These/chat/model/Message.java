@@ -25,4 +25,36 @@ public class Message {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateEnvoi = new Date();
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getContenu() {
+        return contenu;
+    }
+
+    public void setContenu(String contenu) {
+        this.contenu = contenu;
+    }
+
+    public Utilisateur getAuteur() {
+        return auteur;
+    }
+
+    public void setAuteur(Utilisateur auteur) {
+        this.auteur = auteur;
+    }
+
+    public Date getDateEnvoi() {
+        return dateEnvoi;
+    }
+
+    public void setDateEnvoi(Date dateEnvoi) {
+        this.dateEnvoi = dateEnvoi;
+    }
 }

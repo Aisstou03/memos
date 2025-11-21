@@ -2,6 +2,7 @@ package com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Historique.listener;
 
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Historique.model.LoginHistory;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Historique.repository.LoginHistoryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
@@ -11,8 +12,8 @@ import java.time.LocalDateTime;
 
 @Component
 public class AuthenticationLoggingListener {
-
-    private final LoginHistoryRepository loginHistoryRepository;
+    @Autowired
+    private  LoginHistoryRepository loginHistoryRepository;
 
     public AuthenticationLoggingListener(LoginHistoryRepository loginHistoryRepository) {
         this.loginHistoryRepository = loginHistoryRepository;

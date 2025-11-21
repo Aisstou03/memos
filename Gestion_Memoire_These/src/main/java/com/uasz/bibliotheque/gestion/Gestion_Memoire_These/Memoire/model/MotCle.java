@@ -28,4 +28,36 @@ public class MotCle {
     public MotCle(String valeur) {
         this.valeur = valeur;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getValeur() {
+        return valeur;
+    }
+
+    public void setValeur(String valeur) {
+        this.valeur = valeur;
+    }
+
+    public List<Memoire> getMemoires() {
+        return memoires;
+    }
+
+    public void setMemoires(List<Memoire> memoires) {
+        this.memoires = memoires;
+    }
+
+    public List<These> getTheses() {
+        return theses;
+    }
+
+    public void setTheses(List<These> theses) {
+        this.theses = theses;
+    }
 }

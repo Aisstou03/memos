@@ -43,12 +43,100 @@ public class These {
     @Column(name = "est_supprime")
     private Boolean estSupprime = false;  // Champ pour indiquer si la thèse est dans la corbeille
 
+    // Dans l'entité These, modifiez le @JoinTable :
     @ManyToMany
     @JoinTable(
-            name = "memoire_mots_cles",
+            name = "these_mots_cles",  // Table différente
             joinColumns = @JoinColumn(name = "these_id"),
             inverseJoinColumns = @JoinColumn(name = "mot_cle_id")
     )
     private List<MotCle> motsCles = new ArrayList<>();
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getCote() {
+        return cote;
+    }
+
+    public void setCote(String cote) {
+        this.cote = cote;
+    }
+
+    public String getTitre() {
+        return titre;
+    }
+
+    public void setTitre(String titre) {
+        this.titre = titre;
+    }
+
+    public Etudiant getEtudiant() {
+        return etudiant;
+    }
+
+    public void setEtudiant(Etudiant etudiant) {
+        this.etudiant = etudiant;
+    }
+
+    public Encadrant getEncadrant() {
+        return encadrant;
+    }
+
+    public void setEncadrant(Encadrant encadrant) {
+        this.encadrant = encadrant;
+    }
+
+    public int getAnnee() {
+        return annee;
+    }
+
+    public void setAnnee(int annee) {
+        this.annee = annee;
+    }
+
+    public int getExemplaires() {
+        return exemplaires;
+    }
+
+    public void setExemplaires(int exemplaires) {
+        this.exemplaires = exemplaires;
+    }
+
+    public boolean isCorbeille() {
+        return corbeille;
+    }
+
+    public void setCorbeille(boolean corbeille) {
+        this.corbeille = corbeille;
+    }
+
+    public EcoleDoctorat getEcoleDoctorat() {
+        return ecoleDoctorat;
+    }
+
+    public void setEcoleDoctorat(EcoleDoctorat ecoleDoctorat) {
+        this.ecoleDoctorat = ecoleDoctorat;
+    }
+
+    public Boolean getEstSupprime() {
+        return estSupprime;
+    }
+
+    public void setEstSupprime(Boolean estSupprime) {
+        this.estSupprime = estSupprime;
+    }
+
+    public List<MotCle> getMotsCles() {
+        return motsCles;
+    }
+
+    public void setMotsCles(List<MotCle> motsCles) {
+        this.motsCles = motsCles;
+    }
 }

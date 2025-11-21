@@ -30,4 +30,36 @@ public class Departement {
         this.nom = nom;
         this.ufr = ufr;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public Ufr getUfr() {
+        return ufr;
+    }
+
+    public void setUfr(Ufr ufr) {
+        this.ufr = ufr;
+    }
+
+    public Set<Filiere> getFilieres() {
+        return filieres;
+    }
+
+    public void setFilieres(Set<Filiere> filieres) {
+        this.filieres = filieres;
+    }
 }

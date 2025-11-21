@@ -68,4 +68,112 @@ public class Memoire {
     public boolean isLicencePro() {
         return licencePro;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getCote() {
+        return cote;
+    }
+
+    public void setCote(String cote) {
+        this.cote = cote;
+    }
+
+    public String getTitre() {
+        return titre;
+    }
+
+    public void setTitre(String titre) {
+        this.titre = titre;
+    }
+
+    public Etudiant getEtudiant() {
+        return etudiant;
+    }
+
+    public void setEtudiant(Etudiant etudiant) {
+        this.etudiant = etudiant;
+    }
+
+    public Encadrant getEncadrant() {
+        return encadrant;
+    }
+
+    public void setEncadrant(Encadrant encadrant) {
+        this.encadrant = encadrant;
+    }
+
+    public int getAnnee() {
+        return annee;
+    }
+
+    public void setAnnee(int annee) {
+        this.annee = annee;
+    }
+
+    public int getExemplaires() {
+        return exemplaires;
+    }
+
+    public void setExemplaires(int exemplaires) {
+        this.exemplaires = exemplaires;
+    }
+
+    public TypeMemoire getType() {
+        return type;
+    }
+
+    public void setType(TypeMemoire type) {
+        this.type = type;
+    }
+
+    public Filiere getFiliere() {
+        return filiere;
+    }
+
+    public void setFiliere(Filiere filiere) {
+        this.filiere = filiere;
+    }
+
+    public Departement getDepartement() {
+        return departement;
+    }
+
+    public void setDepartement(Departement departement) {
+        this.departement = departement;
+    }
+
+    public Ufr getUfr() {
+        return ufr;
+    }
+
+    public void setUfr(Ufr ufr) {
+        this.ufr = ufr;
+    }
+
+    public boolean isCorbeille() {
+        return corbeille;
+    }
+
+    public void setCorbeille(boolean corbeille) {
+        this.corbeille = corbeille;
+    }
+
+    public List<MotCle> getMotsCles() {
+        return motsCles;
+    }
+
+    public void setMotsCles(List<MotCle> motsCles) {
+        this.motsCles = motsCles;
+    }
+
+    public void setLicencePro(boolean licencePro) {
+        this.licencePro = licencePro;
+    }
 }

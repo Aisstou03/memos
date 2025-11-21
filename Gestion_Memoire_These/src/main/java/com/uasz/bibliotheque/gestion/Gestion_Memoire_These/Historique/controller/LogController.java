@@ -2,15 +2,17 @@ package com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Historique.controlle
 
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Historique.repository.ActionLogRepository;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Historique.repository.LoginHistoryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class LogController {
-
-    private final LoginHistoryRepository loginHistoryRepository;
-    private final ActionLogRepository actionLogRepository;
+    @Autowired
+    private  LoginHistoryRepository loginHistoryRepository;
+    @Autowired
+    private  ActionLogRepository actionLogRepository;
 
     public LogController(LoginHistoryRepository loginHistoryRepository, ActionLogRepository actionLogRepository) {
         this.loginHistoryRepository = loginHistoryRepository;

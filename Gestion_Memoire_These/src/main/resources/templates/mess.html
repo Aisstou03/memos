@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 45px;
+        }
+
+        .icon.success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .icon.info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .icon.warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 26px;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #888 0%, #666 100%);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 5px 20px rgba(136, 136, 136, 0.4);
+        }
+
+        .info-text {
+            font-size: 13px;
+            color: #999;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Icône selon le type de message -->
+    <div class="icon"
+         th:classappend="${messageType == 'success'} ? 'success' : (${messageType == 'warning'} ? 'warning' : 'info')">
+        <span th:if="${messageType == 'success'}">✓</span>
+        <span th:if="${messageType == 'info'}">📧</span>
+        <span th:if="${messageType == 'warning'}">⚠</span>
+        <span th:if="${messageType == null}">ℹ</span>
+    </div>
+
+    <!-- Titre selon le type -->
+    <h1 th:if="${messageType == 'success'}">Succès !</h1>
+    <h1 th:if="${messageType == 'info'}">Email envoyé</h1>
+    <h1 th:if="${messageType == 'warning'}">Attention</h1>
+    <h1 th:if="${messageType == null}">Information</h1>
+
+    <!-- Message -->
+    <div class="message">
+        <p th:text="${message}">Message par défaut</p>
+    </div>
+
+    <!-- Texte informatif pour les réinitialisations -->
+    <div class="info-text" th:if="${messageType == 'info'}">
+        <p>💡 Pensez à vérifier votre dossier spam si vous ne recevez pas l'email dans quelques minutes.</p>
+    </div>
+
+    <!-- Boutons d'action -->
+    <div style="margin-top: 25px;">
+        <a href="/login" class="btn">
+            🔐 Aller à la connexion
+        </a>
+        <a href="/" class="btn btn-secondary">
+            🏠 Retour à l'accueil
+        </a>
+    </div>
+</div>
+</body>
+</html>
