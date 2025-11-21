@@ -11,6 +11,7 @@ import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.chat.service.MessageS
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -58,9 +59,8 @@ public class UtilisateurController {
             if (utilisateur != null && utilisateur.getRoles() != null && !utilisateur.getRoles().isEmpty()) {
                 String role = utilisateur.getRoles().get(0).getRole();
                 return switch (role) {
-                    case "Responsable" -> "redirect:/memoires/liste";
+                    case "Responsable", "Admin" -> "redirect:/memoires/liste";
                     case "Stager" -> "redirect:/dashbord/stager";
-                    case "Admin" -> "redirect:/dashbord/Admin";
                     default -> "redirect:/login?error=role_inconnu";
                 };
             }
@@ -70,7 +70,7 @@ public class UtilisateurController {
 
     @GetMapping("/access-denied")
     public String accessDenied() {
-        return "access-denied";  // Fichier Thymeleaf: access-denied.html
+        return "acces-denied";  // Fichier Thymeleaf: access-denied.html
     }
 
    /* @GetMapping("/dashbord/stagiaire")
@@ -88,6 +88,7 @@ public class UtilisateurController {
     /**
      * Gère l'inscription d'un nouvel utilisateur.
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/ajouterUtilisateur")
     public String ajouterUtilisateur(
             @RequestParam String username,
@@ -135,6 +136,7 @@ public class UtilisateurController {
     /**
      * Affiche la liste des utilisateurs.
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/listeResponsables")
     public String listeResponsables(Model model, Principal principal) {
         // Récupère la liste des responsables depuis le service
@@ -146,7 +148,7 @@ public class UtilisateurController {
 
         return "AjoutUtilisateur"; // Assurez-vous que ce nom correspond au fichier Thymeleaf (ex: responsables.html)
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/ajouterUtilisateur")
         public String AjouterUser(){
         return "ajoutUser";
@@ -243,12 +245,4 @@ public class UtilisateurController {
         redirectAttributes.addFlashAttribute("message", "Informations mises à jour avec succès !");
         return "redirect:/listeResponsables";
     }
-
-    @GetMapping("/online")
-    public String afficherUtilisateursEnLigne(Model model) {
-        List<Utilisateur> utilisateursEnLigne = utilisateurService.getUtilisateursEnLigne();
-        model.addAttribute("utilisateursEnLigne", utilisateursEnLigne);
-        return "usersOnline"; // Renvoie vers la page HTML
-    }
-
 }

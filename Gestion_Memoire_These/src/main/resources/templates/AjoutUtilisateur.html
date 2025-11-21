@@ -131,43 +131,45 @@
     <hr class="horizontal dark mt-0 mb-2">
     <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
         <ul class="navbar-nav">
+
+            <!-- Tableau de bord -->
             <li class="nav-item">
                 <a class="nav-link active bg-gradient-dark text-white" href="/memoires/liste">
-                    <i class="material-symbols-rounded opacity-5">dashboard</i>
+                    <i class="bi bi-speedometer2 opacity-75"></i>
                     <span class="nav-link-text ms-1">Tableau de bord</span>
                 </a>
-            </li> <br/>  <br/>
-
-            <li class="nav-item">
-                <a class="nav-link text-dark" href="online">
-                    <i class="fa fa-users" aria-hidden="true"></i>
-                    <span class="nav-link-text ms-1">Utilisateur En ligne</span>
-                </a>
             </li>
+
+            <br/><br/>
+
+            <!-- Inscription -->
             <li class="nav-item">
                 <a class="nav-link text-dark" href="ajouterUtilisateur">
-                    <i class="material-symbols-rounded opacity-5">assignment</i>
-                    <span class="nav-link-text ms-1">S'inscrire</span>
+                    <i class="bi bi-person-plus opacity-75"></i>
+                    <span class="nav-link-text ms-1">Ajouter des utilisateurs</span>
                 </a>
             </li>
 
+            <!-- Titre de section -->
             <li class="nav-item mt-3">
                 <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">Information</h6>
             </li>
+
+            <!-- Profil -->
             <li class="nav-item">
                 <a class="nav-link text-dark" href="profil">
-                    <i class="material-symbols-rounded opacity-5">person</i>
+                    <i class="bi bi-person-circle opacity-75"></i>
                     <span class="nav-link-text ms-1">Profile</span>
                 </a>
             </li>
-            <!-- Suppression des autres liens -->
+
         </ul>
     </div>
 
-    <!-- Bouton de déconnexion en bas -->
+    <!-- Déconnexion -->
     <div class="sidenav-footer position-absolute w-100 bottom-0 px-3 py-2">
-        <a href="/logout" class="btn btn-danger w-100 text-white">
-            <i class="material-symbols-rounded">logout</i>
+        <a href="/logout" class="btn btn-dark w-100 text-white">
+            <i class="bi bi-box-arrow-right"></i>
             Se déconnecter
         </a>
     </div>
@@ -211,21 +213,21 @@
 
     <div class="container">
         <br/>
-        <h3 class="text-center">La liste des Responsables</h3>
+        <h3 class="text-center">La liste des Utilisateur</h3>
 
-        <!-- Tableau des Responsables -->
         <div class="table-responsive">
             <table class="table table-bordered table-striped" id="table_Responsable">
                 <thead>
                 <tr>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Email</th>
-                    <th>Rôles</th>
-                    <th>Date de création</th>
-                    <th>Actions</th>
+                    <th><i class="bi bi-person-badge"></i> Nom</th>
+                    <th><i class="bi bi-person"></i> Prénom</th>
+                    <th><i class="bi bi-envelope"></i> Email</th>
+                    <th><i class="bi bi-people"></i> Rôles</th>
+                    <th><i class="bi bi-calendar-event"></i> Date de création</th>
+                    <th><i class="bi bi-gear"></i> Actions</th>
                 </tr>
                 </thead>
+
                 <tbody>
                 <tr th:each="responsable : ${listeResponsables}">
                     <td th:text="${responsable.nom}">Nom</td>
@@ -237,28 +239,28 @@
                         </ul>
                     </td>
                     <td th:text="${#dates.format(responsable.dateCreation, 'dd/MM/yyyy HH:mm')}">Date</td>
+
                     <td>
-                        <!-- Modifier avec l'icône du crayon -->
+                        <!-- Modifier -->
                         <a href="#" class="btn btn-info btn-sm" data-toggle="modal"
                            th:attr="data-target='#form_Modifier_Responsable_' + ${responsable.id}">
-                            <i class="bi bi-pencil-square fs-6"></i> <!-- Augmenter la taille ici -->
+                            <i class="bi bi-pencil-square fs-5"></i>
                         </a>
 
-                        <!-- Supprimer avec l'icône de la poubelle -->
-                        <a href="#" class="btn btn-danger btn-sm" data-toggle="modal"
+                        <!-- Supprimer -->
+                        <a href="#" class="btn btn-dark btn-sm" data-toggle="modal"
                            th:attr="data-target='#form_Supprimer_Responsable_' + ${responsable.id}">
-                            <i class="bi bi-trash fs-6"></i> <!-- Augmenter la taille ici -->
+                            <i class="bi bi-trash fs-5"></i>
                         </a>
-
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
+    </div>
 
 
-
-        <!-- Modales de modification et suppression pour chaque responsable -->
+    <!-- Modales de modification et suppression pour chaque responsable -->
         <div th:each="responsable : ${listeResponsables}">
             <!-- Modale de modification -->
             <div class="modal fade" th:id="'form_Modifier_Responsable_' + ${responsable.id}" tabindex="-1" role="dialog">

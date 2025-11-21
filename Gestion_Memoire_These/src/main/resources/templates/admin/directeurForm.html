@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+</head>
+<body>
+
+<form action="/admin/directeur/save" method="post">
+    <label>Nom du Directeur :</label>
+    <input type="text" name="nom" th:value="${directeur.nom}" required>
+
+    <button type="submit">Mettre à jour</button>
+</form>
+
+
+</body>
+</html>

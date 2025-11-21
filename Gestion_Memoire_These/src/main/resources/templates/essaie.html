@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 
 <head>
   <meta charset="utf-8" />
@@ -52,7 +52,7 @@
             <span class="nav-link-text ms-1">Tableau de bord</span>
           </a>
         </li> <br/>
-        <li class="nav-item">
+        <li class="nav-item" sec:authorize="hasRole('Admin')">
           <a class="nav-link text-dark" href="/listeResponsables">
           <i class="fa fa-users" aria-hidden="true"></i>
             <span class="nav-link-text ms-1">Utilisateurs</span>
@@ -98,6 +98,7 @@
             <span class="nav-link-text ms-1">Profil</span>
           </a>
         </li>
+
         <li class="nav-item">
           <a class="nav-link text-dark" href="/logout">
             <i class="material-symbols-rounded opacity-5">login</i>
@@ -927,6 +928,8 @@
   </style>
 
   <!-- Ajoutez ceci dans votre <head> existant -->
+
+
   <style>
       /* Style pour le popup de chat */
       .chat-popup {
@@ -949,7 +952,7 @@
       }
 
       .chat-popup-header {
-        background-color: #3498db;
+        background-color: #333;
         color: #fff;
         padding: 15px;
         display: flex;
@@ -1027,7 +1030,7 @@
       }
 
       .popup-message.sent {
-        background-color: #3498db;
+        background-color: #333;
         color: #fff;
         margin-left: auto;
       }
@@ -1068,16 +1071,17 @@
 
   <!-- Ajoutez ceci à la fin de votre body -->
   <div class="chat-popup" id="chatPopup">
-    <div class="chat-popup-header">
-      <h3>Chat Général</h3>
-      <button class="close-chat" id="closeChat">&times;</button>
-    </div>
-    <div class="chat-popup-messages" id="popupMessages"></div>
-    <form class="chat-popup-form" id="popupChatForm">
-      <input type="text" id="popupMessageInput" placeholder="Écrire un message..." required>
-      <button type="submit">Envoyer</button>
-    </form>
+      <div class="chat-popup-header">
+          <h3 style="color : white">Chat Général</h3>
+          <button class="close-chat" id="closeChat">&times;</button>
+      </div>
+      <div class="chat-popup-messages" id="popupMessages"></div>
+      <form class="chat-popup-form" id="popupChatForm">
+          <input type="text" id="popupMessageInput" placeholder="Écrire un message..." required>
+          <button type="submit">Envoyer</button>
+      </form>
   </div>
+
 
   <!-- Ajoutez ceci à la fin de votre body, juste avant la fermeture </body> -->
   <script>

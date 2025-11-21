@@ -60,6 +60,8 @@ public class MemoireController {
     FiliereService filiereService;
     @Autowired
     private UfrService ufrService;
+    @Autowired
+    private DirecteurService directeurService ;
 
     @Autowired
     private DepartementService departementService;
@@ -598,8 +600,29 @@ public class MemoireController {
     @GetMapping("/memoires/genererAttestation/{id}")
     public String detailsMemoire(@PathVariable Long id, Model model) {
         Memoire memoire = memoireService.getMemoireById(id);
+        String directeur = directeurService.getDirecteur().getNom();
         model.addAttribute("memoire", memoire);
+        model.addAttribute("directeur", directeur);
         return "GenererAttestation"; // page de generation des attestations
+    }
+
+    /*@GetMapping("/memoires/genererAttestationLicence/{id}")
+    public String MemoireLicence(@PathVariable Long id, Model model) {
+        Memoire memoire = memoireService.getMemoireById(id);
+        model.addAttribute("memoire", memoire);
+        return "GenererAttestionLicence"; // page de generation des attestations
+    }*/
+
+    @GetMapping("/memoires/genererAttestationLicence/{id}")
+    public String MemoireLicence(@PathVariable Long id, Model model) {
+
+        Memoire memoire = memoireService.getMemoireById(id);
+        String directeur = directeurService.getDirecteur().getNom();
+
+        model.addAttribute("memoire", memoire);
+        model.addAttribute("directeur", directeur);
+
+        return "GenererAttestionLicence";
     }
 
     //recherche par mots cles
