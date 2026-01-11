@@ -18,13 +18,17 @@ import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.repositories.
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.utils.MemoireSpecifications;
+import java.time.Year;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.time.Year;
+
 
 @Service
 @Transactional
 public class MemoireService {
+
     @Autowired
     private MemoireRepository memoireRepository;
     @Autowired
@@ -109,6 +113,16 @@ public class MemoireService {
     // Ajouter une mémoire
     public void ajouterMemoire(String ufrNom, String departementNom, String filiereNom, String type, String titre, int annee,
                                int exemplaires, String etudiantNom, String encadrantNom, List<String> motsCles, boolean licencePro) {
+
+        int anneeCourante = Year.now().getValue();
+
+        // Validation de l'année
+        if (annee < 1900 || annee > anneeCourante) {
+            throw new IllegalArgumentException(
+                    "Année invalide : l'année doit être comprise entre 1900 et " + anneeCourante
+            );
+        }
+
         // Obtenir la filière
         Filiere filiere = filiereRepository.findByNom(filiereNom)
                 .orElseThrow(() -> new RuntimeException("Filière introuvable"));
@@ -144,6 +158,7 @@ public class MemoireService {
         memoire.setFiliere(filiere);
         memoire.setDepartement(departement);
         memoire.setUfr(ufr);
+
         // Gérer les mots-clés
         List<MotCle> motsClesEntities = new ArrayList<>();
         for (String mot : motsCles) {
@@ -171,69 +186,76 @@ public class MemoireService {
     }
 
     // Méthode pour modifier un mémoire existant
+
     public Memoire modifierMemoire(Long id, Memoire memoireModifiee) {
-        // Vérifie si le mémoire existe
+
         Memoire memoireExistante = getMemoireById(id);
         if (memoireExistante == null) {
             throw new IllegalArgumentException("Mémoire avec ID " + id + " n'existe pas.");
         }
 
-        // Gestion de l'étudiant
+        // ✅ VALIDATION DE L'ANNÉE
+        int annee = memoireModifiee.getAnnee();
+        int anneeCourante = Year.now().getValue();
+
+        if (annee < 1900 || annee > anneeCourante) {
+            throw new IllegalArgumentException(
+                    "Année invalide : l'année doit être comprise entre 1900 et " + anneeCourante
+            );
+        }
+
+        // ===== Gestion étudiant =====
         Etudiant etudiant = null;
         if (memoireModifiee.getEtudiant() != null) {
             if (memoireModifiee.getEtudiant().getId() != null) {
-                // Si l'ID de l'étudiant est fourni, récupérer l'étudiant existant
                 etudiant = etudiantService.findById(memoireModifiee.getEtudiant().getId());
             } else {
-                // Sinon, créer un nouvel étudiant avec les informations fournies
                 etudiant = etudiantService.createNewStudent(memoireModifiee.getEtudiant());
             }
         }
 
-        // Gestion de l'encadrant
+        // ===== Gestion encadrant =====
         Encadrant encadrant = null;
         if (memoireModifiee.getEncadrant() != null) {
             if (memoireModifiee.getEncadrant().getId() != null) {
-                // Si l'ID de l'encadrant est fourni, récupérer l'encadrant existant
                 encadrant = encadrantService.findById(memoireModifiee.getEncadrant().getId());
             } else {
-                // Sinon, créer un nouvel encadrant avec les informations fournies
                 encadrant = encadrantService.createNewSupervisor(memoireModifiee.getEncadrant());
             }
         }
 
-        // Gestion de la filière
+        // ===== Gestion filière =====
         Filiere filiere = null;
         if (memoireModifiee.getFiliere() != null && memoireModifiee.getFiliere().getNom() != null) {
             filiere = filiereService.findByNom(memoireModifiee.getFiliere().getNom())
                     .orElseGet(() -> filiereService.createNewField(memoireModifiee.getFiliere()));
         }
 
-        // Mise à jour des champs du mémoire existant
+        // ===== Mise à jour =====
         memoireExistante.setTitre(memoireModifiee.getTitre());
         memoireExistante.setEtudiant(etudiant);
         memoireExistante.setEncadrant(encadrant);
         memoireExistante.setFiliere(filiere);
-        memoireExistante.setAnnee(memoireModifiee.getAnnee());
+        memoireExistante.setAnnee(annee);
         memoireExistante.setExemplaires(memoireModifiee.getExemplaires());
 
-        // Regénérer la cote avec les nouvelles informations
-        TypeMemoire type = memoireExistante.getType(); // Assurez-vous que TypeMemoire est bien défini
-        String nouvelleCote = genererCote(type, filiere, memoireModifiee.getAnnee(), memoireModifiee.getExemplaires());
-        memoireExistante.setCote(nouvelleCote);  // Mise à jour de la cote
+        // ===== Régénération de la cote =====
+        TypeMemoire type = memoireExistante.getType();
+        String nouvelleCote = genererCote(type, filiere, annee, memoireModifiee.getExemplaires());
+        memoireExistante.setCote(nouvelleCote);
 
-        // Sauvegarde et retour de l'entité mise à jour
         Memoire memoireSauvegardee = memoireRepository.save(memoireExistante);
 
-        // Création de la notification après mise à jour
+        // ===== Notification =====
         String titre = memoireSauvegardee.getTitre();
-        String etudiantNom = memoireSauvegardee.getEtudiant() != null ? memoireSauvegardee.getEtudiant().getNom() : "Inconnu";
+        String etudiantNom = memoireSauvegardee.getEtudiant() != null
+                ? memoireSauvegardee.getEtudiant().getNom()
+                : "Inconnu";
+
         String messageNotification = "Le mémoire \"" + titre + "\" de " + etudiantNom + " a été modifié.";
         notificationService.creerNotification(messageNotification);
 
-        // Journalisation pour vérifier le fonctionnement
-        System.out.println("Notification créée : " + messageNotification);
-
+        // Journalisation pour vérifier le fonctionnement System.out.println("Notification créée : " + messageNotification);
         return memoireSauvegardee;
     }
 

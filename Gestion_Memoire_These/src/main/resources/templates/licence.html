@@ -501,25 +501,25 @@
                                     </a>
                                 </div>
                                 <script>
-  function toggleDropdown(icon) {
-    // Fermer tous les autres dropdowns d'abord
-    document.querySelectorAll('.dropdown-content').forEach(el => el.style.display = 'none');
+                                      function toggleDropdown(icon) {
+                                        // Fermer tous les autres dropdowns d'abord
+                                        document.querySelectorAll('.dropdown-content').forEach(el => el.style.display = 'none');
 
-    // Trouver le dropdown correspondant à l'icône cliquée
-    const dropdown = icon.nextElementSibling;
+                                        // Trouver le dropdown correspondant à l'icône cliquée
+                                        const dropdown = icon.nextElementSibling;
 
-    // Afficher ou masquer ce dropdown
-    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                                        // Afficher ou masquer ce dropdown
+                                        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
 
-    // Empêcher la fermeture immédiate
-    event.stopPropagation();
-  }
+                                        // Empêcher la fermeture immédiate
+                                        event.stopPropagation();
+                                      }
 
-  // Fermer le menu si on clique ailleurs
-  document.addEventListener('click', function () {
-    document.querySelectorAll('.dropdown-content').forEach(el => el.style.display = 'none');
-  });
-</script>
+                                      // Fermer le menu si on clique ailleurs
+                                      document.addEventListener('click', function () {
+                                        document.querySelectorAll('.dropdown-content').forEach(el => el.style.display = 'none');
+                                      });
+                                    </script>
                             </div>
                             <a th:href="@{/memoires/genererAttestation/{id}(id=${memoire.id})}"
                                style="margin-left: 17px; color: black; text-decoration: none;">
@@ -585,17 +585,17 @@
                 </nav>
             </div>
             <style>
-            .custom-active .page-link {
-              background-color: #6c757d !important; /* gris sombre Bootstrap */
-              border-color: #6c757d !important;
-              color: white !important;
-            }
+                .custom-active .page-link {
+                  background-color: #6c757d !important; /* gris sombre Bootstrap */
+                  border-color: #6c757d !important;
+                  color: white !important;
+                }
 
-            .pagination .page-link:hover {
-              background-color: #6c757d !important; /* même gris sombre au survol */
-              border-color: #6c757d !important;
-              color: white !important;
-            }
+                .pagination .page-link:hover {
+                  background-color: #6c757d !important; /* même gris sombre au survol */
+                  border-color: #6c757d !important;
+                  color: white !important;
+                }
           </style>
         </div>
     </div>

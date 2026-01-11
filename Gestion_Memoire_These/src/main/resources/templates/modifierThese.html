@@ -80,7 +80,54 @@
               <div class="row">
                 <div class="col-md-6">
                   <label for="annee">Année</label>
-                  <input type="number" th:field="*{annee}" class="form-control" />
+                    <input type="number"
+                           id="anneeTHESE"
+                           th:field="*{annee}"
+                           class="form-control"
+                           placeholder="Ex. 2024"
+                           min="1900"
+                           required />
+                    <div class="invalid-feedback" id="anneeErreurTHESE" style="display:none;">
+                        Année invalide : entre 1900 et l'année courante.
+                    </div>
+                    <script>
+                        const anneeTheseInput = document.getElementById("anneeTHESE");
+                        const erreurThese = document.getElementById("anneeErreurTHESE");
+                        const anneeCouranteThese = new Date().getFullYear();
+
+                        // Bloquer la saisie des années futures
+                        anneeTheseInput.max = anneeCouranteThese;
+
+                        anneeTheseInput.addEventListener("input", function () {
+                          const valeur = parseInt(this.value);
+
+                          if (!this.value) {
+                            this.classList.remove("is-invalid");
+                            erreurThese.style.display = "none";
+                            return;
+                          }
+
+                          if (valeur < 1900 || valeur > anneeCouranteThese) {
+                            this.classList.add("is-invalid");
+                            erreurThese.style.display = "block";
+                          } else {
+                            this.classList.remove("is-invalid");
+                            erreurThese.style.display = "none";
+                          }
+                        });
+
+                        // Empêcher l'envoi si invalide
+                        anneeTheseInput.closest("form").addEventListener("submit", function (e) {
+                          const valeur = parseInt(anneeTheseInput.value);
+
+                          if (valeur < 1900 || valeur > anneeCouranteThese) {
+                            e.preventDefault();
+                            anneeTheseInput.classList.add("is-invalid");
+                            erreurThese.style.display = "block";
+                          }
+                        });
+                    </script>
+
                 </div>
                 <div class="col-md-6">
                   <label for="exemplaires">Nombre d'exemplaires</label>

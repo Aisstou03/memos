@@ -20,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -191,7 +192,7 @@ public class RechercheController {
 
 
     @RequestMapping(value = "/theses/recherche", method = {RequestMethod.POST, RequestMethod.GET})
-    public String rechercherThesesSansPagination(
+    public String rechercherTheses(
             @RequestParam(required = false) String cote,
             @RequestParam(required = false) String titre,
             @RequestParam(required = false) String etudiant,
@@ -233,19 +234,23 @@ public class RechercheController {
             hasSearchParams = true;
         }
 
-        if (hasSearchParams) {
-            List<These> thesesListe = theseService.searchMemos(spec);
-            model.addAttribute("thesesListe", thesesListe);
-            model.addAttribute("rechercheEffectuee", true);
+        // ✅ Initialisation toujours
+        List<These> thesesListe = new ArrayList<>();
+        long nombreThesesTrouvees = 0;
+        boolean rechercheEffectuee = false;
 
-            if (thesesListe.isEmpty()) {
-                model.addAttribute("message", "Aucune thèse trouvée pour les critères spécifiés.");
-            }
-        } else {
-            model.addAttribute("rechercheEffectuee", false);
+        if (hasSearchParams) {
+            thesesListe = theseService.searchMemos(spec);
+            nombreThesesTrouvees = thesesListe.size();
+            rechercheEffectuee = true;
         }
 
+        // Toujours ajouter ces attributs pour Thymeleaf
+        model.addAttribute("thesesListe", thesesListe);
+        model.addAttribute("nombreThesesTrouvees", nombreThesesTrouvees);
+        model.addAttribute("rechercheEffectuee", rechercheEffectuee);
         model.addAttribute("typeThese", "Doctorat");
+
         // Gestion de l'utilisateur connecté
         if (principal != null) {
             Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
@@ -264,6 +269,7 @@ public class RechercheController {
 
         return "doctorat";
     }
+
 
 
 }

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -203,13 +203,46 @@
               </div>
 
               <div class="d-flex gap-3">
-                <div class="flex-fill">
-                  <div class="input-group input-group-outline mb-3">
-                    <label for="anneeLICENCE" class="form-label">Année</label>
-                    <input type="number" class="form-control" id="anneeLICENCE" name="annee" min="1900" max="2099" required>
+                  <div class="flex-fill">
+                      <div class="input-group input-group-outline mb-3">
+                          <label for="anneeLICENCE" class="form-label">Année</label>
+                          <input type="number" class="form-control" id="anneeLICENCE" name="annee" min="1900" placeholder="Ex. 2024" required>
+                          <div class="invalid-feedback" id="anneeErreur" style="display:none; color:red;">
+                              Année invalide : l'année doit être comprise entre 1900 et l'année courante.
+                          </div>
+                      </div>
+
                   </div>
-                </div>
-                <div class="flex-fill">
+
+                  <script>
+                      document.getElementById('anneeLICENCE').addEventListener('input', function() {
+                          const anneeInput = this.value;
+                          const anneeCourante = new Date().getFullYear();
+                          const erreurDiv = document.getElementById('anneeErreur');
+
+                          if (anneeInput < 1900 || anneeInput > anneeCourante) {
+                              this.classList.add('is-invalid'); // souligne en rouge
+                              erreurDiv.style.display = 'block';
+                          } else {
+                              this.classList.remove('is-invalid');
+                              erreurDiv.style.display = 'none';
+                          }
+                      });
+
+                      // Optionnel : bloquer l'envoi du formulaire si année invalide
+                      document.getElementById('monFormulaire').addEventListener('submit', function(e) {
+                          const anneeInput = document.getElementById('anneeLICENCE');
+                          const anneeCourante = new Date().getFullYear();
+                          if (anneeInput.value < 1900 || anneeInput.value > anneeCourante) {
+                              e.preventDefault(); // empêche l'envoi
+                              anneeInput.classList.add('is-invalid');
+                              document.getElementById('anneeErreur').style.display = 'block';
+                          }
+                      });
+                  </script>
+
+
+                  <div class="flex-fill">
                   <div class="input-group input-group-outline mb-3">
                     <label for="exemplairesLICENCE" class="form-label">Exemplaire</label>
                     <input type="number" class="form-control" id="exemplairesLICENCE" name="exemplaires" min="1" required>

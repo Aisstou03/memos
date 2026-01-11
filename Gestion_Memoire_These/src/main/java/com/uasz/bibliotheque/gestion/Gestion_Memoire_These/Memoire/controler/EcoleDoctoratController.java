@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.Year;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -74,78 +75,82 @@ public class EcoleDoctoratController {
 
 
     @PostMapping("/theses/ajouter")
-    public String addThesis(   @RequestParam("titre") String titre,
-                               @RequestParam("annee") int annee,
-                               @RequestParam("exemplaires") int exemplaires,
-                               @RequestParam("etudiantNom") String etudiantNom,
-                               @RequestParam("encadrantNom") String encadrantNom,
-                               @RequestParam("motsCles") String motsCles,  // Chaîne de mots-clés séparée par des virgules
-                             @RequestParam String ecoleDoctorale,
-                            Model model) {
-        try {
-            // Vérification des champs vides
-            if (titre.isBlank() || etudiantNom.isBlank() || encadrantNom.isBlank()) {
-                model.addAttribute("error", "Tous les champs doivent être remplis !");
-                return "ajoutThese";
-            }
+    public String addThesis(
+            @RequestParam String titre,
+            @RequestParam int annee,
+            @RequestParam int exemplaires,
+            @RequestParam String etudiantNom,
+            @RequestParam String encadrantNom,
+            @RequestParam String motsCles,
+            @RequestParam String ecoleDoctorale,
+            Model model) {
 
-            // Transformation de la chaîne de mots-clés en liste
-            List<String> motsClesList = Arrays.asList(motsCles.split("\\s*,\\s*"));  // Séparation sur les virgules + nettoyage des espaces
-
-            // Gestion de l'étudiant
-            Etudiant etudiant = etudiantRepository.findByNom(etudiantNom)
-                    .orElseGet(() -> etudiantRepository.save(new Etudiant(null, etudiantNom)));
-
-            // Gestion de l'encadrant
-            Encadrant encadrant = encadrantRepository.findByNom(encadrantNom)
-                    .orElseGet(() -> {
-                        Encadrant newEncadrant = new Encadrant();
-                        newEncadrant.setNom(encadrantNom);
-                        return encadrantRepository.save(newEncadrant);
-                    });
-
-            // Vérification de l'école doctorale
-            Optional<EcoleDoctorat> ecoleDoctoraleOpt = ecoleDoctoraleRepository.findByNom(ecoleDoctorale);
-            if (ecoleDoctoraleOpt.isEmpty()) {
-                model.addAttribute("error", "L'école doctorale sélectionnée est invalide.");
-                return "ajoutThese";
-            }
-
-            // Récupération de l'école doctorale
-            EcoleDoctorat ecoleDoctoratEntity = ecoleDoctoraleOpt.get();
-
-            // Extraire uniquement l'abréviation de l'école doctorale
-            String shortName = extractShortName(ecoleDoctoratEntity.getNom());
-
-            // Générer la cote en utilisant l'abréviation
-            String coteGeneree = generateCote(shortName, annee, exemplaires);
-
-            // Création et sauvegarde de la thèse
-            These these = new These();
-            these.setCote(coteGeneree);  // Cote générée automatiquement
-            these.setTitre(titre);
-            these.setEtudiant(etudiant);
-            these.setEncadrant(encadrant);
-            these.setAnnee(annee);
-            these.setExemplaires(exemplaires);
-            these.setEcoleDoctorat(ecoleDoctoratEntity);
-            List<MotCle> motsClesEntities = new ArrayList<>();
-            for (String mot : motsClesList) {
-                String motNettoye = mot.trim().toLowerCase();
-                MotCle motCle = motCleRepository.findByValeur(motNettoye)
-                        .orElseGet(() -> motCleRepository.save(new MotCle(motNettoye)));
-                motsClesEntities.add(motCle);
-            }
-
-            these.setMotsCles(motsClesEntities);
-
-            theseRepository.save(these);
-
-            return "redirect:/memoires/doctorats";
-        } catch (Exception e) {
-            model.addAttribute("error", "Erreur lors de l'ajout de la thèse : " + e.getMessage());
+        // Vérification champs obligatoires
+        if (titre.isBlank() || etudiantNom.isBlank() || encadrantNom.isBlank()) {
+            model.addAttribute("error", "Tous les champs doivent être remplis !");
             return "ajoutThese";
         }
+
+        // ✅ Validation année (côté serveur)
+        int anneeCourante = Year.now().getValue();
+        if (annee < 1900 || annee > anneeCourante) {
+            model.addAttribute("error",
+                    "Année invalide : l'année doit être comprise entre 1900 et " + anneeCourante);
+            return "ajoutThese";
+        }
+
+        // Transformation mots-clés
+        List<String> motsClesList = Arrays.stream(motsCles.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+
+        // Étudiant
+        Etudiant etudiant = etudiantRepository.findByNom(etudiantNom)
+                .orElseGet(() -> etudiantRepository.save(new Etudiant(null, etudiantNom)));
+
+        // Encadrant
+        Encadrant encadrant = encadrantRepository.findByNom(encadrantNom)
+                .orElseGet(() -> {
+                    Encadrant e = new Encadrant();
+                    e.setNom(encadrantNom);
+                    return encadrantRepository.save(e);
+                });
+
+        // École doctorale
+        EcoleDoctorat ecoleDoctorat = ecoleDoctoraleRepository.findByNom(ecoleDoctorale)
+                .orElse(null);
+
+        if (ecoleDoctorat == null) {
+            model.addAttribute("error", "École doctorale invalide.");
+            return "ajoutThese";
+        }
+
+        // Génération cote
+        String shortName = extractShortName(ecoleDoctorat.getNom());
+        String cote = generateCote(shortName, annee, exemplaires);
+
+        // Création thèse
+        These these = new These();
+        these.setTitre(titre);
+        these.setAnnee(annee);
+        these.setExemplaires(exemplaires);
+        these.setCote(cote);
+        these.setEtudiant(etudiant);
+        these.setEncadrant(encadrant);
+        these.setEcoleDoctorat(ecoleDoctorat);
+
+        List<MotCle> motCleEntities = new ArrayList<>();
+        for (String mot : motsClesList) {
+            MotCle mc = motCleRepository.findByValeur(mot)
+                    .orElseGet(() -> motCleRepository.save(new MotCle(mot)));
+            motCleEntities.add(mc);
+        }
+
+        these.setMotsCles(motCleEntities);
+        theseRepository.save(these);
+
+        return "redirect:/memoires/doctorats";
     }
 
     //liste
@@ -181,47 +186,83 @@ public class EcoleDoctoratController {
     }
 
     @PostMapping("/filtre/these")
-    public String afficherThesesParUFR(@RequestParam String ufrNom,
-                                       @RequestParam(defaultValue = "0") int page,
-                                       @RequestParam(defaultValue = "10") int size,
-                                       Model model) {
-        // Activer le mode filtrage
-        model.addAttribute("isFiltered", true);
-        Pageable pageable = PageRequest.of(page, size);
+    public String afficherThesesParUFR(
+            @RequestParam String ufrNom,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
 
-        // Filtrer les thèses par UFR
-        Page<These> thesesFiltrees = theseRepository.findByEcoleDoctoratUfrNom(ufrNom, pageable);
+        try {
+            Pageable pageable = PageRequest.of(page, size);
 
-        // Organiser les thèses par UFR et par École Doctorale
-        Map<String, Map<String, List<These>>> thesesParUFRAndEcoleDoctorale = new HashMap<>();
+            // Filtrer les thèses par UFR
+            Page<These> thesesFiltrees = theseRepository.findByEcoleDoctoratUfrNom(ufrNom, pageable);
 
-        for (These these : thesesFiltrees) {
-            String ufr = these.getEcoleDoctorat() != null ? these.getEcoleDoctorat().getUfr().getNom() : "Non spécifié";
-            String ecoleDoctorale = these.getEcoleDoctorat() != null ? these.getEcoleDoctorat().getNom() : null;
+            System.out.println("🔍 UFR recherché : " + ufrNom);
+            System.out.println("📊 Nombre de thèses trouvées : " + thesesFiltrees.getTotalElements());
+            System.out.println("📄 Page actuelle : " + page + "/" + thesesFiltrees.getTotalPages());
 
-            if (ecoleDoctorale != null) {
-                thesesParUFRAndEcoleDoctorale
-                        .computeIfAbsent(ufr, k -> new HashMap<>())
-                        .computeIfAbsent(ecoleDoctorale, k -> new ArrayList<>())
-                        .add(these);
-            } else {
-                thesesParUFRAndEcoleDoctorale
-                        .computeIfAbsent(ufr, k -> new HashMap<>())
-                        .computeIfAbsent("Sans école doctorale", k -> new ArrayList<>())
-                        .add(these);
+            // ✅ Vérifier si des résultats existent
+            if (thesesFiltrees.isEmpty()) {
+                model.addAttribute("message", "Aucune thèse trouvée pour cet UFR.");
+                model.addAttribute("thesesParUFRAndEcole", new HashMap<>());
+                model.addAttribute("selectedUFR", ufrNom);
+                return "doctorat";
             }
+
+            // ✅ Convertir en List pour éviter ConcurrentModificationException
+            List<These> thesesList = new ArrayList<>(thesesFiltrees.getContent());
+
+            // Organiser les thèses par UFR et par École Doctorale
+            Map<String, Map<String, List<These>>> thesesParUFRAndEcoleDoctorale = new LinkedHashMap<>();
+
+            for (These these : thesesList) {
+                try {
+                    String ufr = "Non spécifié";
+                    String ecoleDoctorale = "Sans école doctorale";
+
+                    if (these.getEcoleDoctorat() != null) {
+                        ecoleDoctorale = these.getEcoleDoctorat().getNom();
+
+                        if (these.getEcoleDoctorat().getUfr() != null) {
+                            ufr = these.getEcoleDoctorat().getUfr().getNom();
+                        }
+                    }
+
+                    thesesParUFRAndEcoleDoctorale
+                            .computeIfAbsent(ufr, k -> new LinkedHashMap<>())
+                            .computeIfAbsent(ecoleDoctorale, k -> new ArrayList<>())
+                            .add(these);
+
+                } catch (Exception ex) {
+                    System.err.println("⚠️ Erreur pour une thèse : " + ex.getMessage());
+                }
+            }
+
+            // Ajouter les attributs pour Thymeleaf
+            model.addAttribute("thesesParUFRAndEcole", thesesParUFRAndEcoleDoctorale);
+            model.addAttribute("selectedUFR", ufrNom);
+            model.addAttribute("pageTheses", thesesFiltrees);
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalPages", thesesFiltrees.getTotalPages());
+            model.addAttribute("totalElements", thesesFiltrees.getTotalElements());
+            model.addAttribute("pageSize", size);
+            model.addAttribute("isFiltered", true);
+
+            return "doctorat";
+
+        } catch (Exception e) {
+            System.err.println("❌ ERREUR COMPLÈTE :");
+            e.printStackTrace();
+
+            model.addAttribute("errorMessage", "Erreur lors du filtrage : " + e.getMessage());
+            model.addAttribute("thesesParUFRAndEcole", new HashMap<>());
+
+            return "doctorat";
         }
-
-        // Ajouter la liste des thèses groupées par UFR et École Doctorale au modèle
-        model.addAttribute("thesesParUFRAndEcole", thesesParUFRAndEcoleDoctorale);
-        model.addAttribute("selectedUFR", ufrNom); // Pour vérifier la sélection dans Thymeleaf
-        model.addAttribute("pageTheses", thesesFiltrees);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", thesesFiltrees.getTotalPages());
-        model.addAttribute("pageSize", size);
-
-        return "doctorat";  // Vue qui affichera les thèses filtrées
     }
+
+
 
     /**
      * Affiche la page de modification avec ou sans recherche.

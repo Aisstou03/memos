@@ -36,7 +36,7 @@ public class These {
     private boolean corbeille = false; // Ajout du champ corbeille
 
     @JsonBackReference // Empêche la sérialisation de l'UFR dans Departement
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ecoleDoctorat_id")
     private EcoleDoctorat ecoleDoctorat;
 

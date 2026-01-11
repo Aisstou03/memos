@@ -344,45 +344,24 @@ public class MemoireController {
 
 
     @PostMapping("/memoires/modifier")
-    public String modifierMemoire(@ModelAttribute Memoire memoire, RedirectAttributes redirectAttributes) {
+    public String modifierMemoire(
+            @ModelAttribute Memoire memoire,
+            RedirectAttributes redirectAttributes) {
+
         try {
-            // Vérifie si le mémoire à modifier existe
-            Memoire memoireExistant = memoireService.getMemoireById(memoire.getId());
-            if (memoireExistant == null) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Mémoire introuvable !");
-                return "redirect:/memoires/liste";
-            }
-
-            // Récupère l'étudiant et l'encadrant à partir de leurs ID respectifs
-            if (memoire.getEtudiant() != null && memoire.getEtudiant().getId() != null) {
-                Etudiant etudiant = etudiantService.findById(memoire.getEtudiant().getId());
-                if (etudiant != null) {
-                    memoire.setEtudiant(etudiant); // Met à jour l'étudiant
-                } else {
-                    redirectAttributes.addFlashAttribute("errorMessage", "Étudiant introuvable !");
-                    return "redirect:/memoires/liste";
-                }
-            }
-
-            if (memoire.getEncadrant() != null && memoire.getEncadrant().getId() != null) {
-                Encadrant encadrant = encadrantService.findById(memoire.getEncadrant().getId());
-                if (encadrant != null) {
-                    memoire.setEncadrant(encadrant); // Met à jour l'encadrant
-                } else {
-                    redirectAttributes.addFlashAttribute("errorMessage", "Encadrant introuvable !");
-                    return "redirect:/memoires/liste";
-                }
-            }
-
-            // Effectue la modification du mémoire
             memoireService.modifierMemoire(memoire.getId(), memoire);
             redirectAttributes.addFlashAttribute("successMessage", "Mémoire mis à jour avec succès !");
             return "redirect:/memoires/liste";
 
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            redirectAttributes.addAttribute("id", memoire.getId());
+            return "redirect:/memoires/modifier/" + memoire.getId();
+
         } catch (Exception e) {
-            // Capture les erreurs inattendues
-            redirectAttributes.addFlashAttribute("errorMessage", "Une erreur est survenue lors de la mise à jour du mémoire.");
-            return "redirect:/memoires/liste";
+            redirectAttributes.addFlashAttribute("errorMessage", "Erreur inattendue.");
+            redirectAttributes.addAttribute("id", memoire.getId());
+            return "redirect:/memoires/modifier/" + memoire.getId();
         }
     }
 
@@ -538,7 +517,7 @@ public class MemoireController {
     /**
      * Filtre et affiche uniquement les mémoires de Master.
      */
-    @RequestMapping(value = "/filtre/master", method = {RequestMethod.POST, RequestMethod.GET})
+    @PostMapping("/filtre/master")
     public String filtrerMemoiresMaster(
             @RequestParam String ufrNom,
             @RequestParam String departementNom,
@@ -549,48 +528,37 @@ public class MemoireController {
 
         Pageable pageable = PageRequest.of(page, size);
 
-        // Mémoires filtrés avec pagination
-        Page<Memoire> memoiresPage = memoireService.getMemoiresMastersFiltres(ufrNom, departementNom, filiereNom, pageable);
+        Page<Memoire> pageMemoires =
+                memoireService.getMemoiresMastersFiltres(
+                        ufrNom, departementNom, filiereNom, pageable);
 
-        // Groupe des mémoires (si tu veux garder cette structure pour autre chose)
-        Map<String, Map<String, List<Memoire>>> memoiresGroupes = memoiresPage.getContent().stream()
-                .collect(Collectors.groupingBy(
-                        m -> m.getFiliere().getDepartement().getUfr().getNom(),
-                        Collectors.groupingBy(m -> m.getFiliere().getDepartement().getNom())
-                ));
-
-        model.addAttribute("memoiresPage", memoiresPage); // 👈 utile pour la pagination
-        model.addAttribute("memoires", memoiresPage.getContent()); // 👈 utile pour l'affichage
-        model.addAttribute("memoiresGroupes", memoiresGroupes); // 👈 si besoin groupé
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", memoiresPage.getTotalPages());
-        model.addAttribute("pageSize", size);
+        Map<String, Map<String, List<Memoire>>> memoiresGroupes =
+                pageMemoires.getContent().stream()
+                        .collect(Collectors.groupingBy(
+                                m -> m.getFiliere().getDepartement().getUfr().getNom(),
+                                Collectors.groupingBy(
+                                        m -> m.getFiliere().getDepartement().getNom()
+                                )
+                        ));
 
         model.addAttribute("ufrs", ufrService.findAllUfrs());
+        model.addAttribute("memoiresGroupes", memoiresGroupes);
+        model.addAttribute("pageMemoires", pageMemoires);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", pageMemoires.getTotalPages());
+        model.addAttribute("pageSize", size);
 
         model.addAttribute("selection", Map.of(
                 "ufr", ufrNom,
                 "departement", departementNom,
                 "filiere", filiereNom
         ));
-        model.addAttribute("rechercheEffectuees", true);
-        // Gestion de l'utilisateur connecté
-        if (principal != null) {
-            Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
-            if (utilisateur != null) {
-                model.addAttribute("nom", utilisateur.getNom());
-                model.addAttribute("prenom", utilisateur.getPrenom());
 
-                String roles = utilisateur.getRoles().stream()
-                        .map(Role::getRole)
-                        .reduce((role1, role2) -> role1 + ", " + role2)
-                        .orElse("Aucun rôle");
-                model.addAttribute("roles", roles);
-            }
-            model.addAttribute("currentUser", principal.getName());
-        }
+        model.addAttribute("rechercheEffectuee", true);
+
         return "master";
     }
+
 
     /**
      * Generation dattestation

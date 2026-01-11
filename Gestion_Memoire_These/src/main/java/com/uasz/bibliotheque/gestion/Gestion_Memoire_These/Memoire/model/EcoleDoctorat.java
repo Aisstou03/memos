@@ -22,7 +22,7 @@ public class EcoleDoctorat {
     private TypeMemoire type = TypeMemoire.DOCTORAT;
 
     @JsonBackReference // Empêche la sérialisation de l'UFR dans Departement
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ufr_id")
     private Ufr ufr;
 

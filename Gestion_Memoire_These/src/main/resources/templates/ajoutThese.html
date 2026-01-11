@@ -200,13 +200,54 @@
                                 </div>
                             </div>
 
+
                             <div class="d-flex gap-3">
                                 <div class="flex-fill">
                                     <div class="input-group input-group-outline mb-3">
                                         <label  for="anneeTHESE"  class="form-label">Année</label>
-                                        <input type="number" class="form-control" id="anneeTHESE" name="annee" min="1900" max="2099" required>
+                                        <input type="number" class="form-control" id="anneeTHESE" name="annee" min="1900" placeholder="Ex. 2024" required>
+                                    </div>
+                                    <div class="invalid-feedback" id="anneeErreur">
+                                        Année invalide : l'année doit être comprise entre 1900 et l'année courante.
                                     </div>
                                 </div>
+                                <script>
+                                    document.addEventListener("DOMContentLoaded", function () {
+
+                                        const anneeInput = document.getElementById('anneeTHESE');
+                                        const erreurDiv = document.getElementById('anneeErreur');
+                                        const form = document.getElementById('theseForm');
+
+                                        if (!anneeInput || !form) return; // sécurité
+
+                                        const anneeCourante = new Date().getFullYear();
+
+                                        // Validation en temps réel
+                                        anneeInput.addEventListener('input', function () {
+                                            const value = parseInt(this.value);
+
+                                            if (isNaN(value) || value < 1900 || value > anneeCourante) {
+                                                this.classList.add('is-invalid');
+                                                erreurDiv.style.display = 'block';
+                                            } else {
+                                                this.classList.remove('is-invalid');
+                                                erreurDiv.style.display = 'none';
+                                            }
+                                        });
+
+                                        // Bloquer l'envoi si année invalide
+                                        form.addEventListener('submit', function (e) {
+                                            const value = parseInt(anneeInput.value);
+
+                                            if (isNaN(value) || value < 1900 || value > anneeCourante) {
+                                                e.preventDefault();
+                                                anneeInput.classList.add('is-invalid');
+                                                erreurDiv.style.display = 'block';
+                                            }
+                                        });
+                                    });
+                                </script>
+
                                 <div class="flex-fill">
                                     <div class="input-group input-group-outline mb-3">
                                         <label for="exemplairesTHESE" class="form-label">Exemplaire</label>
