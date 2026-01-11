@@ -52,6 +52,9 @@ public class EcoleDoctoratController {
     private EncadrantRepository encadrantRepository;
 
     @Autowired
+    private DirecteurService directeurService ;
+
+    @Autowired
     private EcoleDoctoraleRepository ecoleDoctoraleRepository;
     private String extractShortName(String fullName) {
         int start = fullName.indexOf("(");
@@ -377,7 +380,9 @@ public class EcoleDoctoratController {
     @GetMapping("/theses/genererAttestation/{id}")
     public String detailsThese(@PathVariable Long id, Model model) {
         These these = theseService.getThesisById(id);
+        String directeur = directeurService.getDirecteur().getNom();
         model.addAttribute("these", these);
+        model.addAttribute("directeur", directeur);
         return "GenererAttestationThese"; // page de generation des attestations
     }
 }

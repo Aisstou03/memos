@@ -1,27 +1,8 @@
-<!--DOCTYPE html>
-<html-- xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Génération d'attestion These</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-</head>
-<body>
-<div class="container mt-5">
-    <h2>Génération d'attestion These</h2>
-    <p th:text="|La thèse intitulée '${these.titre}' a été rédigée par ${these.etudiant.nom},
-        encadrée par ${these.encadrant.nom}, dans l'UFR ${these.ecoleDoctorat.ufr.nom} durant l'année ${these.annee}.|">
-    </p>
-
-    <a href="/memoires/doctorats" class="btn btn-primary">Retour</a>
-</div>
-</body>
-</html-->
-
-
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Attestation de dépôt de thèse</title>
+    <title>Attestation de dépôt de mémoire</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
@@ -29,16 +10,16 @@
         body {
             font-family: "Times New Roman", Times, serif;
             margin: 0;
-            padding: 30px;
+            padding: 40px;
             background: white;
             color: black;
-            line-height: 1.7;
+            line-height: 1.6;
         }
         .container {
             width: 210mm;
             min-height: 297mm;
             margin: 0 auto;
-            border: 5px double #5B2C6F; /* violet foncé comme sur ton modèle */
+            border: 4px double black;
             padding: 40px 50px;
             position: relative;
             background: white;
@@ -46,21 +27,20 @@
         }
         .header { text-align: center; margin-bottom: 30px; }
         .logo { width: 90px; height: auto; margin-bottom: 10px; }
-        .university { font-size: 22px; font-weight: bold; color: #333; }
-        .year { position: absolute; top: 30px; right: 60px; font-size: 13px; }
-        .section-title { font-weight: bold; margin: 8px 0; font-size: 16px; }
+        .university { font-size: 20px; font-weight: bold; margin: 8px 0; }
+        .year { position: absolute; top: 25px; right: 60px; font-size: 13px; }
+        .section-title { font-weight: bold; margin: 8px 0; }
         .title-box {
             text-align: center;
-            font-size: 26px;
+            font-size: 24px;
             font-weight: bold;
             padding: 18px;
             margin: 40px 0;
-            background: linear-gradient(to bottom, #ddd, #bbb);
-            border-radius: 20px;
-            box-shadow: inset 0 4px 8px rgba(0,0,0,0.3);
-            color: #333;
+            border: 3px solid black;
+            border-radius: 15px;
+            background-color: #f9f9f9;
         }
-        .dotted { border-top: 2px dotted black; margin: 40px 0; }
+        .dotted { border-top: 2px dotted black; margin: 35px 0; }
         .justify { text-align: justify; }
         .bold { font-weight: bold; }
 
@@ -71,28 +51,28 @@
             z-index: 1000;
         }
         .actions button {
-            margin-left: 12px;
-            padding: 10px 20px;
+            margin-left: 10px;
+            padding: 10px 18px;
             font-size: 14px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
-        .print-btn { background: #28a745; color: white; }
-        .pdf-btn   { background: #c82333; color: white; }
-        .back-btn  { background: #6c757d; color: white; }
+        .print-btn   { background: #28a745; color: white; }
+        .pdf-btn     { background: #dc3545; color: white; }
+        .back-btn    { background: #6c757d; color: white; }
 
         @media print {
             .actions { display: none !important; }
-            body { padding: 15px; }
+            body { padding: 20px; }
         }
     </style>
 
-    <!-- jsPDF + html2canvas pour export PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
+
 <body>
 
 <div class="container">
@@ -106,71 +86,80 @@
         <div>BP: 523 – Ziguinchor / Tél: 33 991 88 40</div>
     </div>
 
-    <div class="year" th:text="'Année universitaire : ' + ${these.annee}"></div>
+    <div class="year" th:text="'Année universitaire : ' + ${memoire.annee}"></div>
 
-    <!-- Titre principal -->
     <div class="title-box">
-        ATTESTATION DE DÉPÔT<br/>DE THÈSE
+        ATTESTATION DE DÉPÔT DE<br/>MÉMOIRE DE LICENCE
     </div>
 
     <div class="dotted"></div>
 
-    <!-- Corps du texte -->
     <p class="justify">
-        Je soussigné,  <strong th:text="${directeur}"></strong>, Directeur de la Bibliothèque Centrale de l’Université Assane Seck de Ziguinchor,
-        atteste que
-        <span class="bold" th:text="${these.etudiant.nom}"></span>,
-        doctorant(e) à l’UFR <span th:text="${these.ecoleDoctorat.ufr.nom}"></span>,
-        a déposé sa thèse en version papier et numérique à la Bibliothèque centrale.
+        Je soussigné,
+        <span class="bold" th:text="${directeur}"></span>,
+        Directeur de la Bibliothèque Centrale de l’Université Assane Seck de Ziguinchor,
+        atteste que <span class="bold" th:text="${memoire.etudiant.nom}"></span>,
+        étudiant(e) en Master <span th:text="${memoire.filiere.nom}"></span>,
+        a déposé son mémoire de master en version papier et numérique à la Bibliothèque centrale.
     </p>
 
-    <p class="justify" style="margin-top: 30px;">
-        <span class="bold">Sujet :</span>
-        <em th:text="${these.titre}"></em>
+    <p class="justify">
+        <span class="bold">Spécialité :</span> <span th:text="${memoire.filiere.nom}"></span><br/>
+        <span class="bold">Sujet :</span> <span th:text="${memoire.titre}"></span>
     </p>
-    <p class="justify" style="margin-top: 60px;">
+
+    <p class="justify" style="margin-top: 50px;">
         En foi de quoi, la présente attestation lui est délivrée pour servir et valoir ce que de droit.
     </p>
 
-    <!-- Date et lieu -->
-    <div style="margin-top: 80px;">
+    <div class="date-place" style="margin-top: 60px;">
         Ziguinchor, le <span th:text="${#temporals.format(#temporals.createNow(), 'dd MMMM yyyy')}"></span>
     </div>
 
-    <!-- Signature -->
     <div style="margin-top: 100px; text-align: left;">
-        <div style="width: 350px; border-top: 1px solid black; padding-top: 10px;">
+        <div style="width: 320px; border-top: 1px solid black; padding-top: 10px;">
             <strong>Le Directeur de la Bibliothèque Centrale</strong><br/>
             <strong th:text="${directeur}"></strong>
         </div>
     </div>
-
 </div>
 
 <!-- Boutons d'action -->
 <div class="actions">
     <button class="print-btn" onclick="window.print()">🖨️ Imprimer</button>
     <button class="pdf-btn" id="downloadPdf">📄 PDF</button>
-    <button class="back-btn" onclick="window.location.href='/memoires/doctorats'">← Retour</button>
+    <button class="back-btn" onclick="window.location.href='/master'">← Retour</button>
 </div>
 
 <script>
-    document.getElementById('downloadPdf').addEventListener('click', () => {
+    document.getElementById('downloadPdf').addEventListener('click', function () {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
 
         html2canvas(document.querySelector('.container'), {
-            scale: 2.5,
+            scale: 2,
             useCORS: true,
             backgroundColor: '#ffffff'
         }).then(canvas => {
             const imgData = canvas.toDataURL('image/png');
             const imgWidth = 210;
+            const pageHeight = 297;
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
 
-            doc.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-            const nom = "[[${these.etudiant.nom}]]".replace(/ /g, "_");
-            doc.save("Attestation_These_" + nom + ".pdf");
+            let position = 0;
+            doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                doc.addPage();
+                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+
+            const nomEtudiant = "[[${memoire.etudiant.nom}]]".replace(/ /g, "_");
+            doc.save("Attestation_Depot_" + nomEtudiant + ".pdf");
         });
     });
 </script>

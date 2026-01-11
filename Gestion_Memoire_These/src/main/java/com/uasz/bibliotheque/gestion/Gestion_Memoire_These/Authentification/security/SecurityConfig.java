@@ -41,18 +41,16 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
                         // Pages communes accessibles à tout le monde (que ce soit Responsable ou Stager)
-                        .requestMatchers("/js/**", "/css/**", "/img/**", "/login", "/logout").permitAll()
-                        .requestMatchers("/profil/**", "/dashboard/**").permitAll()  // Page profil et tableau de bord sont communes
+                        .requestMatchers("/js/**", "/css/**", "/img/**", "/login", "/logout","/reset-password").permitAll()
+                        .requestMatchers("/reset-password/**","/profil/**", "/dashboard/**").permitAll()  // Page profil et tableau de bord sont communes
                         .requestMatchers("/js/**", "/css/**", "/img/**", "/static/**", "/assets/**").permitAll()
 
                         // Pages réservées aux Responsables (Admin)
-                        .requestMatchers("memoires/liste", "/admin/**").hasRole("Responsable")  // Seulement les Responsables peuvent accéder à "/memoires/liste"
+                        .requestMatchers("/memoires/liste").hasAnyRole("Admin", "Responsable")
 
                         // Pages réservées aux Stagers
                         .requestMatchers("/dashboard/stager").hasRole("stager")  // Seuls les Stagers peuvent accéder à leur tableau de bord
 
-                        // Pages réservées au Administrateur
-                        .requestMatchers("/dashboard/stager").hasRole("Admin")  // Seuls les Stagers peuvent accéder à leur tableau de bord
 
                         // Toute autre requête doit être authentifiée
                         .anyRequest().authenticated()
