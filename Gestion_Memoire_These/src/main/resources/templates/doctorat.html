@@ -178,7 +178,7 @@
 
     <!-- Résultats de recherche (s'affichent uniquement si la recherche est effectuée) -->
     <div th:if="${rechercheEffectuee}">
-        <h4>Résultats de la recherche : <span th:text="${nombreThesesTrouvees}"></span> thèse(s) trouvée(s)</h4>
+        <h4> <span th:text="${nombreThesesTrouvees}"></span> thèse(s) trouvée(s)</h4>
 
         <table class="table-bordered table-striped" id="table_ListeNormale">
             <thead class="table-dark">
@@ -187,6 +187,7 @@
                 <th>Titre</th>
                 <th>Étudiant</th>
                 <th>Encadrant</th>
+                <th>Exemplaires</th>
                 <th>Année</th>
                 <th>Actions</th>
             </tr>
@@ -196,7 +197,7 @@
                 <td th:text="${stat.index + 1}">1</td>
                 <td th:text="${these.titre}"></td>
                 <td th:text="${these.etudiant != null ? these.etudiant.nom : 'Non spécifié'}"></td>
-                <td></td>
+                <td th:text="${these.encadrant != null ? these.encadrant.nom : 'Non spécifié'}"></td>
                 <td th:text="${these.annee}"></td>
                 <td th:text="${these.exemplaires}"></td>
                 <td>
@@ -324,15 +325,14 @@
         <!-- Formulaire de filtrage -->
         <form id="licenceForm" th:action="@{/filtre/these}" method="post">
             <div class="row">
-                <div class="col-md-3">
-                    <div class="mb-3">
+                <div class="col-md-4">
+                    <div class="mb-4">
                         <label for="ufrNom" class="form-label">UFR</label>
                         <select id="ufrNom" name="ufrNom" class="form-select" required>
-                            <option value="">-- Sélectionner un UFR --</option>
+                            <option value="">-- Selectionner un UFR ou une Ecole Doctorale --</option>
                             <option value="UFR Sciences et Techniques (ST)">UFR Sciences et Techniques (ST)</option>
-                            <option value="UFR Lettres, Art, Sciences Humaines (LASHU)">UFR Lettres, Art, Sciences Humaines (LASHU)</option>
-                            <option value="UFR Sciences Santé (SS)">UFR Sciences Santé (SS)</option>
-                            <option value="UFR Sciences Economiques et Sociales (SES)">UFR Sciences Economiques et Sociales (SES)</option>
+                            <option value="UFR Lettres, Art, Sciences Humaines (LASHU)">Ecole Doctorat Espaces, Sociétés et Humanités (ED-ESH)</option>
+                            <option value="UFR Sciences Santé (SS)">Ecole Doctorat Sante (ED-SS)</option>
                         </select>
                     </div>
                 </div>
@@ -356,7 +356,6 @@
 
         <!-- Résultats de filtrage -->
         <div th:if="${thesesParUFRAndEcole != null and not #maps.isEmpty(thesesParUFRAndEcole)}">
-            <h4 class="mt-4">Résultats du filtrage</h4>
 
             <div th:each="entryUFR : ${thesesParUFRAndEcole}">
                 <h3 th:text="${entryUFR.key}"></h3>
@@ -399,7 +398,10 @@
                         </tr>
                         </tbody>
                     </table>
-
+                    <!-- Lien pour revenir à la liste complète des thèses -->
+                    <div class="text-center mt-3">
+                        <a th:href="@{/memoires/doctorats}" class="btn btn-secondary">Voir tous les mémoires</a>
+                    </div>
                     <!-- Modals placés **hors table** -->
                     <div th:each="these : ${entryEcole.value}">
                         <div class="modal fade" th:id="'form_Supprimer_ListeNormaleThese_' + ${these.id}" tabindex="-1" role="dialog">
@@ -423,16 +425,14 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
-
-
         </div>
 
         <br/>
         <!-- Liste de toutes les thèses (affichée uniquement si la recherche n'a PAS été effectuée) -->
-        <div th:unless="${rechercheEffectuee}">
+        <div th:if="${thesesParUFRAndEcole == null or #maps.isEmpty(thesesParUFRAndEcole)}">
+
             <table class="table-striped table-bordered " id="table_ListeNormale">
                 <thead class="table-dark">
                 <tr>

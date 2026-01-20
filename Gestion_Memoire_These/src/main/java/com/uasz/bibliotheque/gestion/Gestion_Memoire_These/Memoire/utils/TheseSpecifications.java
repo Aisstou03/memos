@@ -27,15 +27,13 @@ public class TheseSpecifications {
             if (parts.length == 1) {
                 String pattern = "%" + parts[0] + "%";
                 return criteriaBuilder.or(
-                        criteriaBuilder.like(criteriaBuilder.lower(root.join("etudiant").get("nom")), pattern),
-                        criteriaBuilder.like(criteriaBuilder.lower(root.join("etudiant").get("prenom")), pattern)
+                        criteriaBuilder.like(criteriaBuilder.lower(root.join("etudiant").get("nom")), pattern)
                 );
             } else {
                 String nomPattern = "%" + parts[0] + "%";
                 String prenomPattern = "%" + parts[1] + "%";
                 return criteriaBuilder.and(
-                        criteriaBuilder.like(criteriaBuilder.lower(root.join("etudiant").get("nom")), nomPattern),
-                        criteriaBuilder.like(criteriaBuilder.lower(root.join("etudiant").get("prenom")), prenomPattern)
+                        criteriaBuilder.like(criteriaBuilder.lower(root.join("etudiant").get("nom")), nomPattern)
                 );
             }
         };
