@@ -423,15 +423,28 @@ public class MemoireService {
         Utilisateur user = userRepository.findUtilisateurByUsername(username);
         return user;
     }
-    public List<Memoire> findByAnneeAndType(int annee, String type) {
-        try {
-            // Conversion si nécessaire
-            TypeMemoire typeEnum = TypeMemoire.valueOf(type.toUpperCase());
-            return memoireRepository.findByAnneeAndType(annee, typeEnum);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Type de mémoire invalide : " + type, e);
+    public List<Memoire> rechercheAvancee(
+            int annee,
+            TypeMemoire type,
+            String ufr,
+            String departement) {
+
+        if ((ufr == null || ufr.isBlank()) &&
+                (departement == null || departement.isBlank())) {
+
+            return memoireRepository.findByAnneeAndType(annee, type);
         }
+
+        if (departement == null || departement.isBlank()) {
+            return memoireRepository
+                    .findByAnneeAndTypeAndUfr_NomIgnoreCase(annee, type, ufr);
+        }
+
+        return memoireRepository
+                .findByAnneeAndTypeAndUfr_NomIgnoreCaseAndDepartement_NomIgnoreCase(
+                        annee, type, ufr, departement);
     }
+
 
     @PersistenceContext
     private EntityManager entityManager;

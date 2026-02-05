@@ -7,7 +7,6 @@ import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.repo
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.service.EmailService;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.service.UtilisateurService;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Notification.service.NotificationService;
-import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.chat.service.MessageService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +25,6 @@ import java.util.List;
 public class UtilisateurController {
     @Autowired
     private UtilisateurService utilisateurService;
-    @Autowired
-    private MessageService messageService;
 
     @Autowired
     private UtilisateurRepository utilisateurRepository;
@@ -60,7 +57,7 @@ public class UtilisateurController {
                 String role = utilisateur.getRoles().get(0).getRole();
                 return switch (role) {
                     case "Responsable", "Admin" -> "redirect:/memoires/liste";
-                    case "Stager" -> "redirect:/dashbord/stager";
+                    case "Stager" -> "redirect:/dash/rechercheMotsCles";
                     default -> "redirect:/login?error=role_inconnu";
                 };
             }
@@ -70,20 +67,15 @@ public class UtilisateurController {
 
     @GetMapping("/access-denied")
     public String accessDenied() {
-        return "acces-denied";  // Fichier Thymeleaf: access-denied.html
+        return "widget/acces-denied";  // Fichier Thymeleaf: access-denied.html
     }
 
-   /* @GetMapping("/dashbord/stagiaire")
-    public String affdashbord(Model model){
-        model.addAttribute("notifications", notificationService.getNotificationNonLue());
-        return "dashboard" ;
-    }*/
     /**
      * Affiche la page de succès après une inscription réussie.
      */
     @GetMapping("/success")
     public String afficherPageSucces() {
-        return "success";
+        return "widget/success";
     }
     /**
      * Gère l'inscription d'un nouvel utilisateur.
@@ -143,15 +135,14 @@ public class UtilisateurController {
         List<Utilisateur> responsables = utilisateurService.listUtilisateur();
         model.addAttribute("listeResponsables", responsables); // Transfert des données au modèle
         model.addAttribute("notifications", notificationService.getNotificationNonLue());
-        model.addAttribute("messages", messageService.getMessages());
         model.addAttribute("currentUser", principal.getName()); // Ajouter l'utilisateur actuel
 
-        return "AjoutUtilisateur"; // Assurez-vous que ce nom correspond au fichier Thymeleaf (ex: responsables.html)
+        return "Utilisateur/AjoutUtilisateur"; // Assurez-vous que ce nom correspond au fichier Thymeleaf (ex: responsables.html)
     }
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/ajouterUtilisateur")
         public String AjouterUser(){
-        return "ajoutUser";
+        return "Utilisateur/ajoutUser";
     }
 
     @PostMapping("/ajouterResponsable")
@@ -189,7 +180,7 @@ public class UtilisateurController {
             Utilisateur utilisateur = utilisateurService.recherche_Utilisateur(principal.getName());
             model.addAttribute("utilisateur", utilisateur);
         }
-        return "profil"; // Assurez-vous de créer un fichier `profil.html`
+        return "Utilisateur/profil"; // Assurez-vous de créer un fichier `profil.html`
     }
 
     @PostMapping("/modifierMotDePasse")

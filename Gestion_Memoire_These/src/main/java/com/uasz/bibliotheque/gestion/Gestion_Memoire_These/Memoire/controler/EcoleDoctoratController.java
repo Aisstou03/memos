@@ -189,7 +189,7 @@ public class EcoleDoctoratController {
             model.addAttribute("currentUser", principal.getName());
         }
 
-        return "doctorat";
+        return "these/doctorat";
     }
 
     @PostMapping("/filtre/these")
@@ -265,7 +265,7 @@ public class EcoleDoctoratController {
             model.addAttribute("errorMessage", "Erreur lors du filtrage : " + e.getMessage());
             model.addAttribute("thesesParUFRAndEcole", new HashMap<>());
 
-            return "doctorat";
+            return "these/doctorat";
         }
     }
 
@@ -277,7 +277,7 @@ public class EcoleDoctoratController {
         model.addAttribute("etudiants", etudiantService.findAll());
         model.addAttribute("encadrants", encadrantService.findAll());
         model.addAttribute("ufrs", ufrService.findAllUfrs());
-        return "modificationThese"; // Retourne la page HTML
+        return "these/modificationThese"; // Retourne la page HTML
     }
 
 
@@ -325,7 +325,7 @@ public class EcoleDoctoratController {
             model.addAttribute("currentUser", principal.getName());
         }
 
-        return "modificationThese";
+        return "these/modificationThese";
     }
 
     @PostMapping("/theses/modifier/{id}")
@@ -421,6 +421,6 @@ public class EcoleDoctoratController {
         String directeur = directeurService.getDirecteur().getNom();
         model.addAttribute("these", these);
         model.addAttribute("directeur", directeur);
-        return "GenererAttestationThese"; // page de generation des attestations
+        return "attestation/GenererAttestationThese"; // page de generation des attestations
     }
 }

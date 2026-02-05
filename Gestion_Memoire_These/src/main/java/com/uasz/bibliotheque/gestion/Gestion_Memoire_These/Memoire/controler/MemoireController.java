@@ -6,15 +6,10 @@ import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.serv
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.repositories.TheseRepository;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.service.*;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Notification.service.NotificationService;
-import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.chat.service.MessageService;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -44,8 +39,7 @@ public class MemoireController {
     @Autowired
     private MemoireRepository memoireRepository;
 
-    @Autowired
-    private MessageService messageService;
+
 
     @Autowired
     private TheseService theseService;
@@ -53,7 +47,6 @@ public class MemoireController {
     private NotificationService notificationService ;
     @Autowired
     EtudiantService etudiantService;
-
     @Autowired
     EncadrantService encadrantService;
     @Autowired
@@ -72,7 +65,7 @@ public class MemoireController {
     @RequestMapping(value = "/ajoutMemoire", method = RequestMethod.GET)
     public String showAjoutMemoireForm(Model model) {
         model.addAttribute("memoire", new Memoire()); // ou l'objet correspondant
-        return "ajoutMemoire";
+        return "Gestion_ajoutes/ajoutMemoire";
     }
 
     //formulaire d'ajout Master
@@ -80,7 +73,7 @@ public class MemoireController {
     public String afficherFormulaireMaster(Model model) {
         model.addAttribute("memoire", new Memoire()); // ou l'objet correspondant
 
-        return "ajoutMaster"; // Assurez-vous que `formulaireMaster.html` est dans `templates`.
+        return "Gestion_ajoutes/ajoutMaster"; // Assurez-vous que `formulaireMaster.html` est dans `templates`.
     }
 
     //formulaire d'ajout These
@@ -88,7 +81,7 @@ public class MemoireController {
     public String formulaireLicence(Model model) {
         model.addAttribute("memoire", new Memoire()); // ou l'objet correspondant
 
-        return "ajoutThese"; // Nom du fichier Thymeleaf
+        return "Gestion_ajoutes/ajoutThese"; // Nom du fichier Thymeleaf
     }
 
 
@@ -165,14 +158,13 @@ public class MemoireController {
         Map<String, Map<String, List<Memoire>>> memoiresGroupes = memoireService.getMemoiresGroupes();
         model.addAttribute("memoiresGroupes", memoiresGroupes);
         model.addAttribute("notifications", notificationService.getNotificationNonLue());
-        model.addAttribute("messages", messageService.getMessages());
         model.addAttribute("currentUser", principal.getName()); // Ajouter l'utilisateur actuel
         long nombreUtilisateurs = utilisateurService.getNombreUtilisateurs();
         model.addAttribute("nombreUtilisateurs", nombreUtilisateurs);
 
         statistiquesService.ajouterStatistiques(model);
 
-        return "essaie"; // Vue pour afficher les résultats de recherche
+        return "tableau_de_bord/dashboard_Admin"; // Vue pour afficher les résultats de recherche
     }
 
     /**
@@ -331,7 +323,7 @@ public class MemoireController {
             model.addAttribute("currentUser", principal.getName());
         }
 
-        return "Corbeille";
+        return "widget/Corbeille";
     }
 
 
@@ -421,25 +413,30 @@ public class MemoireController {
 
 
     @GetMapping("/rechercheParAnnee")
-    public String rechercheParAnnee(@RequestParam("annee") int annee,
-                                    @RequestParam("type") String type,
-                                    Model model) {
-        try {
-            TypeMemoire typeEnum = TypeMemoire.valueOf(type.toUpperCase());
-            List<Memoire> resultats = memoireService.findByAnneeAndType(annee, String.valueOf(typeEnum));
-            model.addAttribute("resultats", resultats);
-            model.addAttribute("anneeRecherchee", annee);
-            model.addAttribute("typeRecherche", typeEnum);
-            if (resultats.isEmpty()) {
-                model.addAttribute("message", "Aucun mémoire trouvé pour l'année " + annee + " et le type " + typeEnum);
-            }
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("erreur", "Type de mémoire invalide : " + type);
-        } catch (Exception e) {
-            model.addAttribute("erreur", "Une erreur est survenue : " + e.getMessage());
+    public String rechercheParAnnee(
+            @RequestParam int annee,
+            @RequestParam TypeMemoire type,
+            @RequestParam(required = false) String ufr,
+            @RequestParam(required = false) String departement,
+            Model model) {
+
+        List<Memoire> resultats = memoireService.rechercheAvancee(
+                annee, type, ufr, departement
+        );
+
+        model.addAttribute("resultats", resultats);
+        model.addAttribute("anneeRecherchee", annee);
+        model.addAttribute("typeRecherche", type);
+
+
+        if (resultats.isEmpty()) {
+            model.addAttribute("message",
+                    "Aucun mémoire trouvé pour l'année " + annee + " et le type " + type);
         }
-        return "resultatsRecherche";
+
+        return "telechargement/resultatsRecherche";
     }
+
 
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
@@ -477,7 +474,7 @@ public class MemoireController {
             model.addAttribute("currentUser", principal.getName());
         }
 
-        return "licence";
+        return "licence/licence";
     }
 
 
@@ -512,7 +509,7 @@ public class MemoireController {
         }
         model.addAttribute("currentUser", principal.getName()); // Ajouter l'utilisateur actuel
 
-        return "master";
+        return "master/master";
     }
 
    /**
@@ -624,15 +621,10 @@ public class MemoireController {
         String directeur = directeurService.getDirecteur().getNom();
         model.addAttribute("memoire", memoire);
         model.addAttribute("directeur", directeur);
-        return "GenererAttestation"; // page de generation des attestations
+        return "attestation/GenererAttestation"; // page de generation des attestations
     }
 
-    /*@GetMapping("/memoires/genererAttestationLicence/{id}")
-    public String MemoireLicence(@PathVariable Long id, Model model) {
-        Memoire memoire = memoireService.getMemoireById(id);
-        model.addAttribute("memoire", memoire);
-        return "GenererAttestionLicence"; // page de generation des attestations
-    }*/
+
 
     @GetMapping("/memoires/genererAttestationLicence/{id}")
     public String MemoireLicence(@PathVariable Long id, Model model) {
@@ -643,7 +635,7 @@ public class MemoireController {
         model.addAttribute("memoire", memoire);
         model.addAttribute("directeur", directeur);
 
-        return "GenererAttestionLicence";
+        return "attestation/GenererAttestionLicence";
     }
 
     //recherche par mots cles
@@ -681,13 +673,12 @@ public class MemoireController {
         Map<String, Map<String, List<Memoire>>> memoiresGroupes = memoireService.getMemoiresGroupes();
         model.addAttribute("memoiresGroupes", memoiresGroupes);
         model.addAttribute("notifications", notificationService.getNotificationNonLue());
-        model.addAttribute("messages", messageService.getMessages());
         model.addAttribute("currentUser", principal.getName()); // Ajouter l'utilisateur actuel
         long nombreUtilisateurs = utilisateurService.getNombreUtilisateurs();
         model.addAttribute("nombreUtilisateurs", nombreUtilisateurs);
         statistiquesService.ajouterStatistiques(model);
 
-        return "essaie";
+        return "tableau_de_bord/dashboard_Admin";
     }
 
     @GetMapping("/dash/rechercheMotsCles")
@@ -724,13 +715,12 @@ public class MemoireController {
         Map<String, Map<String, List<Memoire>>> memoiresGroupes = memoireService.getMemoiresGroupes();
         model.addAttribute("memoiresGroupes", memoiresGroupes);
         model.addAttribute("notifications", notificationService.getNotificationNonLue());
-        model.addAttribute("messages", messageService.getMessages());
         model.addAttribute("currentUser", principal.getName()); // Ajouter l'utilisateur actuel
         long nombreUtilisateurs = utilisateurService.getNombreUtilisateurs();
         model.addAttribute("nombreUtilisateurs", nombreUtilisateurs);
         statistiquesService.ajouterStatistiques(model);
 
-        return "dashboard";
+        return "tableau_de_bord/dashboard_stager";
     }
 
 

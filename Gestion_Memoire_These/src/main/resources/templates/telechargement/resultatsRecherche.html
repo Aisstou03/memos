@@ -36,7 +36,7 @@
             margin-bottom: 20px;
         }
     </style>
-<<div class="container mt-5">
+<div class="container mt-5">
     <!-- Début en-tête université -->
     <div class="university-header">
         <div class="university-name">UNIVERSITE ASSANE SECK DE ZIGUINCHOR</div>
@@ -68,8 +68,8 @@
             <td th:text="${iterStat.index + 1}"></td>
             <td th:text="${memoire.cote}"></td>
             <td th:text="${memoire.titre}"></td>
-            <td th:text="${memoire.etudiant != null ? memoire.etudiant.nom + ' ' + memoire.etudiant.prenom : 'Non défini'}"></td>
-            <td th:text="${memoire.encadrant != null ? memoire.encadrant.nom + ' ' + memoire.encadrant.prenom : 'Non défini'}"></td>
+            <td th:text="${memoire.etudiant != null ? memoire.etudiant.nom : 'Non défini'}"></td>
+            <td th:text="${memoire.encadrant != null ? memoire.encadrant.nom : 'Non défini'}"></td>
             <td th:text="${memoire.filiere != null ? memoire.filiere.nom : 'Non défini'}"></td>
             <td th:text="${memoire.annee}"></td>
         </tr>

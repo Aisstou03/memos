@@ -5,9 +5,6 @@ import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Authentification.mode
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.model.Memoire;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.service.*;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Notification.service.NotificationService;
-import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.chat.service.MessageService;
-import jakarta.mail.Message;
-import org.hibernate.grammars.hql.HqlParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,8 +21,6 @@ public class StagerController {
     private MemoireService memoireService;
     @Autowired
     EtudiantService etudiantService;
-    @Autowired
-    private MessageService messageService;
 
     @Autowired
     EncadrantService encadrantService;
@@ -56,7 +51,6 @@ public class StagerController {
                 model.addAttribute("nom", utilisateur.getNom());
                 model.addAttribute("prenom", utilisateur.getPrenom());
                 model.addAttribute("notifications", notificationService.getNotificationNonLue());
-                model.addAttribute("messages", messageService.getMessages());
                 model.addAttribute("currentUser", principal.getName()); // Ajouter l'utilisateur actuel
 
                 // Extraire les rôles et les ajouter

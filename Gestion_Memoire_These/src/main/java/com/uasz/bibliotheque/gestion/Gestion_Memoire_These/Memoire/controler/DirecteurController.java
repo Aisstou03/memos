@@ -24,7 +24,7 @@ public class DirecteurController {
     @PostMapping("/admin/directeur/save")
     public String saveDirecteur(@RequestParam String nom) {
         directeurService.updateDirecteur(nom);
-        return "redirect:/admin/directeur?success";
+        return "redirect:/memoires/liste";
     }
 }
 

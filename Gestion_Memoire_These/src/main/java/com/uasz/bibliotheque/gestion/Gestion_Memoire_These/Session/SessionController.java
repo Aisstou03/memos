@@ -22,7 +22,7 @@ public class SessionController {
     public String listSessions(Model model) {
         List<SessionInformation> sessions = sessionManager.getActiveSessions();
         model.addAttribute("sessions", sessions);
-        return "sessions";
+        return "logs/sessions";
     }
 
     @PostMapping("/terminate")

@@ -1,18 +1,15 @@
-
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Mémoires De Masters</title>
-    <!-- Bootstrap CSS -->
+    <title>Gestion des Mémoires de Licences</title>
     <link rel="apple-touch-icon" sizes="76x76" href="../img/logo1.png">
     <link rel="icon" type="image/png" href="../img/logo1.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="../static/css/style.css" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="../../static/css/styles.css" th:href="@{/css/styles.css}"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.3.0/css/flat-ui.min.css"
@@ -27,8 +24,8 @@
     <!-- Nucleo Icons -->
     <link href="../assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="../assets/css/nucleo-svg.css" rel="stylesheet" />
-    <link rel="stylesheet" href="../static/css/style.css" th:href="@{/css/style.css}"/>
-    <script src="../static/js/script.js" th:src="@{/js/script.js}"></script>
+    <link rel="stylesheet" href="../../static/css/style.css" th:href="@{/css/style.css}"/>
+    <script src="../../static/js/script.js" th:src="@{/js/script.js}"></script>
 
     <!-- Font Awesome Icons -->
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
@@ -51,7 +48,10 @@
     <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link active bg-gradient-dark text-white" href="/memoires/liste">
+            <a class="nav-link active bg-gradient-dark text-white"
+               aria-current="page"
+               onclick="history.back()"
+               style="cursor: pointer;">
                     <i class="material-symbols-rounded opacity-5">dashboard</i>
                     <span class="nav-link-text ms-1">Tableau de bord</span>
                 </a>
@@ -69,9 +69,9 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-dark" href="/licence">
-                    <i class="fa fa-book" aria-hidden="true"></i>
-                    <span class="nav-link-text ms-1">Mémoires de Licences</span>
+                <a class="nav-link text-dark" href="/master">
+                    <i class="fa fa-graduation-cap" aria-hidden="true"></i>
+                    <span class="nav-link-text ms-1">Mémoires de Master</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -97,15 +97,6 @@
 
             <li class="nav-item mt-3">
                 <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">Informations</h6>
-            </li>
-
-            <!-- Modifiez votre bouton de chat dans la navigation pour inclure le badge -->
-            <li class="nav-item">
-                <a class="nav-link text-dark" href="#" id="openChatBtn">
-                    <i class="material-symbols-rounded opacity-5">person</i>
-                    <span class="nav-link-text ms-1">Chat</span>
-                    <span class="message-badge" id="unreadCount" style="display: none;">0</span>
-                </a>
             </li>
 
             <li class="nav-item">
@@ -147,15 +138,19 @@
 
     <!-- Bouton de retour -->
     <div class="container">
-        <a href="/memoires/liste" class="back-button">
+        <a class="back-button"
+           aria-current="page"
+           onclick="history.back()"
+           style="cursor: pointer;">
             <span class="back-icon">⬅</span> Retour
         </a>
     </div>
-    <!-- Conteneur principal -->
+
     <div class="container">
-        <h2 class="text-center mb-4"><b>Liste des mémoires pour le Master <span th:text="${nombreMemoires}"></span></b></h2>
+        <h2 class="text-center mb-1"><b>Liste des mémoires de licence <span th:text="${nombreMemoires}"></span></b></h2>
+
         <!-- Formulaire de recherche -->
-        <form id="searchForm" class="search-form" action="/masters/recherche" method="post">
+        <form id="searchForm" class="search-form" action="/licences/recherche" method="post">
             <div class="search-container">
                 <input type="text" id="searchCote" name="cote" placeholder="Côte (Ex. LAF13/2)">
                 <input type="text" id="searchTitre" name="titre" placeholder="Titre du mémoire">
@@ -168,16 +163,21 @@
                 </button>
             </div>
         </form>
-
+        <!-- Message si aucun mémoire trouvé -->
+        <div th:if="${rechercheEffectuee and nombreMemoiresTrouves == 0}">
+            <div class="alert alert-warning text-center">
+                Aucun mémoire trouvé pour les critères spécifiés.
+            </div>
+        </div>
         <!-- Affichage des résultats uniquement si la recherche a été effectuée -->
-        <div th:if="${rechercheEffectuee}">
+        <div th:if="${rechercheEffectuee and nombreMemoiresTrouves > 0}">
         <h4>
                 Résultats de la recherche : <span th:text="${nombreMemoiresTrouves}"></span> mémoire(s) trouvé(s)
             </h4>
-            <table class="table-bordered table-striped" id="table_ListeNormale">
+            <table  id="table_ListeNormale" class="table-bordered table-striped" >
                 <thead class="table-dark">
                 <tr>
-                    <th>Numero</th>
+                    <th>Numéro</th>
                     <th>Titre</th>
                     <th>Étudiant</th>
                     <th>Encadrant</th>
@@ -206,7 +206,7 @@
                                 </a>
                             </div>
                         </div>
-                        <a th:href="@{/memoires/genererAttestation/{id}(id=${memoire.id})}"
+                        <a th:href="@{/memoires/genererAttestationLicence/{id}(id=${memoire.id})}"
                            style="margin-left: 17px; color: black; text-decoration: none;">
                             <i class="bi bi-cloud-arrow-down-fill"
                                style="cursor: pointer; font-size: 1.2rem;"></i>
@@ -228,7 +228,7 @@
                                 <form th:action="@{/memoires/supprimer}" method="post">
                                     <div class="modal-body">
                                         <input type="hidden" name="id" th:value="${memoire.id}" />
-                                        <input type="hidden" name="type" value="MASTER" />
+                                        <input type="hidden" name="type" value="LICENCE" />
                                         <p>Voulez-vous vraiment supprimer ce mémoire ?</p>
                                     </div>
                                     <div class="modal-footer">
@@ -243,16 +243,16 @@
             </table>
             <!-- Lien pour revenir à la liste complète des mémoires -->
             <div class="text-center mt-3">
-                <a th:href="@{/master}" class="btn btn-secondary">Voir tous les mémoires</a>
+                <a th:href="@{/licence}" class="btn btn-secondary">Voir tous les mémoires</a>
             </div>
-            <div th:if="${totalPages > 1}" class="mt-4 d-flex justify-content-center">
-                <nav aria-label="Pagination">
+            <div th:if="${totalPages > 1}" class="text-center mt-4">
+                <nav>
                     <ul class="pagination justify-content-center">
 
                         <!-- Précédent -->
-                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <li th:classappend="${currentPage == 0} ? 'disabled'" class="page-item">
                             <a class="page-link"
-                               th:href="@{/masters/recherche(
+                               th:href="@{/licences/recherche(
                         page=${currentPage - 1},
                         size=${pageSize},
                         cote=${param.cote},
@@ -261,17 +261,14 @@
                         encadrant=${param.encadrant},
                         filiere=${param.filiere},
                         annee=${param.annee}
-                   )}">
-                                Précédent
-                            </a>
+                   )}">Précédent</a>
                         </li>
 
-                        <!-- Pages -->
-                        <li class="page-item"
-                            th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                        <!-- Numéros de page -->
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
                             th:classappend="${i == currentPage} ? 'active'">
                             <a class="page-link"
-                               th:href="@{/masters/recherche(
+                               th:href="@{/licences/recherche(
                         page=${i},
                         size=${pageSize},
                         cote=${param.cote},
@@ -281,14 +278,13 @@
                         filiere=${param.filiere},
                         annee=${param.annee}
                    )}"
-                               th:text="${i + 1}">
-                            </a>
+                               th:text="${i + 1}">1</a>
                         </li>
 
                         <!-- Suivant -->
-                        <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                        <li th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'" class="page-item">
                             <a class="page-link"
-                               th:href="@{/masters/recherche(
+                               th:href="@{/licences/recherche(
                         page=${currentPage + 1},
                         size=${pageSize},
                         cote=${param.cote},
@@ -297,9 +293,7 @@
                         encadrant=${param.encadrant},
                         filiere=${param.filiere},
                         annee=${param.annee}
-                   )}">
-                                Suivant
-                            </a>
+                   )}">Suivant</a>
                         </li>
 
                     </ul>
@@ -308,9 +302,9 @@
         </div>
 
         <div class="card p-4 shadow">
-            <h4 class="text-center mb-4">Filtrer les Mémoires de Master</h4>
+            <h4 class="text-center mb-4">Filtrer les Mémoires de Licence</h4>
             <!-- Formulaire de filtrage -->
-            <form id="licenceForm" th:action="@{/filtre/master}" method="post">
+            <form id="licenceForm" th:action="@{/filtre/licence}" method="post">
                 <!-- Champs de sélection et bouton sur la même ligne -->
                 <div class="row">
                     <div class="col-md-3">
@@ -350,12 +344,7 @@
             </form>
 
             <!-- Résultats de filtrage -->
-            <!-- Message d'erreur uniquement si une recherche a été effectuée -->
-            <div th:if="${filtrageEffectue == true and (memoiresGroupes == null or #maps.isEmpty(memoiresGroupes))}">
-                <p class="text-center text-muted">
-                    Aucun mémoire de Master trouvé pour ce filtrage.
-                    <a href="/master">Voir la liste</a>
-                </p>
+            <div th:if="${memoiresGroupes != null and not #maps.isEmpty(memoiresGroupes)}">
                 <div th:each="ufrEntry : ${memoiresGroupes}">
                     <h3 th:text="${ufrEntry.key}">Nom de l'UFR</h3>
 
@@ -386,7 +375,7 @@
                                     <div class="action-container" style="position: relative; display: inline-block;">
                                         <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;" onclick="toggleDropdown(this, event)"></i>
                                         <div class="dropdown-content" style="display: none; position: absolute; background: white; box-shadow: 0 0 5px rgba(0,0,0,0.2); z-index: 1000;">
-                                            <a th:href="@{/modif/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
+                                        <a th:href="@{/modif/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
                                                 Modifier
                                             </a>
                                             <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
@@ -416,7 +405,7 @@
                                         <form th:action="@{/memoires/supprimer}" method="post">
                                             <div class="modal-body">
                                                 <input type="hidden" name="id" th:value="${memoire.id}" />
-                                                <input type="hidden" name="type" value="MASTER" />
+                                                <input type="hidden" name="type" value="LICENCE" />
                                                 <p>Voulez-vous vraiment supprimer ce mémoire ?</p>
                                             </div>
                                             <div class="modal-footer">
@@ -471,11 +460,10 @@
                         </div>
                         <!-- Lien pour revenir à la liste complète des mémoires -->
                         <div class="text-center mt-3">
-                            <a th:href="@{/master}" class="btn btn-secondary">Voir tous les mémoires</a>
+                            <a th:href="@{/licence}" class="btn btn-secondary">Voir tous les mémoires</a>
                         </div>
                     </div>
                 </div>
-            </div>
             </div>
 
             <div th:if="${successMessage}"
@@ -487,11 +475,12 @@
                  class="alert alert-danger alert-auto-close"
                  th:text="${errorMessage}">
             </div>
+
             <br/>
-            <!-- liste de toutes les memoires de master -->
-            <div th:unless="${rechercheEffectuee}">
-                <table class="table-bordered table-striped" id="table_ListeNormale">
-                    <thead class="table-dark" >
+            <!-- liste de toutes les memoires de licences -->
+            <div  th:unless="${rechercheEffectuee}">
+                <table  id="table_ListeNormale" class="table-bordered table-striped">
+                    <thead class="table-dark">
                     <tr>
                         <th>Numero</th>
                         <th>Titre</th>
@@ -522,44 +511,61 @@
                                         Supprimer
                                     </a>
                                 </div>
-                            </div>
-                            <style>
-                                .ligne-modifiee {
-                                    background-color: rgba(25, 135, 84, 0.18);
-                                    transition: background-color 1.5s ease;
-                                }
-                                .fade-out {
+                                <style>
+                                    .ligne-modifiee {
+                                        background-color: rgba(25, 135, 84, 0.18);
+                                        transition: background-color 1.5s ease;
+                                    }
+                                  .fade-out {
                                     opacity: 0;
-                                    transition: opacity 0.3s ease;
-                                }
+                                    transition: opacity 25s ease;
+                                    }
+                                </style>
+                                <script>
+                                      function toggleDropdown(icon) {
+                                        // Fermer tous les autres dropdowns d'abord
+                                        document.querySelectorAll('.dropdown-content').forEach(el => el.style.display = 'none');
 
-                            </style>
-                            <script>
-                                document.addEventListener("DOMContentLoaded", function () {
-                                   const ligne = document.querySelector(".ligne-modifiee");
-                                   if (ligne) {
-                                       ligne.scrollIntoView({ behavior: "smooth", block: "center" });
+                                        // Trouver le dropdown correspondant à l'icône cliquée
+                                        const dropdown = icon.nextElementSibling;
 
-                                       setTimeout(() => {
-                                           ligne.style.backgroundColor = "transparent";
-                                       }, 300); // 10 secondes
-                                   }
-                               });
-                               document.addEventListener('DOMContentLoaded', function () {
-                                const alerts = document.querySelectorAll('.alert-auto-close');
+                                        // Afficher ou masquer ce dropdown
+                                        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
 
-                                alerts.forEach(alert => {
-                                    setTimeout(function () {
-                                        alert.classList.add('fade-out');
+                                        // Empêcher la fermeture immédiate
+                                        event.stopPropagation();
+                                      }
 
-                                        setTimeout(function () {
-                                            alert.remove();
-                                        }, 300); // durée de l’animation
-                                    }, 3000); // 3 secondes
-                                });
-                            });
-                            </script>
-                            <a th:href="@{/memoires/genererAttestation/{id}(id=${memoire.id})}"
+                                      // Fermer le menu si on clique ailleurs
+                                      document.addEventListener('click', function () {
+                                        document.querySelectorAll('.dropdown-content').forEach(el => el.style.display = 'none');
+                                      });
+                                     document.addEventListener("DOMContentLoaded", function () {
+                                        const ligne = document.querySelector(".ligne-modifiee");
+                                        if (ligne) {
+                                            ligne.scrollIntoView({ behavior: "smooth", block: "center" });
+
+                                            setTimeout(() => {
+                                                ligne.style.backgroundColor = "transparent";
+                                            }, 10000); // 10 secondes
+                                        }
+                                    });
+                                   document.addEventListener('DOMContentLoaded', function () {
+                                        const alerts = document.querySelectorAll('.alert-auto-close');
+
+                                        alerts.forEach(alert => {
+                                            setTimeout(function () {
+                                                alert.classList.add('fade-out');
+
+                                                setTimeout(function () {
+                                                    alert.remove();
+                                                }, 300); // durée de l’animation
+                                            }, 3000); // 3 secondes
+                                        });
+                                     });
+                                </script>
+                            </div>
+                            <a th:href="@{/memoires/genererAttestationLicence/{id}(id=${memoire.id})}"
                                style="margin-left: 17px; color: black; text-decoration: none;">
                                 <i class="bi bi-cloud-arrow-down-fill"
                                    style="cursor: pointer; font-size: 1.2rem;"></i>
@@ -567,6 +573,7 @@
                         </td>
                     </tr>
                     </tbody>
+
                     <!-- MODALES (placées en dehors du tableau) -->
                     <div th:each="memoire : ${memoires}">
                         <div class="modal fade" th:id="'form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}" tabindex="-1" role="dialog">
@@ -581,7 +588,7 @@
                                     <form th:action="@{/memoires/supprimer}" method="post">
                                         <div class="modal-body">
                                             <input type="hidden" name="id" th:value="${memoire.id}" />
-                                            <input type="hidden" name="type" value="MASTER" />
+                                            <input type="hidden" name="type" value="LICENCE" />
                                             <p>Voulez-vous vraiment supprimer ce mémoire ?</p>
                                         </div>
                                         <div class="modal-footer">
@@ -594,55 +601,58 @@
                         </div>
                     </div>
                 </table>
-                <div th:if="${pageMemoires.totalPages > 1}" class="mt-4 p-3 bg-light rounded shadow-sm d-flex justify-content-center">
-                    <nav aria-label="Pagination des mémoires MASTER">
-                        <ul class="pagination">
-
-                            <!-- Bouton Précédent -->
-                            <li class="page-item" th:classappend="${pageMemoires.first} ? 'disabled'">
-                                <a class="page-link"
-                                   th:href="@{/master(page=${pageMemoires.number - 1}, size=${pageMemoires.size})}">Précédent</a>
-                            </li>
-
-                            <!-- Pages -->
-                            <li class="page-item"
-                                th:each="i : ${#numbers.sequence(0, pageMemoires.totalPages - 1)}"
-                                th:classappend="${i == pageMemoires.number} ? 'active'">
-                                <a class="page-link"
-                                   th:href="@{/master(page=${i}, size=${pageMemoires.size})}"
-                                   th:text="${i + 1}">1</a>
-                            </li>
-
-                            <!-- Bouton Suivant -->
-                            <li class="page-item" th:classappend="${pageMemoires.last} ? 'disabled'">
-                                <a class="page-link"
-                                   th:href="@{/master(page=${pageMemoires.number + 1}, size=${pageMemoires.size})}">Suivant</a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-                <style>
-                    .custom-active .page-link {
-                      background-color: #6c757d !important; /* gris sombre Bootstrap */
-                      border-color: #6c757d !important;
-                      color: white !important;
-                    }
-
-                    .pagination .page-link:hover {
-                      background-color: #6c757d !important; /* même gris sombre au survol */
-                      border-color: #6c757d !important;
-                      color: white !important;
-                    }
-                 </style>
             </div>
+            <div th:if="${pageMemoires.totalPages > 1}" class="mt-4 d-flex justify-content-center">
+                <nav aria-label="Pagination">
+                    <ul class="pagination justify-content-center">
+
+                        <!-- Précédent -->
+                        <li class="page-item" th:classappend="${pageMemoires.first} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/licence(page=${pageMemoires.number - 1}, size=${pageMemoires.size})}">
+                                Précédent
+                            </a>
+                        </li>
+
+                        <!-- Pages -->
+                        <li class="page-item"
+                            th:each="i : ${#numbers.sequence(0, pageMemoires.totalPages - 1)}"
+                            th:classappend="${i == pageMemoires.number} ? 'active'">
+                            <a class="page-link"
+                               th:href="@{/licence(page=${i}, size=${pageMemoires.size})}"
+                               th:text="${i + 1}">
+                            </a>
+                        </li>
+
+                        <!-- Suivant -->
+                        <li class="page-item" th:classappend="${pageMemoires.last} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/licence(page=${pageMemoires.number + 1}, size=${pageMemoires.size})}">
+                                Suivant;
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
+            </div>
+            <style>
+                .custom-active .page-link {
+                  background-color: #6c757d !important; /* gris sombre Bootstrap */
+                  border-color: #6c757d !important;
+                  color: white !important;
+                }
+
+                .pagination .page-link:hover {
+                  background-color: #6c757d !important; /* même gris sombre au survol */
+                  border-color: #6c757d !important;
+                  color: white !important;
+                }
+          </style>
         </div>
     </div>
-</main>
+    <br>
 
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- Popper.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+</main>
 
 <!-- Script AJAX pour charger les départements et filières dynamiquement -->
 <script>
@@ -709,12 +719,20 @@
           }
         }
     </script>
-<!-- Script pour initialiser DataTable -->
-<script>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Popper.js -->
+ <!-- Script pour initialiser DataTable -->
+    <script>
         $(document).ready(function() {
             $('#table_ListeNormale').DataTable();
         });
     </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!--   Core JS Files   -->
+<script src="../assets/js/core/popper.min.js"></script>
+<script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
+<script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
 <script>
   function toggleDropdown(icon) {
     // Fermer tous les autres dropdowns d'abord
@@ -736,12 +754,5 @@
   });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!--   Core JS Files   -->
-<script src="../assets/js/core/popper.min.js"></script>
-<script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
-<script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
-
 </body>
-
 </html>

@@ -13,7 +13,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -24,7 +23,6 @@ public class SecurityConfig {
     @Autowired
     @Lazy
     private UtilisateurService utilisateurService;
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -41,17 +39,14 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
                         // Pages communes accessibles à tout le monde (que ce soit Responsable ou Stager)
-                        .requestMatchers("/js/**", "/css/**", "/img/**", "/login", "/logout","/reset-password").permitAll()
-                        .requestMatchers("/reset-password/**","/profil/**", "/dashboard/**").permitAll()  // Page profil et tableau de bord sont communes
+                        .requestMatchers("/js/**", "/css/**", "/img/**", "/login", "/logout").permitAll()
+                        .requestMatchers("/profil/**", "/dashboard/**").permitAll()  // Page profil et tableau de bord sont communes
                         .requestMatchers("/js/**", "/css/**", "/img/**", "/static/**", "/assets/**").permitAll()
 
                         // Pages réservées aux Responsables (Admin)
                         .requestMatchers("/memoires/liste").hasAnyRole("Admin", "Responsable")
-
-                        // Pages réservées aux Stagers
-                        .requestMatchers("/dashboard/stager").hasRole("stager")  // Seuls les Stagers peuvent accéder à leur tableau de bord
-
-
+                        //page reserver au administrateur
+                        .requestMatchers("/listeResponsables","/ajouterUtilisateur","/logs").hasAnyRole("Admin")
                         // Toute autre requête doit être authentifiée
                         .anyRequest().authenticated()
                 )
