@@ -10,10 +10,7 @@ import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.service.These
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.utils.MemoireSpecifications;
 import com.uasz.bibliotheque.gestion.Gestion_Memoire_These.Memoire.utils.TheseSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,7 +44,7 @@ public class RechercheController {
             @RequestParam(required = false) String filiere,
             @RequestParam(required = false) Integer annee,
             @RequestParam(defaultValue = "0") int page, // pagination
-            @RequestParam(defaultValue = "10") int size, // taille de page par défaut
+            @RequestParam(defaultValue = "2") int size, // taille de page par défaut
             Model model, Principal principal
     ) {
         Specification<Memoire> spec = Specification.where(MemoireSpecifications.withType(TypeMemoire.LICENCE));
@@ -200,8 +197,10 @@ public class RechercheController {
             @RequestParam(required = false) Integer annee,
             @RequestParam(required = false) String ecoleDoctoraleNom,
             @RequestParam(required = false) String ufrNom,
-            Model model, Principal principal
+            Model model,
+            Principal principal
     ) {
+
         Specification<These> spec = Specification.where(null);
         boolean hasSearchParams = false;
 
@@ -234,24 +233,24 @@ public class RechercheController {
             hasSearchParams = true;
         }
 
-        // ✅ Initialisation toujours
-        List<These> thesesListe = new ArrayList<>();
-        long nombreThesesTrouvees = 0;
-        boolean rechercheEffectuee = false;
+        // 🔑 TOUJOURS un Page<These>
+        Page<These> theses;
 
         if (hasSearchParams) {
-            thesesListe = theseService.searchMemos(spec);
-            nombreThesesTrouvees = thesesListe.size();
-            rechercheEffectuee = true;
+            List<These> resultat = theseService.searchMemos(spec);
+            theses = new PageImpl<>(resultat);
+            model.addAttribute("rechercheEffectuee", true);
+            model.addAttribute("nombreThesesTrouvees", resultat.size());
+        } else {
+            theses = Page.empty();
+            model.addAttribute("rechercheEffectuee", false);
+            model.addAttribute("nombreThesesTrouvees", 0);
         }
 
-        // Toujours ajouter ces attributs pour Thymeleaf
-        model.addAttribute("thesesListe", thesesListe);
-        model.addAttribute("nombreThesesTrouvees", nombreThesesTrouvees);
-        model.addAttribute("rechercheEffectuee", rechercheEffectuee);
+        model.addAttribute("theses", theses);
         model.addAttribute("typeThese", "Doctorat");
 
-        // Gestion de l'utilisateur connecté
+        // Utilisateur connecté
         if (principal != null) {
             Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
             if (utilisateur != null) {
@@ -260,8 +259,9 @@ public class RechercheController {
 
                 String roles = utilisateur.getRoles().stream()
                         .map(Role::getRole)
-                        .reduce((role1, role2) -> role1 + ", " + role2)
+                        .reduce((r1, r2) -> r1 + ", " + r2)
                         .orElse("Aucun rôle");
+
                 model.addAttribute("roles", roles);
             }
             model.addAttribute("currentUser", principal.getName());

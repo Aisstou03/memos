@@ -61,7 +61,7 @@
         <li class="nav-item">
           <a class="nav-link text-dark" href="/ajoutMemoire">
             <i class="material-symbols-rounded opacity-5">receipt_long</i>
-            <span class="nav-link-text ms-1">Ajout mémoires</span>
+            <span class="nav-link-text ms-1">Ajout Mémoires et Thèses</span>
           </a>
         </li>
         <li class="nav-item">
@@ -215,46 +215,44 @@
             </div>
           </div>
           <style>
-    /* Animation d'écriture */
-    @keyframes typing {
-      from {
-        width: 0;
-      }
-      to {
-        width: 100%;
-      }
-    }
+                /* Animation d'écriture */
+                @keyframes typing {
+                  from {
+                    width: 0;
+                  }
+                  to {
+                    width: 100%;
+                  }
+                }
 
-    /* Conteneur principal */
-    .conteneur-defilement {
-      width: 100%;
-      text-align: center;
-      overflow: hidden;
-      padding: 10px 0;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
+                /* Conteneur principal */
+                .conteneur-defilement {
+                  width: 100%;
+                  text-align: center;
+                  overflow: hidden;
+                  padding: 10px 0;
+                  transition: background-color 0.3s ease, color 0.3s ease;
+                }
 
-    /* Texte avec effet d'écriture */
-     .texte-defilant {
-      display: inline-block;
-      border-right: 3px solid #333; /* clair par défaut */
-      font-size: 18px;
-      font-weight: bold;
-      color: #333;
-      white-space: nowrap;
-      overflow: hidden;
-      width: 0;
-      animation: typing 9s steps(100, end) forwards, blink 0.8s step-start infinite;
-      transition: color 0.3s ease, border-right-color 0.3s ease;
-    }
+                /* Texte avec effet d'écriture */
+                 .texte-defilant {
+                  display: inline-block;
+                  border-right: 3px solid #333; /* clair par défaut */
+                  font-size: 18px;
+                  font-weight: bold;
+                  color: #333;
+                  white-space: nowrap;
+                  overflow: hidden;
+                  width: 0;
+                  animation: typing 9s steps(100, end) forwards, blink 0.8s step-start infinite;
+                  transition: color 0.3s ease, border-right-color 0.3s ease;
+                }
 
-    body.dark-version .texte-defilant {
-      color: #fff; /* texte blanc en mode sombre */
-      border-right: 3px solid #fff;
-    }
-
-
-  </style>
+                body.dark-version .texte-defilant {
+                  color: #fff; /* texte blanc en mode sombre */
+                  border-right: 3px solid #fff;
+                }
+          </style>
           <!-- Message de succès -->
           <div th:if="${message}" id="success-alert" class="custom-alert alert-success">
             <strong>Succès!</strong> <span th:text="${message}"></span>
@@ -426,21 +424,7 @@
               </div>
               <hr class="dark horizontal my-0">
               <div class="card-footer p-2 ps-3">
-                <style>
-                    .btn-rechercher {
-                        background-color: rgb(34, 34, 37);
-                        color: white;
-                        padding: 6px 8px;
-                        border: none;
-                        cursor: pointer;
-                        border-radius: 18px;
-                        transition: background-color 0.3s ease;
-                    }
 
-                    .btn-rechercher:hover {
-                        background-color: rgb(54, 54, 57);
-                    }
-                </style>
 
                 <form th:action="@{/ }" method="get">
                   <a href="/listeResponsables" class="btn-rechercher">Voir plus</a>
@@ -927,9 +911,6 @@
     }
   </style>
 
-  <!-- Ajoutez ceci dans votre <head> existant -->
-
-
   <style>
       /* Style pour le popup de chat */
       .chat-popup {
@@ -1069,7 +1050,6 @@
       }
     </style>
 
-  <!-- Ajoutez ceci à la fin de votre body -->
   <div class="chat-popup" id="chatPopup">
       <div class="chat-popup-header">
           <h3 style="color : white">Chat Général</h3>

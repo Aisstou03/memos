@@ -65,7 +65,7 @@
             <li class="nav-item">
                 <a class="nav-link text-dark" href="/ajoutMemoire">
                     <i class="material-symbols-rounded opacity-5">receipt_long</i>
-                    <span class="nav-link-text ms-1">Ajout mémoires</span>
+                    <span class="nav-link-text ms-1">Ajout Mémoires et Thèses</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -198,7 +198,7 @@
                         <div class="action-container" style="position: relative; display: inline-block;">
                             <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;" onclick="toggleDropdown(this, event)"></i>
                             <div class="dropdown-content" style="display: none; position: absolute; background: white; box-shadow: 0 0 5px rgba(0,0,0,0.2); z-index: 1000;">
-                            <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
+                            <a th:href="@{/modif/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
                                     Modifier
                                 </a>
                                 <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
@@ -228,6 +228,7 @@
                                 <form th:action="@{/memoires/supprimer}" method="post">
                                     <div class="modal-body">
                                         <input type="hidden" name="id" th:value="${memoire.id}" />
+                                        <input type="hidden" name="type" value="MASTER" />
                                         <p>Voulez-vous vraiment supprimer ce mémoire ?</p>
                                     </div>
                                     <div class="modal-footer">
@@ -244,50 +245,63 @@
             <div class="text-center mt-3">
                 <a th:href="@{/master}" class="btn btn-secondary">Voir tous les mémoires</a>
             </div>
-            <div th:if="${totalPages > 1}" class="text-center mt-4">
-                <nav>
+            <div th:if="${totalPages > 1}" class="mt-4 d-flex justify-content-center">
+                <nav aria-label="Pagination">
                     <ul class="pagination justify-content-center">
-                        <li th:classappend="${currentPage == 0} ? 'disabled'" class="page-item">
+
+                        <!-- Précédent -->
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
                             <a class="page-link"
                                th:href="@{/masters/recherche(
-                                page=${currentPage - 1},
-                                size=${pageSize},
-                                cote=${param.cote},
-                                titre=${param.titre},
-                                etudiant=${param.etudiant},
-                                encadrant=${param.encadrant},
-                                filiere=${param.filiere},
-                                annee=${param.annee}
-                            )}">Précédent</a>
+                        page=${currentPage - 1},
+                        size=${pageSize},
+                        cote=${param.cote},
+                        titre=${param.titre},
+                        etudiant=${param.etudiant},
+                        encadrant=${param.encadrant},
+                        filiere=${param.filiere},
+                        annee=${param.annee}
+                   )}">
+                                Précédent
+                            </a>
                         </li>
-                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+
+                        <!-- Pages -->
+                        <li class="page-item"
+                            th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
                             th:classappend="${i == currentPage} ? 'active'">
                             <a class="page-link"
                                th:href="@{/masters/recherche(
-                                page=${i},
-                                size=${pageSize},
-                                cote=${param.cote},
-                                titre=${param.titre},
-                                etudiant=${param.etudiant},
-                                encadrant=${param.encadrant},
-                                filiere=${param.filiere},
-                                annee=${param.annee}
-                            )}"
-                               th:text="${i + 1}">1</a>
+                        page=${i},
+                        size=${pageSize},
+                        cote=${param.cote},
+                        titre=${param.titre},
+                        etudiant=${param.etudiant},
+                        encadrant=${param.encadrant},
+                        filiere=${param.filiere},
+                        annee=${param.annee}
+                   )}"
+                               th:text="${i + 1}">
+                            </a>
                         </li>
-                        <li th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'" class="page-item">
+
+                        <!-- Suivant -->
+                        <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
                             <a class="page-link"
                                th:href="@{/masters/recherche(
-                                page=${currentPage + 1},
-                                size=${pageSize},
-                                cote=${param.cote},
-                                titre=${param.titre},
-                                etudiant=${param.etudiant},
-                                encadrant=${param.encadrant},
-                                filiere=${param.filiere},
-                                annee=${param.annee}
-                            )}">Suivant</a>
+                        page=${currentPage + 1},
+                        size=${pageSize},
+                        cote=${param.cote},
+                        titre=${param.titre},
+                        etudiant=${param.etudiant},
+                        encadrant=${param.encadrant},
+                        filiere=${param.filiere},
+                        annee=${param.annee}
+                   )}">
+                                Suivant
+                            </a>
                         </li>
+
                     </ul>
                 </nav>
             </div>
@@ -336,15 +350,19 @@
             </form>
 
             <!-- Résultats de filtrage -->
-            <div th:if="${memoiresGroupes != null and not #maps.isEmpty(memoiresGroupes)}">
-
+            <!-- Message d'erreur uniquement si une recherche a été effectuée -->
+            <div th:if="${filtrageEffectue == true and (memoiresGroupes == null or #maps.isEmpty(memoiresGroupes))}">
+                <p class="text-center text-muted">
+                    Aucun mémoire de Master trouvé pour ce filtrage.
+                    <a href="/master">Voir la liste</a>
+                </p>
                 <div th:each="ufrEntry : ${memoiresGroupes}">
-                    <h3 th:text="${ufrEntry.key}"></h3>
+                    <h3 th:text="${ufrEntry.key}">Nom de l'UFR</h3>
 
                     <div th:each="departementEntry : ${ufrEntry.value}">
-                        <h4 th:text="${departementEntry.key}"></h4>
+                        <h4 th:text="${departementEntry.key}">Nom du Département</h4>
 
-                        <table class="table-bordered table-striped">
+                        <table  class="table-bordered table-striped" id="table_ListeNormale">
                             <thead class="table-dark">
                             <tr>
                                 <th>Numero</th>
@@ -368,7 +386,7 @@
                                     <div class="action-container" style="position: relative; display: inline-block;">
                                         <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;" onclick="toggleDropdown(this, event)"></i>
                                         <div class="dropdown-content" style="display: none; position: absolute; background: white; box-shadow: 0 0 5px rgba(0,0,0,0.2); z-index: 1000;">
-                                            <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
+                                            <a th:href="@{/modif/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
                                                 Modifier
                                             </a>
                                             <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
@@ -376,7 +394,7 @@
                                             </a>
                                         </div>
                                     </div>
-                                    <a th:href="@{/memoires/genererAttestation/{id}(id=${memoire.id})}"
+                                    <a th:href="@{/memoires/genererAttestationLicence/{id}(id=${memoire.id})}"
                                        style="margin-left: 17px; color: black; text-decoration: none;">
                                         <i class="bi bi-cloud-arrow-down-fill"
                                            style="cursor: pointer; font-size: 1.2rem;"></i>
@@ -385,17 +403,89 @@
                             </tr>
                             </tbody>
                         </table>
+                        <div th:each="memoire : ${departementEntry.value}">
+                            <div class="modal fade" th:id="'form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}" tabindex="-1" role="dialog">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Supprimer Mémoire</h5>
+                                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <form th:action="@{/memoires/supprimer}" method="post">
+                                            <div class="modal-body">
+                                                <input type="hidden" name="id" th:value="${memoire.id}" />
+                                                <input type="hidden" name="type" value="MASTER" />
+                                                <p>Voulez-vous vraiment supprimer ce mémoire ?</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" class="btn btn-danger">Supprimer</button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
+                        <div th:if="${totalPages > 1}" class="text-center mt-4">
+                            <nav>
+                                <ul class="pagination justify-content-center">
+
+                                    <!-- Précédent -->
+                                    <li class="page-item" th:if="${currentPage > 0}">
+                                        <form method="post" th:action="@{/filtre/licence}" style="display:inline;">
+                                            <input type="hidden" name="ufrNom" th:value="${selection.ufr}" />
+                                            <input type="hidden" name="departementNom" th:value="${selection.departement}" />
+                                            <input type="hidden" name="filiereNom" th:value="${selection.filiere}" />
+                                            <input type="hidden" name="page" th:value="${currentPage - 1}" />
+                                            <button class="page-link" type="submit">Précédent</button>
+                                        </form>
+                                    </li>
+
+                                    <!-- Pages -->
+                                    <li class="page-item"  th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                        th:classappend="${i == currentPage} ? 'active'">
+                                        <form method="post" th:action="@{/filtre/licence}" style="display:inline;">
+                                            <input type="hidden" name="ufrNom" th:value="${selection.ufr}" />
+                                            <input type="hidden" name="departementNom" th:value="${selection.departement}" />
+                                            <input type="hidden" name="filiereNom" th:value="${selection.filiere}" />
+                                            <input type="hidden" name="page" th:value="${i}" />
+                                            <button class="page-link" type="submit" th:text="${i + 1}"></button>
+                                        </form>
+                                    </li>
+
+                                    <!-- Suivant -->
+                                    <li class="page-item" th:if="${currentPage + 1 < totalPages}">
+                                        <form method="post" th:action="@{/filtre/licence}" style="display:inline;">
+                                            <input type="hidden" name="ufrNom" th:value="${selection.ufr}" />
+                                            <input type="hidden" name="departementNom" th:value="${selection.departement}" />
+                                            <input type="hidden" name="filiereNom" th:value="${selection.filiere}" />
+                                            <input type="hidden" name="page" th:value="${currentPage + 1}" />
+                                            <button class="page-link" type="submit">Suivant</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                        <!-- Lien pour revenir à la liste complète des mémoires -->
+                        <div class="text-center mt-3">
+                            <a th:href="@{/master}" class="btn btn-secondary">Voir tous les mémoires</a>
+                        </div>
                     </div>
                 </div>
             </div>
+            </div>
 
-            <!-- Message d'erreur uniquement si une recherche a été effectuée -->
-            <div th:if="${(rechercheEffectuees ?: false) and (memoiresGroupes == null or #maps.isEmpty(memoiresGroupes))}">
-                <p class="text-center text-muted">
-                    Aucun mémoire de licence trouvé pour ce filtrage.
-                    <a href="/master" >liste</a>
-                </p>
+            <div th:if="${successMessage}"
+                 class="alert alert-success alert-auto-close"
+                 th:utext="${successMessage}">
+            </div>
+
+            <div th:if="${errorMessage}"
+                 class="alert alert-danger alert-auto-close"
+                 th:text="${errorMessage}">
             </div>
             <br/>
             <!-- liste de toutes les memoires de master -->
@@ -413,7 +503,10 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="memoire, iterStat : ${memoires}">
+                    <tr th:each="memoire, iterStat : ${memoires}"
+                        th:attr="data-id=${memoire.id}"
+                        th:classappend="${updatedMemoireId != null and updatedMemoireId == memoire.id}
+                    ? 'ligne-modifiee' : ''">
                         <td th:text="${pageMemoires.number * pageMemoires.size + iterStat.index + 1}"></td>
                         <td th:text="${memoire.titre}"></td>
                         <td th:text="${memoire.etudiant.nom}"></td>
@@ -424,12 +517,48 @@
                             <div class="action-container" style="position: relative; display: inline-block;">
                                 <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;" onclick="toggleDropdown(this, event)"></i>
                                 <div class="dropdown-content" style="display: none; position: absolute; background: white; box-shadow: 0 0 5px rgba(0,0,0,0.2); z-index: 1000;">
-                                <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}">Modifier</a>
+                                <a th:href="@{/modif/{id}(id=${memoire.id})}">Modifier</a>
                                     <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
                                         Supprimer
                                     </a>
                                 </div>
                             </div>
+                            <style>
+                                .ligne-modifiee {
+                                    background-color: rgba(25, 135, 84, 0.18);
+                                    transition: background-color 1.5s ease;
+                                }
+                                .fade-out {
+                                    opacity: 0;
+                                    transition: opacity 0.3s ease;
+                                }
+
+                            </style>
+                            <script>
+                                document.addEventListener("DOMContentLoaded", function () {
+                                   const ligne = document.querySelector(".ligne-modifiee");
+                                   if (ligne) {
+                                       ligne.scrollIntoView({ behavior: "smooth", block: "center" });
+
+                                       setTimeout(() => {
+                                           ligne.style.backgroundColor = "transparent";
+                                       }, 300); // 10 secondes
+                                   }
+                               });
+                               document.addEventListener('DOMContentLoaded', function () {
+                                const alerts = document.querySelectorAll('.alert-auto-close');
+
+                                alerts.forEach(alert => {
+                                    setTimeout(function () {
+                                        alert.classList.add('fade-out');
+
+                                        setTimeout(function () {
+                                            alert.remove();
+                                        }, 300); // durée de l’animation
+                                    }, 3000); // 3 secondes
+                                });
+                            });
+                            </script>
                             <a th:href="@{/memoires/genererAttestation/{id}(id=${memoire.id})}"
                                style="margin-left: 17px; color: black; text-decoration: none;">
                                 <i class="bi bi-cloud-arrow-down-fill"
@@ -452,6 +581,7 @@
                                     <form th:action="@{/memoires/supprimer}" method="post">
                                         <div class="modal-body">
                                             <input type="hidden" name="id" th:value="${memoire.id}" />
+                                            <input type="hidden" name="type" value="MASTER" />
                                             <p>Voulez-vous vraiment supprimer ce mémoire ?</p>
                                         </div>
                                         <div class="modal-footer">
@@ -492,18 +622,18 @@
                     </nav>
                 </div>
                 <style>
-            .custom-active .page-link {
-              background-color: #6c757d !important; /* gris sombre Bootstrap */
-              border-color: #6c757d !important;
-              color: white !important;
-            }
+                    .custom-active .page-link {
+                      background-color: #6c757d !important; /* gris sombre Bootstrap */
+                      border-color: #6c757d !important;
+                      color: white !important;
+                    }
 
-            .pagination .page-link:hover {
-              background-color: #6c757d !important; /* même gris sombre au survol */
-              border-color: #6c757d !important;
-              color: white !important;
-            }
-          </style>
+                    .pagination .page-link:hover {
+                      background-color: #6c757d !important; /* même gris sombre au survol */
+                      border-color: #6c757d !important;
+                      color: white !important;
+                    }
+                 </style>
             </div>
         </div>
     </div>

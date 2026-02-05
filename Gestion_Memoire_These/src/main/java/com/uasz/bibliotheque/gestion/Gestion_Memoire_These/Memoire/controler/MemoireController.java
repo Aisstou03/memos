@@ -176,22 +176,10 @@ public class MemoireController {
     }
 
     /**
-     * Affiche la page de modification avec ou sans recherche.
-     */
-    @RequestMapping(value = "/modifier", method = RequestMethod.GET)
-    public String afficherFormulaireRechercheModification(Model model) {
-        model.addAttribute("memoire", new Memoire()); // Mémoire vide pour le formulaire
-        model.addAttribute("etudiants", etudiantService.findAll());
-        model.addAttribute("encadrants", encadrantService.findAll());
-        model.addAttribute("filieres", filiereService.findAll());
-        return "modifierMemoire";
-    }
-
-    /**
      * Affiche le formulaire pré-rempli pour un mémoire donné.
      */
-    @GetMapping("/memoires/modifier/{id}")
-    public String afficherFormulaireModification(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+    @GetMapping("/modif/{id}")
+    public String modif(@PathVariable Long id, Model model, Principal principal, RedirectAttributes redirectAttributes) {
         Memoire memoire = memoireService.getMemoireById(id);
         if (memoire == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Mémoire introuvable !");
@@ -204,14 +192,29 @@ public class MemoireController {
 
         // Ajout du type pour retour conditionnel
         model.addAttribute("typeMemoire", memoire.getType().name()); // "LICENCE", "MASTER" ou "DOCTORAT"
-        return "modifierMemoire";
+        // Gestion de l'utilisateur connecté
+        if (principal != null) {
+            Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
+            if (utilisateur != null) {
+                model.addAttribute("nom", utilisateur.getNom());
+                model.addAttribute("prenom", utilisateur.getPrenom());
+
+                String roles = utilisateur.getRoles().stream()
+                        .map(Role::getRole)
+                        .reduce((role1, role2) -> role1 + ", " + role2)
+                        .orElse("Aucun rôle");
+                model.addAttribute("roles", roles);
+            }
+            model.addAttribute("currentUser", principal.getName());
+        }
+        return "modif";
     }
 
 
     /**
      * Recherche des mémoires en fonction des critères fournis.
      */ //Pour la modification
-    @GetMapping("/memoires/modifier/recherche")
+    @GetMapping("/modif/recherche")
     public String rechercherMemosModifier(
             @RequestParam(required = false) String cote,
             @RequestParam(required = false) String filiere,
@@ -250,23 +253,42 @@ public class MemoireController {
         model.addAttribute("encadrants", encadrantService.findAll());
         model.addAttribute("filieres", filiereService.findAll());
 
-        return "modifierMemoire";
+        return "modif";
     }
 
     // Suppression vers la corbeille (Méthode POST au lieu de GET)
     @PostMapping("/memoires/supprimer")
-    public String envoyerEnCorbeille(@RequestParam Long id, RedirectAttributes redirectAttributes) {
+    public String envoyerEnCorbeille(
+            @RequestParam Long id,
+            @RequestParam String type,
+            RedirectAttributes redirectAttributes) {
+
         Optional<Memoire> memoireOpt = memoireRepository.findById(id);
+
         if (memoireOpt.isPresent()) {
             Memoire memoire = memoireOpt.get();
             memoire.setCorbeille(true);
             memoireRepository.save(memoire);
-            redirectAttributes.addFlashAttribute("successMessage", "Mémoire déplacé dans la corbeille !");
+
+            String tab = type.equalsIgnoreCase("LICENCE") ? "licence" : "master";
+
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "Mémoire déplacé dans la corbeille. " +
+                            "<a href='/memoires/corbeille?tab=" + tab + "'>Voir la corbeille</a>"
+            );
         } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "Mémoire introuvable !");
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    "Mémoire introuvable !"
+            );
         }
-        return "redirect:/memoires/liste";
+
+        return type.equalsIgnoreCase("LICENCE")
+                ? "redirect:/licence"
+                : "redirect:/master";
     }
+
 
     // Affichage de la corbeille
     @GetMapping("/memoires/corbeille")
@@ -274,7 +296,7 @@ public class MemoireController {
                             @RequestParam(defaultValue = "0") int pageLicence,
                             @RequestParam(defaultValue = "0") int pageMaster,
                             @RequestParam(defaultValue = "0") int pageThese,
-                            @RequestParam(defaultValue = "2") int size) {
+                            @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageableLicence = PageRequest.of(pageLicence, size);
         Pageable pageableMaster = PageRequest.of(pageMaster, size);
@@ -314,18 +336,33 @@ public class MemoireController {
 
 
     @PostMapping("/memoires/restaurer")
-    public String restaurerMemoire(@RequestParam Long id, RedirectAttributes redirectAttributes) {
+    public String restaurerMemoire(
+            @RequestParam Long id,
+            @RequestParam String type,
+            RedirectAttributes redirectAttributes) {
+
         Optional<Memoire> memoireOpt = memoireRepository.findById(id);
+
         if (memoireOpt.isPresent()) {
             Memoire memoire = memoireOpt.get();
             memoire.setCorbeille(false);
             memoireRepository.save(memoire);
-            redirectAttributes.addFlashAttribute("successMessage", "Mémoire restauré avec succès !");
+
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "Restauration effectuée avec succès !"
+            );
         } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "Mémoire introuvable !");
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    "Élément introuvable !"
+            );
         }
-        return "redirect:/memoires/corbeille";
+
+        // 🔥 redirection vers le bon onglet
+        return "redirect:/memoires/corbeille?tab=" + type;
     }
+
 
     @PostMapping("/memoires/supprimer-definitivement")
     public String supprimerDefinitivement(@RequestParam Long id, RedirectAttributes redirectAttributes) {
@@ -351,21 +388,36 @@ public class MemoireController {
             RedirectAttributes redirectAttributes) {
 
         try {
-            memoireService.modifierMemoire(memoire.getId(), memoire);
-            redirectAttributes.addFlashAttribute("successMessage", "Mémoire mis à jour avec succès !");
-            return "redirect:/memoires/liste";
+            Memoire memoireModifiee = memoireService.modifierMemoire(memoire.getId(), memoire);
+
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Mémoire mis à jour avec succès !");
+
+            // 🔑 ID du mémoire modifié
+            redirectAttributes.addFlashAttribute("updatedMemoireId",
+                    memoireModifiee.getId());
+
+            // 🔑 Type du mémoire (LICENCE / MASTER)
+            redirectAttributes.addFlashAttribute("typeMemoire",
+                    memoireModifiee.getType().name());
+
+            // 🔁 Redirection selon le type
+            if (memoireModifiee.getType() == TypeMemoire.LICENCE) {
+                return "redirect:/licence";
+            } else {
+                return "redirect:/master";
+            }
 
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            redirectAttributes.addAttribute("id", memoire.getId());
-            return "redirect:/memoires/modifier/" + memoire.getId();
+            return "redirect:/modif/" + memoire.getId();
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Erreur inattendue.");
-            redirectAttributes.addAttribute("id", memoire.getId());
-            return "redirect:/memoires/modifier/" + memoire.getId();
+            return "redirect:/modif/" + memoire.getId();
         }
     }
+
 
 
     @GetMapping("/rechercheParAnnee")
@@ -472,7 +524,7 @@ public class MemoireController {
            @RequestParam String departementNom,
            @RequestParam String filiereNom,
            @RequestParam(defaultValue = "0") int page,
-           @RequestParam(defaultValue = "10") int size,
+           @RequestParam(defaultValue = "2") int size,
            Model model, Principal principal) {
 
        Pageable pageable = PageRequest.of(page, size);
@@ -525,7 +577,7 @@ public class MemoireController {
             @RequestParam String departementNom,
             @RequestParam String filiereNom,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "2") int size,
             Model model, Principal principal) {
 
         Pageable pageable = PageRequest.of(page, size);
@@ -556,7 +608,8 @@ public class MemoireController {
                 "filiere", filiereNom
         ));
 
-        model.addAttribute("rechercheEffectuee", true);
+        model.addAttribute("filtrageEffectue", true);
+        model.addAttribute("rechercheEffectuee", false);
 
         return "master";
     }
@@ -680,6 +733,37 @@ public class MemoireController {
         return "dashboard";
     }
 
+
+    /**
+     * Affiche la page de modification avec ou sans recherche.
+     */
+
+    @GetMapping("/modif")
+    public String modif(Model model, Principal principal) {
+         // Gestion de l'utilisateur connecté
+        if (principal != null) {
+            Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
+            if (utilisateur != null) {
+                model.addAttribute("nom", utilisateur.getNom());
+                model.addAttribute("prenom", utilisateur.getPrenom());
+
+                String roles = utilisateur.getRoles().stream()
+                        .map(Role::getRole)
+                        .reduce((role1, role2) -> role1 + ", " + role2)
+                        .orElse("Aucun rôle");
+                model.addAttribute("roles", roles);
+            }
+            model.addAttribute("memoire", new Memoire()); // Mémoire vide pour le formulaire
+            model.addAttribute("etudiants", etudiantService.findAll());
+            model.addAttribute("encadrants", encadrantService.findAll());
+            model.addAttribute("filieres", filiereService.findAll());
+
+            model.addAttribute("currentUser", principal.getName());
+        }
+
+        return "modif" +
+                "";
+    }
 
 }
 

@@ -73,7 +73,7 @@
             <li class="nav-item">
                 <a class="nav-link text-dark" href="/ajoutMemoire">
                     <i class="material-symbols-rounded opacity-5">receipt_long</i>
-                    <span class="nav-link-text ms-1">Ajout mémoires</span>
+                    <span class="nav-link-text ms-1">Ajout Mémoires et Thèses</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -176,35 +176,40 @@
         </div>
     </form>
 
-    <!-- Résultats de recherche (s'affichent uniquement si la recherche est effectuée) -->
-    <div th:if="${rechercheEffectuee}">
-        <h4> <span th:text="${nombreThesesTrouvees}"></span> thèse(s) trouvée(s)</h4>
+        <!-- Résultats de recherche -->
+        <div th:if="${rechercheEffectuee}">
+            <h4>
+                <span th:text="${nombreThesesTrouvees}"></span> thèse(s) trouvée(s)
+            </h4>
 
-        <table class="table-bordered table-striped" id="table_ListeNormale">
-            <thead class="table-dark">
-            <tr>
-                <th>Numéro</th>
-                <th>Titre</th>
-                <th>Étudiant</th>
-                <th>Encadrant</th>
-                <th>Exemplaires</th>
-                <th>Année</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="these, stat : ${thesesListe}">
-                <td th:text="${stat.index + 1}">1</td>
-                <td th:text="${these.titre}"></td>
-                <td th:text="${these.etudiant != null ? these.etudiant.nom : 'Non spécifié'}"></td>
-                <td th:text="${these.encadrant != null ? these.encadrant.nom : 'Non spécifié'}"></td>
-                <td th:text="${these.annee}"></td>
-                <td th:text="${these.exemplaires}"></td>
+            <table class="table-bordered table-striped" id="table_ListeNormale">
+                <thead class="table-dark">
+                <tr>
+                    <th>Numéro</th>
+                    <th>Titre</th>
+                    <th>Étudiant</th>
+                    <th>Encadrant</th>
+                    <th>Année</th>
+                    <th>Exemplaires</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:if="${theses != null}"
+                    th:each="these, stat : ${theses.content}">
+
+                    <td th:text="${stat.index + 1}"></td>
+                    <td th:text="${these.titre}"></td>
+                    <td th:text="${these.etudiant != null ? these.etudiant.nom : 'Non spécifié'}"></td>
+                    <td th:text="${these.encadrant != null ? these.encadrant.nom : 'Non spécifié'}"></td>
+                    <td th:text="${these.annee}"></td>
+                    <td th:text="${these.exemplaires}"></td>
                 <td>
                     <div class="action-container" style="position: relative; display: inline-block;">
                         <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;" onclick="toggleDropdown(this, event)"></i>
                         <div class="dropdown-content" style="display: none; position: absolute; background: white; box-shadow: 0 0 5px rgba(0,0,0,0.2); z-index: 1000;">
-                        <a th:href="@{/theses/modifier/{id}(id=${these.id})}" onclick="editMemoire(${these.id})">
+                        <a th:href="@{/modification/{id}(id=${these.id})}" onclick="editMemoire(${these.id})">
                                 Modifier
                             </a>
                             <a href="#" data-bs-toggle="modal" th:data-bs-target="'#form_Supprimer_ListeNormaleThese_' + ${these.id}">
@@ -248,7 +253,6 @@
         <div class="text-center mt-3">
             <a th:href="@{/memoires/doctorats}" class="btn btn-secondary">Voir tous les mémoires</a>
         </div>
-        <!-- PAGINATION -->
     </div>
 
         <style>
@@ -296,13 +300,18 @@
             }
         </style>
 
-        <div th:if="${errorMessage}" class="alert alert-danger alert-auto-close" role="alert">
+        <div th:if="${errorMessage}"
+             class="alert alert-danger alert-auto-close"
+             role="alert">
             <p th:text="${errorMessage}" style="margin: 0;"></p>
         </div>
 
-        <div th:if="${successMessage}" class="alert alert-success alert-auto-close" role="alert">
-            <p th:text="${successMessage}" style="margin: 0;"></p>
+        <div th:if="${successMessage}"
+             class="alert alert-success alert-auto-close"
+             role="alert">
+            <p th:utext="${successMessage}" style="margin: 0;"></p>
         </div>
+
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {
@@ -317,7 +326,6 @@
                 });
             });
         </script>
-
 
         <div class="card p-4 shadow">
         <h4 class="text-center mb-4">Filtrer les Mémoires de Thèses</h4>
@@ -387,7 +395,7 @@
                                 <div class="action-container" style="position: relative; display: inline-block;">
                                     <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;" onclick="toggleDropdown(this, event)"></i>
                                     <div class="dropdown-content" style="display: none; position: absolute; background: white; box-shadow: 0 0 5px rgba(0,0,0,0.2); z-index: 1000;">
-                                        <a th:href="@{/theses/modifier/{id}(id=${these.id})}">Modifier</a>
+                                        <a th:href="@{/modification/{id}(id=${these.id})}">Modifier</a>
                                         <a href="#" data-bs-toggle="modal" th:data-bs-target="'#form_Supprimer_ListeNormaleThese_' + ${these.id}">Supprimer</a>
                                     </div>
                                 </div>
@@ -433,9 +441,11 @@
         <!-- Liste de toutes les thèses (affichée uniquement si la recherche n'a PAS été effectuée) -->
         <div th:if="${thesesParUFRAndEcole == null or #maps.isEmpty(thesesParUFRAndEcole)}">
 
-            <table class="table-striped table-bordered " id="table_ListeNormale">
-                <thead class="table-dark">
-                <tr>
+            <!-- Liste par défaut -->
+            <div th:if="${!rechercheEffectuee}">
+                <table class="table-bordered table-striped" id="table_ListeNormale">
+                    <thead class="table-dark" >
+                    <tr>
                     <th>Numéro</th>
                     <th>Titre</th>
                     <th>Étudiant</th>
@@ -447,19 +457,22 @@
                 </thead>
                 <!-- Tableau -->
                 <tbody>
-                <tr th:each="these, iterStat : ${theses}">
+                <tr th:each="these, iterStat : ${theses.content}"
+                    th:attr="data-id=${these.id}"
+                    th:classappend="${updatedTheseId != null and updatedTheseId == these.id}
+                    ? 'ligne-modifiee' : ''">
+
                     <td th:text="${theses.number * theses.size + iterStat.index + 1}"></td>
                     <td th:text="${these.titre}"></td>
                     <td th:text="${these.etudiant != null ? these.etudiant.nom : 'Non spécifié'}"></td>
                     <td th:text="${these.encadrant != null ? these.encadrant.nom : 'Non spécifié'}"></td>
                     <td th:text="${these.annee}"></td>
-                    <td th:text="${these.exemplaires}"></td>
-                    <td>
+                    <td th:text="${these.exemplaires}"></td>        <td>
                         <div class="action-container" style="position: relative; display: inline-block;">
                             <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;"
                                onclick="toggleDropdown(this, event)"></i>
                             <div class="dropdown-content" style="display: none; position: absolute; background: white; box-shadow: 0 0 5px rgba(0,0,0,0.2); z-index: 1000; border-radius: 4px; min-width: 150px;">
-                                <a th:href="@{/theses/modifier/{id}(id=${these.id})}"
+                                <a th:href="@{/modification/{id}(id=${these.id})}"
                                    style="display: block; padding: 10px 15px; text-decoration: none; color: #333;">
                                     Modifier
                                 </a>
@@ -470,6 +483,13 @@
                                 </a>
                             </div>
                         </div>
+                    <style>
+                        /* Ligne modifiée */
+                        .ligne-modifiee {
+                            background-color: rgba(25, 135, 84, 0.18); /* vert clair Bootstrap */
+                            transition: background-color 1s ease;
+                        }
+                    </style>
 
                         <script>
                             function toggleDropdown(icon, event) {
@@ -491,6 +511,14 @@
                             document.addEventListener('click', function () {
                                 document.querySelectorAll('.dropdown-content').forEach(el => el.style.display = 'none');
                             });
+                              document.addEventListener("DOMContentLoaded", function () {
+                                    const ligne = document.querySelector(".ligne-modifiee");
+                                    if (ligne) {
+                                        setTimeout(() => {
+                                            ligne.style.backgroundColor = "transparent";
+                                        }, 10000); // 10 secondes
+                                    }
+                                });
                         </script>
 
 
@@ -527,6 +555,39 @@
                     </div>
                 </div>
             </table>
+                <br>
+                <nav th:if="${theses.totalPages > 1}">
+                <ul class="pagination justify-content-center">
+
+                    <!-- Bouton Précédent -->
+                    <li class="page-item" th:classappend="${theses.first} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/memoires/doctorats(page=${theses.number - 1}, size=${theses.size})}">
+                            Précédent
+                        </a>
+                    </li>
+
+                    <!-- Numéros de pages -->
+                    <li class="page-item"
+                        th:each="i : ${#numbers.sequence(0, theses.totalPages - 1)}"
+                        th:classappend="${i == theses.number} ? 'active'">
+                        <a class="page-link"
+                           th:text="${i + 1}"
+                           th:href="@{/memoires/doctorats(page=${i}, size=${theses.size})}">
+                        </a>
+                    </li>
+
+                    <!-- Bouton Suivant -->
+                    <li class="page-item" th:classappend="${theses.last} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/memoires/doctorats(page=${theses.number + 1}, size=${theses.size})}">
+                            Suivant
+                        </a>
+                    </li>
+
+                </ul>
+            </nav>
+            </div>
         </div>
       </div>
 </div>

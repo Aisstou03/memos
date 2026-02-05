@@ -62,7 +62,7 @@
             <li class="nav-item">
                 <a class="nav-link text-dark" href="/ajoutMemoire">
                     <i class="material-symbols-rounded opacity-5">receipt_long</i>
-                    <span class="nav-link-text ms-1">Ajout mémoires</span>
+                    <span class="nav-link-text ms-1">Ajout Mémoires et Thèses</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -201,7 +201,7 @@
                         <div class="action-container" style="position: relative; display: inline-block;">
                             <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;" onclick="toggleDropdown(this, event)"></i>
                             <div class="dropdown-content" style="display: none; position: absolute; background: white; box-shadow: 0 0 5px rgba(0,0,0,0.2); z-index: 1000;">
-                            <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
+                            <a th:href="@{/modif/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
                                     Modifier
                                 </a>
                                 <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
@@ -231,6 +231,7 @@
                                 <form th:action="@{/memoires/supprimer}" method="post">
                                     <div class="modal-body">
                                         <input type="hidden" name="id" th:value="${memoire.id}" />
+                                        <input type="hidden" name="type" value="LICENCE" />
                                         <p>Voulez-vous vraiment supprimer ce mémoire ?</p>
                                     </div>
                                     <div class="modal-footer">
@@ -377,7 +378,7 @@
                                     <div class="action-container" style="position: relative; display: inline-block;">
                                         <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;" onclick="toggleDropdown(this, event)"></i>
                                         <div class="dropdown-content" style="display: none; position: absolute; background: white; box-shadow: 0 0 5px rgba(0,0,0,0.2); z-index: 1000;">
-                                        <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
+                                        <a th:href="@{/modif/{id}(id=${memoire.id})}" onclick="editMemoire(${memoire.id})">
                                                 Modifier
                                             </a>
                                             <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
@@ -407,6 +408,7 @@
                                         <form th:action="@{/memoires/supprimer}" method="post">
                                             <div class="modal-body">
                                                 <input type="hidden" name="id" th:value="${memoire.id}" />
+                                                <input type="hidden" name="type" value="LICENCE" />
                                                 <p>Voulez-vous vraiment supprimer ce mémoire ?</p>
                                             </div>
                                             <div class="modal-footer">
@@ -417,10 +419,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <!-- Lien pour revenir à la liste complète des mémoires -->
-                        <div class="text-center mt-3">
-                            <a th:href="@{/licence}" class="btn btn-secondary">Voir tous les mémoires</a>
                         </div>
 
                         <div th:if="${totalPages > 1}" class="text-center mt-4">
@@ -463,9 +461,22 @@
                                 </ul>
                             </nav>
                         </div>
-
+                        <!-- Lien pour revenir à la liste complète des mémoires -->
+                        <div class="text-center mt-3">
+                            <a th:href="@{/licence}" class="btn btn-secondary">Voir tous les mémoires</a>
+                        </div>
                     </div>
                 </div>
+            </div>
+
+            <div th:if="${successMessage}"
+                 class="alert alert-success alert-auto-close"
+                 th:utext="${successMessage}">
+            </div>
+
+            <div th:if="${errorMessage}"
+                 class="alert alert-danger alert-auto-close"
+                 th:text="${errorMessage}">
             </div>
 
             <br/>
@@ -484,7 +495,10 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="memoire, iterStat : ${memoires}">
+                    <tr th:each="memoire, iterStat : ${memoires}"
+                        th:attr="data-id=${memoire.id}"
+                        th:classappend="${updatedMemoireId != null and updatedMemoireId == memoire.id}
+                    ? 'ligne-modifiee' : ''">
                         <td th:text="${pageMemoires.number * pageMemoires.size + iterStat.index + 1}"></td>
                         <td th:text="${memoire.titre}"></td>
                         <td th:text="${memoire.etudiant.nom}"></td>
@@ -495,11 +509,21 @@
                             <div class="action-container" style="position: relative; display: inline-block;">
                                 <i class="fas fa-ellipsis-v menu-icon" style="cursor: pointer;" onclick="toggleDropdown(this, event)"></i>
                                 <div class="dropdown-content" style="display: none; position: absolute; background: white; box-shadow: 0 0 5px rgba(0,0,0,0.2); z-index: 1000;">
-                                <a th:href="@{/memoires/modifier/{id}(id=${memoire.id})}">Modifier</a>
+                                <a th:href="@{/modif/{id}(id=${memoire.id})}">Modifier</a>
                                     <a href="#" data-bs-toggle="modal" th:attr="data-bs-target='#form_Supprimer_ListeNormaleMemoire_' + ${memoire.id}">
                                         Supprimer
                                     </a>
                                 </div>
+                                <style>
+                                    .ligne-modifiee {
+                                        background-color: rgba(25, 135, 84, 0.18);
+                                        transition: background-color 1.5s ease;
+                                    }
+                                  .fade-out {
+                                    opacity: 0;
+                                    transition: opacity 25s ease;
+                                    }
+                                </style>
                                 <script>
                                       function toggleDropdown(icon) {
                                         // Fermer tous les autres dropdowns d'abord
@@ -519,7 +543,30 @@
                                       document.addEventListener('click', function () {
                                         document.querySelectorAll('.dropdown-content').forEach(el => el.style.display = 'none');
                                       });
-                                    </script>
+                                     document.addEventListener("DOMContentLoaded", function () {
+                                        const ligne = document.querySelector(".ligne-modifiee");
+                                        if (ligne) {
+                                            ligne.scrollIntoView({ behavior: "smooth", block: "center" });
+
+                                            setTimeout(() => {
+                                                ligne.style.backgroundColor = "transparent";
+                                            }, 10000); // 10 secondes
+                                        }
+                                    });
+                                   document.addEventListener('DOMContentLoaded', function () {
+                                        const alerts = document.querySelectorAll('.alert-auto-close');
+
+                                        alerts.forEach(alert => {
+                                            setTimeout(function () {
+                                                alert.classList.add('fade-out');
+
+                                                setTimeout(function () {
+                                                    alert.remove();
+                                                }, 300); // durée de l’animation
+                                            }, 3000); // 3 secondes
+                                        });
+                                     });
+                                </script>
                             </div>
                             <a th:href="@{/memoires/genererAttestationLicence/{id}(id=${memoire.id})}"
                                style="margin-left: 17px; color: black; text-decoration: none;">
@@ -544,6 +591,7 @@
                                     <form th:action="@{/memoires/supprimer}" method="post">
                                         <div class="modal-body">
                                             <input type="hidden" name="id" th:value="${memoire.id}" />
+                                            <input type="hidden" name="type" value="LICENCE" />
                                             <p>Voulez-vous vraiment supprimer ce mémoire ?</p>
                                         </div>
                                         <div class="modal-footer">
@@ -559,12 +607,14 @@
             </div>
             <div th:if="${pageMemoires.totalPages > 1}" class="mt-4 d-flex justify-content-center">
                 <nav aria-label="Pagination">
-                    <ul class="pagination bg-light p-3 rounded shadow-sm">
+                    <ul class="pagination justify-content-center">
 
                         <!-- Précédent -->
                         <li class="page-item" th:classappend="${pageMemoires.first} ? 'disabled'">
                             <a class="page-link"
-                               th:href="@{/licence(page=${pageMemoires.number - 1}, size=${pageMemoires.size})}">Précédent</a>
+                               th:href="@{/licence(page=${pageMemoires.number - 1}, size=${pageMemoires.size})}">
+                                Précédent
+                            </a>
                         </li>
 
                         <!-- Pages -->
@@ -573,14 +623,18 @@
                             th:classappend="${i == pageMemoires.number} ? 'active'">
                             <a class="page-link"
                                th:href="@{/licence(page=${i}, size=${pageMemoires.size})}"
-                               th:text="${i + 1}">1</a>
+                               th:text="${i + 1}">
+                            </a>
                         </li>
 
                         <!-- Suivant -->
                         <li class="page-item" th:classappend="${pageMemoires.last} ? 'disabled'">
                             <a class="page-link"
-                               th:href="@{/licence(page=${pageMemoires.number + 1}, size=${pageMemoires.size})}">Suivant</a>
+                               th:href="@{/licence(page=${pageMemoires.number + 1}, size=${pageMemoires.size})}">
+                                Suivant;
+                            </a>
                         </li>
+
                     </ul>
                 </nav>
             </div>
@@ -671,8 +725,7 @@
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Popper.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
-<!-- Script pour initialiser DataTable -->
+ <!-- Script pour initialiser DataTable -->
     <script>
         $(document).ready(function() {
             $('#table_ListeNormale').DataTable();

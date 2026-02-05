@@ -127,7 +127,25 @@
         color: white !important;
         border: 1px solid white;
     }
-</style>
+      .empty-message {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        background-color: #f8f9fb;   /* gris très clair */
+        color: #495057;              /* gris pro */
+        border: 1px dashed #d6d8db;  /* bordure discrète */
+        border-radius: 6px;
+
+        padding: 8px 12px;
+        font-size: 0.85rem;          /* taille réduite */
+        font-weight: 500;
+
+        margin: 10px 0;
+        color: #adb5bd;
+        font-size: 0.9rem;
+      }
+  </style>
 </head>
 
 <body class="g-sidenav-show  bg-gray-100">
@@ -252,29 +270,72 @@
   <h3 class="text-center">📂 Corbeille des Mémoires et Thèses</h3>
 
   <!-- Message de succès -->
-  <div th:if="${successMessage}" class="alert alert-success text-center">
-    <strong th:text="${successMessage}"></strong>
-  </div>
+      <!-- Message de succès -->
+      <div th:if="${successMessage}"
+           class="alert alert-success text-center alert-auto-close">
+          <strong th:text="${successMessage}"></strong>
+      </div>
+      <script>
+          document.addEventListener('DOMContentLoaded', function () {
+              const alerts = document.querySelectorAll('.alert-auto-close');
 
-    <!-- Onglets Bootstrap -->
-    <ul class="nav nav-tabs" id="memoireTabs" role="tablist">
-      <li class="nav-item">
-        <a class="nav-link active" id="licence-tab" data-bs-toggle="tab" data-bs-target="#licence" role="tab">Mémoires de Licence</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" id="master-tab" data-bs-toggle="tab" data-bs-target="#master" role="tab">Mémoires de Master</a>
-      </li>
-      <!-- Onglet pour Thèses -->
-      <li class="nav-item">
-        <a class="nav-link" id="these-tab" data-bs-toggle="tab" data-bs-target="#these" role="tab" aria-controls="these">Thèses</a>
-      </li>
-    </ul>
+              alerts.forEach(alert => {
+                  setTimeout(() => {
+                      alert.style.transition = 'opacity 0.5s';
+                      alert.style.opacity = '0';
 
-    <br>
+                      setTimeout(() => {
+                          alert.remove();
+                      }, 500);
+                  }, 3000); // 3 secondes
+              });
+          });
+      </script>
+
+
+      <!-- Onglets Bootstrap -->
+      <ul class="nav nav-tabs" id="memoireTabs" role="tablist">
+          <li class="nav-item">
+              <a class="nav-link"
+                 th:classappend="${tab == null || tab == 'licence'} ? 'active'"
+                 id="licence-tab"
+                 href="#licence"
+                 data-bs-toggle="tab">
+                  Mémoires de Licence
+              </a>
+          </li>
+
+          <li class="nav-item">
+              <a class="nav-link"
+                 th:classappend="${tab == 'master'} ? 'active'"
+                 id="master-tab"
+                 href="#master"
+                 data-bs-toggle="tab">
+                  Mémoires de Master
+              </a>
+
+          </li>
+
+          <li class="nav-item">
+              <a class="nav-link"
+                 th:classappend="${tab == 'these'} ? 'active'"
+                 id="these-tab"
+                 href="#these"
+                 data-bs-toggle="tab">
+                  Thèses
+              </a>
+
+          </li>
+      </ul>
+      <br>
     <div class="tab-content">
       <!-- Tab Licence -->
       <div class="tab-pane fade show active" id="licence" role="tabpanel">
-        <div th:if="${#lists.isEmpty(memoiresLicence)}" class="alert alert-warning">Aucun mémoire de Licence dans la corbeille.</div>
+          <div th:if="${#lists.isEmpty(memoiresLicence)}"
+               class="empty-message">
+              <i class="bi bi-folder-x"></i>
+              Aucune mémoire de Licence dans la corbeille. Cliquez <a href="/licence" class="btn-rechercher">ici</a> pour aller vers la liste de Memoire de licence.
+          </div>
         <table  class="table-bordered table-striped" th:if="${not #lists.isEmpty(memoiresLicence)}">
           <thead class="table-dark">
           <tr>
@@ -297,6 +358,7 @@
               <div class="d-flex justify-content-center gap-1">
                 <form th:action="@{/memoires/restaurer}" method="post">
                   <input type="hidden" name="id" th:value="${memoire.id}" />
+                    <input type="hidden" name="type" value="licence" />
                   <button type="submit" class="btn btn-success">♻ Restaurer</button>
                 </form>
                 <button type="button" class="btn btn-danger"
@@ -366,7 +428,11 @@
 
       <!-- Tab Master -->
       <div class="tab-pane fade" id="master" role="tabpanel">
-        <div th:if="${#lists.isEmpty(memoiresMaster)}" class="alert alert-warning">Aucun mémoire de Master dans la corbeille.</div>
+          <div th:if="${#lists.isEmpty(memoiresMaster)}"
+               class="empty-message">
+              <i class="bi bi-folder-x"></i>
+              Aucune mémoire de Master dans la corbeille. Cliquez <a href="/master" class="btn-rechercher">ici</a> pour aller vers la liste de Memoire de master.
+          </div>
         <table class="table-bordered table-striped mt-2" th:if="${not #lists.isEmpty(memoiresMaster)}">
           <thead class="table-dark">
           <tr>
@@ -389,6 +455,7 @@
               <div class="d-flex justify-content-center gap-1">
                 <form th:action="@{/memoires/restaurer}" method="post">
                   <input type="hidden" name="id" th:value="${memoire.id}" />
+                    <input type="hidden" name="type" value="master" />
                   <button type="submit" class="btn btn-success">♻ Restaurer</button>
                 </form>
                 <button type="button" class="btn btn-danger"
@@ -474,10 +541,12 @@
 
       <!-- Contenu de l'onglet Thèses -->
       <div class="tab-pane fade" id="these" role="tabpanel">
-        <div th:if="${#lists.isEmpty(thesesDansCorbeille)}" class="alert alert-warning">
-          Aucune thèse dans la corbeille.
-        </div>
-        <table class="table-bordered table-striped mt-2" th:if="${not #lists.isEmpty(thesesDansCorbeille)}">
+          <div th:if="${#lists.isEmpty(thesesDansCorbeille)}"
+               class="empty-message">
+              <i class="bi bi-mortarboard"></i>
+              Aucune thèse dans la corbeille. Cliquez <a href="/memoires/doctorats" class="btn-rechercher">ici</a> pour aller vers la liste de Thèses.
+          </div>
+          <table class="table-bordered table-striped mt-2" th:if="${not #lists.isEmpty(thesesDansCorbeille)}">
           <thead class="table-dark">
           <tr>
             <th>Numero</th>
@@ -493,12 +562,13 @@
               <td th:text="${(pagesThese.number * pagesThese.size) + iterStat.index + 1}"></td>
               <td th:text="${these.titre}"></td>
               <td th:text="${these.etudiant.nom}"></td>
-              <td></td>
+              <td th:text="${these.encadrant.nom}"></td>
               <td th:text="${these.ecoleDoctorat.ufr.nom}"></td>
               <td>
                 <div class="d-flex justify-content-center gap-1">
                   <form th:action="@{/theses/restaurer}" method="post">
                     <input type="hidden" name="theseId" th:value="${these.id}" />
+                      <input type="hidden" name="type" value="these" />
                     <button type="submit" class="btn btn-success">♻ Restaurer</button>
                   </form>
                   <button type="button" class="btn btn-danger" data-bs-toggle="modal" th:data-bs-target="'#form_Supprimer_These_' + ${these.id}">
@@ -573,12 +643,9 @@
                   Suivant
                 </a>
               </li>
-
-
             </ul>
           </nav>
         </div>
-
       </div>
       <style>
             .custom-active .page-link {
@@ -596,7 +663,8 @@
 
     </div>
 
-    <a href="/memoires/liste" class="btn btn-primary">Retour au tableau de bord</a>
+      <br>
+      <a href="/memoires/liste" class="btn btn-primary">Retour au tableau de bord</a>
   </div>
 
 </main>
@@ -615,6 +683,20 @@
       Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
     }
   </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const params = new URLSearchParams(window.location.search);
+        const tab = params.get('tab');
+
+        if (tab) {
+            const triggerEl = document.querySelector(`#${tab}-tab`);
+            if (triggerEl) {
+                new bootstrap.Tab(triggerEl).show();
+            }
+        }
+    });
+</script>
+
 <!-- Github buttons -->
 <script async defer src="https://buttons.github.io/buttons.js"></script>
 <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->

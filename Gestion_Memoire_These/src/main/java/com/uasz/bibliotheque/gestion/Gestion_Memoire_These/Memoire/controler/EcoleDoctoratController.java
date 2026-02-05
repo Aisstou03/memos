@@ -158,32 +158,36 @@ public class EcoleDoctoratController {
 
     //liste
     @GetMapping("/memoires/doctorats")
-    public String afficherToutesLesTheses(Model model, Principal principal,
-                                            @RequestParam(defaultValue = "0") int page,
-                                            @RequestParam(defaultValue = "10") int size) {
+    public String afficherToutesLesTheses(Model model,
+                                          Principal principal,
+                                          @RequestParam(defaultValue = "0") int page,
+                                          @RequestParam(defaultValue = "10") int size) {
+
         Pageable pageable = PageRequest.of(page, size);
-        // Récupérer toutes les mémoires de type These
+
+        // Récupérer toutes les thèses (Page)
         Page<These> theses = theseService.getAllThese(pageable);
+
         model.addAttribute("theses", theses);
-        model.addAttribute("rechercheEffectuee", false); // Ajouté pour bien différencier les cas
+        model.addAttribute("rechercheEffectuee", false);
 
         // Gestion de l'utilisateur connecté
         if (principal != null) {
             Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
             if (utilisateur != null) {
-                // Ajouter les informations de l'utilisateur au modèle
                 model.addAttribute("nom", utilisateur.getNom());
                 model.addAttribute("prenom", utilisateur.getPrenom());
 
-                // Extraire les rôles et les ajouter
                 String roles = utilisateur.getRoles().stream()
                         .map(Role::getRole)
-                        .reduce((role1, role2) -> role1 + ", " + role2)
+                        .reduce((r1, r2) -> r1 + ", " + r2)
                         .orElse("Aucun rôle");
+
                 model.addAttribute("roles", roles);
             }
+
+            model.addAttribute("currentUser", principal.getName());
         }
-        model.addAttribute("currentUser", principal.getName()); // Ajouter l'utilisateur actuel
 
         return "doctorat";
     }
@@ -265,8 +269,6 @@ public class EcoleDoctoratController {
         }
     }
 
-
-
     /**
      * Affiche la page de modification avec ou sans recherche.
      */    @GetMapping("/modifier/theses")
@@ -275,12 +277,12 @@ public class EcoleDoctoratController {
         model.addAttribute("etudiants", etudiantService.findAll());
         model.addAttribute("encadrants", encadrantService.findAll());
         model.addAttribute("ufrs", ufrService.findAllUfrs());
-        return "modifierThese"; // Retourne la page HTML
+        return "modificationThese"; // Retourne la page HTML
     }
 
-    // Méthode pour afficher la page de modification de la thèse choisi
-    @GetMapping("/theses/modifier/{id}")
-    public String editThesis(@PathVariable("id") Long thesisId, Model model) {
+
+    @GetMapping("/modification/{id}")
+    public String modification( @PathVariable("id") Long thesisId,Model model, Principal principal) {
         These these = theseService.getThesisById(thesisId);
 
         if (these == null) {
@@ -307,44 +309,80 @@ public class EcoleDoctoratController {
         model.addAttribute("encadrants", encadrants);
         model.addAttribute("ufrs", ufrs);
 
-        return "modifierThese";
+        // Gestion de l'utilisateur connecté
+        if (principal != null) {
+            Utilisateur utilisateur = memoireService.recherche_Utilisateur(principal.getName());
+            if (utilisateur != null) {
+                model.addAttribute("nom", utilisateur.getNom());
+                model.addAttribute("prenom", utilisateur.getPrenom());
+
+                String roles = utilisateur.getRoles().stream()
+                        .map(Role::getRole)
+                        .reduce((role1, role2) -> role1 + ", " + role2)
+                        .orElse("Aucun rôle");
+                model.addAttribute("roles", roles);
+            }
+            model.addAttribute("currentUser", principal.getName());
+        }
+
+        return "modificationThese";
     }
 
     @PostMapping("/theses/modifier/{id}")
-    public String modifierThese(@PathVariable("id") Long id, @ModelAttribute These these, RedirectAttributes redirectAttributes) {
+    public String modifierThese(@PathVariable("id") Long id,
+                                @ModelAttribute These these,
+                                RedirectAttributes redirectAttributes) {
         try {
-            // Appel au service pour mettre à jour la thèse
             These updatedThesis = theseService.updateThesis(id, these);
 
-            // Ajout du message de succès et redirection vers la liste des mémoires
-            redirectAttributes.addFlashAttribute("successMessage", "Thèse mise à jour avec succès !");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Thèse mise à jour avec succès !");
+
+            // 🔑 ID de la thèse modifiée
+            redirectAttributes.addFlashAttribute("updatedTheseId", updatedThesis.getId());
+
             return "redirect:/memoires/doctorats";
+
         } catch (IllegalArgumentException e) {
-            // Gestion des erreurs spécifiques (par exemple, étudiant ou encadrant introuvable)
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/theses/modifier/" + id;
+            return "redirect:/modification/" + id;
         } catch (Exception e) {
-            // Gestion des erreurs générales (par exemple, erreurs système)
-            redirectAttributes.addFlashAttribute("errorMessage", "Une erreur est survenue lors de la mise à jour.");
-            return "redirect:/theses/modifier/" + id;
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Une erreur est survenue lors de la mise à jour.");
+            return "redirect:/modification/" + id;
         }
     }
+
 
     // Méthode pour supprimer une thèse
     @PostMapping("/theses/supprimer")
-    public String supprimerThese(@RequestParam Long id, RedirectAttributes redirectAttributes) {
+    public String supprimerThese(@RequestParam Long id,
+                                 RedirectAttributes redirectAttributes) {
+
         These these = theseRepository.findById(id).orElse(null);
+
         if (these != null) {
-            // Marquer la thèse comme supprimée (déplacée dans la corbeille)
+            // Marquer la thèse comme supprimée (corbeille)
             these.setCorbeille(true);
             these.setEstSupprime(true);
-            theseRepository.save(these);  // Sauvegarder l'état modifié de la thèse
-            redirectAttributes.addFlashAttribute("successMessage", "Thèse déplacée dans la corbeille !");
+            theseRepository.save(these);
+
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "Thèse déplacée dans la corbeille ! " +
+                            "<a href='/memoires/corbeille?tab=these' class='alert-link'>Voir la corbeille</a>"
+            );
         } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "Thèse introuvable !");
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    "Thèse introuvable !"
+            );
         }
-        return "redirect:/memoires/doctorats"; //  la redirection
+
+        // Redirection vers la liste des doctorats avec l’onglet thèse actif
+        return "redirect:/memoires/doctorats?tab=these";
     }
+
 
 
     @PostMapping("/theses/restaurer")
